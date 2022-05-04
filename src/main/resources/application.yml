@@ -1,0 +1,20 @@
+server:
+  compression:
+    enabled: true
+  port: 8082
+
+spring:
+  application:
+    name: decovid-19-core
+
+management:
+  endpoint.health.show-details: always
+
+logging:
+  file.name: 'logs/${spring.application.name}.log'
+  logback:
+    rollingpolicy:
+      file-name-pattern: 'logs/${spring.application.name}-%d{yyyy-MM-dd}.%i.log'
+      max-file-size: 20MB
+      max-history: 100
+      clean-history-on-start: true

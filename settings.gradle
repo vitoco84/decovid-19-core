@@ -1,0 +1,2 @@
+rootProject.name = 'decovid-19-core'
+enableFeaturePreview('VERSION_CATALOGS')
