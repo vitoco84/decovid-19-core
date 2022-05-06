@@ -1,4 +1,4 @@
-name: GitHub Actions CI decovid-19-core
+name: CI decovid-19-core
 
 on:
   push:
