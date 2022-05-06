@@ -1,0 +1,19 @@
+name: Snyk Dependencies Vulnerabilities decovid-19-core
+
+on:
+  pull_request:
+    branches: [ '**' ]
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Grant Permissions to gradlew
+        run: chmod +x gradlew
+
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/gradle-jdk11@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
