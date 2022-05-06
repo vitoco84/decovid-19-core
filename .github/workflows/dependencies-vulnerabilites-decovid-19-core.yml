@@ -6,9 +6,12 @@ on:
 
 jobs:
   security:
+    name: Security
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
+        with:
+          fetch-depth: 0
 
       - name: Grant Permissions to gradlew
         run: chmod +x gradlew
