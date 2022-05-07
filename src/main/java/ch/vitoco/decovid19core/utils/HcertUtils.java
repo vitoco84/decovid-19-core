@@ -10,7 +10,6 @@ import com.google.iot.cbor.CborParseException;
 import com.google.zxing.*;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
-import com.upokecenter.cbor.CBORObject;
 import nl.minvws.encoding.Base45;
 
 import javax.imageio.ImageIO;
@@ -26,6 +25,10 @@ import static ch.vitoco.decovid19core.utils.ExceptionMessages.*;
 public class HcertUtils {
 
   private static final int BUFFER_SIZE = 1024;
+  private static final String HCERT_CLAIM_KEY = "-260";
+  private static final int INDEX_UNTIL_START_OF_JSON_PAYLOAD = 8;
+  private static final int INDEX_UNTIL_START_OF_HC1_PREFIX = 4;
+  private static final int START_OFFSET_BYTES_WRITER = 0;
 
   private HcertUtils() {
     throw new IllegalStateException(UTILITY_CLASS_EXCEPTION_MESSAGE);
@@ -49,7 +52,7 @@ public class HcertUtils {
   }
 
   private static String removeHealthCertificateHC1Prefix(String hcert) {
-    return hcert.substring(4);
+    return hcert.substring(INDEX_UNTIL_START_OF_HC1_PREFIX);
   }
 
   private static ByteArrayOutputStream getCOSEMessageFromHcert(byte[] hcertBase45) {
@@ -59,7 +62,7 @@ public class HcertUtils {
       byte[] buffer = new byte[BUFFER_SIZE];
       while (!inflater.finished()) {
         final int count = inflater.inflate(buffer);
-        outputStream.write(buffer, 0, count);
+        outputStream.write(buffer, START_OFFSET_BYTES_WRITER, count);
       }
       return outputStream;
     } catch (IOException | DataFormatException e) {
@@ -85,12 +88,8 @@ public class HcertUtils {
     }
   }
 
-  // TODO getCBORMessagePayload
-  // Mapping Model for different QR-Code Types
-
-  public static CBORObject getProtectedHeaderAttributes(Message coseMessage) {
-    CBORObject protectedAttributes = coseMessage.getProtectedAttributes();
-    return protectedAttributes.get(4);
+  public static String getJsonPayloadFromCBORMessage(String cborMessage) {
+    return cborMessage.substring(cborMessage.indexOf(HCERT_CLAIM_KEY) + INDEX_UNTIL_START_OF_JSON_PAYLOAD, cborMessage.lastIndexOf("}") - 1);
   }
 
 }

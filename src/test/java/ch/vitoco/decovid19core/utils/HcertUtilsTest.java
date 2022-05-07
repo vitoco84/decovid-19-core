@@ -2,6 +2,9 @@ package ch.vitoco.decovid19core.utils;
 
 
 import COSE.Message;
+import ch.vitoco.decovid19core.domain.HcertPayloadVaccinationDTO;
+import ch.vitoco.decovid19core.domain.HcertVaccination;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -28,9 +31,7 @@ class HcertUtilsTest {
     String actualHealthCertificateContent = HcertUtils.getHealthCertificateContent(testVaccImageInputStream);
     testVaccImageInputStream.close();
 
-    JSONParser jsonParser = new JSONParser();
-    Object object = jsonParser.parse(Files.readString(SWISS_QR_CODE_VACC_CERT_JSON_PATH));
-    JSONObject jsonObject = (JSONObject) object;
+    JSONObject jsonObject = getJsonObjectFromResources(SWISS_QR_CODE_VACC_CERT_JSON_PATH);
     String expectedHealthCertificateContent = (String) jsonObject.get("PREFIX");
 
     assertTrue(actualHealthCertificateContent.startsWith("HC1:"));
@@ -38,41 +39,63 @@ class HcertUtilsTest {
   }
 
   @Test
-  void shouldReturnHealthCertificatePayload() throws IOException, ParseException {
+  void shouldReturnHealthCertificatePayloadVaccination() throws IOException, ParseException {
     InputStream testVaccImageInputStream = Files.newInputStream(SWISS_QR_CODE_VACC_CERT_IMG_PATH);
     String hcert = HcertUtils.getHealthCertificateContent(testVaccImageInputStream);
     testVaccImageInputStream.close();
     Message hcertCose = HcertUtils.getCOSEMessageFromHcert(hcert);
-    String actualHcertCbor = HcertUtils.getCBORMessage(hcertCose);
+    String hcertCbor = HcertUtils.getCBORMessage(hcertCose);
+    String cborPayload = HcertUtils.getJsonPayloadFromCBORMessage(hcertCbor);
 
-    JSONParser jsonParser = new JSONParser();
-    Object object = jsonParser.parse(Files.readString(SWISS_QR_CODE_VACC_CERT_JSON_PATH));
-    JSONObject jsonObject = (JSONObject) object;
+    JSONObject jsonObject = getJsonObjectFromResources(SWISS_QR_CODE_VACC_CERT_JSON_PATH);
     JSONObject jsonHcertPaylod = (JSONObject) jsonObject.get("JSON");
-
-    // TODO Fixing ObjectMapper
-    // ObjectMapper objectMapper = new ObjectMapper();
-    // objectMapper.readValue(actualHcertCbor, HcertPayload.class);
 
     String expectedVersion = (String) jsonHcertPaylod.get("ver");
     String expectedDateOfBirth = (String) jsonHcertPaylod.get("dob");
+
     JSONArray expectedVaccineInformations = (JSONArray) jsonHcertPaylod.get("v");
     JSONObject expectedVaccinationInformation = (JSONObject) expectedVaccineInformations.get(0);
-    String expectedIssuer = (String) expectedVaccinationInformation.get("is");
+
+    String expectedDiseaseTarget = (String) expectedVaccinationInformation.get("tg");
+    String expectedVaccineType = (String) expectedVaccinationInformation.get("vp");
+    String expectedMedicinalProduct = (String) expectedVaccinationInformation.get("mp");
+    String expectedAuthorizationHolder = (String) expectedVaccinationInformation.get("ma");
+    Long expectedSequenceNumberOfDoses = (Long) expectedVaccinationInformation.get("dn");
+    Long expectedTotalNumberOfDoses = (Long) expectedVaccinationInformation.get("sd");
+    String expectedDateOfVaccination = (String) expectedVaccinationInformation.get("dt");
     String expectedCountryOfOrigin = (String) expectedVaccinationInformation.get("co");
+    String expectedIssuer = (String) expectedVaccinationInformation.get("is");
     String expectedUniqueVaccCertificateIdentifier = (String) expectedVaccinationInformation.get("ci");
 
     JSONObject expectedName = (JSONObject) jsonHcertPaylod.get("nam");
     String expectedLastName = (String) expectedName.get("fn");
     String expectedFirstName = (String) expectedName.get("gn");
 
-    assertTrue(actualHcertCbor.contains(expectedVersion));
-    assertTrue(actualHcertCbor.contains(expectedDateOfBirth));
-    assertTrue(actualHcertCbor.contains(expectedLastName));
-    assertTrue(actualHcertCbor.contains(expectedFirstName));
-    assertTrue(actualHcertCbor.contains(expectedIssuer));
-    assertTrue(actualHcertCbor.contains(expectedCountryOfOrigin));
-    assertTrue(actualHcertCbor.contains(expectedUniqueVaccCertificateIdentifier));
+    ObjectMapper objectMapper = new ObjectMapper();
+    HcertPayloadVaccinationDTO hcertPayloadVaccinationDTO = objectMapper.readValue(cborPayload, HcertPayloadVaccinationDTO.class);
+    HcertVaccination hcertVaccination = hcertPayloadVaccinationDTO.getV().get(0);
+
+    assertEquals(expectedLastName, hcertPayloadVaccinationDTO.getNam().getFn());
+    assertEquals(expectedFirstName, hcertPayloadVaccinationDTO.getNam().getGn());
+    assertEquals(expectedVersion, hcertPayloadVaccinationDTO.getVer());
+    assertEquals(expectedDateOfBirth, hcertPayloadVaccinationDTO.getDob());
+
+    assertEquals(expectedDiseaseTarget, hcertVaccination.getTg());
+    assertEquals(expectedVaccineType, hcertVaccination.getVp());
+    assertEquals(expectedMedicinalProduct, hcertVaccination.getMp());
+    assertEquals(expectedAuthorizationHolder, hcertVaccination.getMa());
+    assertEquals(expectedSequenceNumberOfDoses, hcertVaccination.getDn());
+    assertEquals(expectedTotalNumberOfDoses, hcertVaccination.getSd());
+    assertEquals(expectedDateOfVaccination, hcertVaccination.getDt());
+    assertEquals(expectedCountryOfOrigin, hcertVaccination.getCo());
+    assertEquals(expectedIssuer, hcertVaccination.getIs());
+    assertEquals(expectedUniqueVaccCertificateIdentifier, hcertVaccination.getCi());
+  }
+
+  private JSONObject getJsonObjectFromResources(Path path) throws ParseException, IOException {
+    JSONParser jsonParser = new JSONParser();
+    Object object = jsonParser.parse(Files.readString(path));
+    return (JSONObject) object;
   }
 
 }
