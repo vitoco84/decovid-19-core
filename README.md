@@ -5,6 +5,7 @@
 ![CI decovid-19-core](https://github.com/vitoco84/decovid-19-core/actions/workflows/ci-decovid-19-core.yml/badge.svg)
 
 # Decovid-19-Core
+> WIP
 
 # Install Prerequisites
 > JDK 11
@@ -18,6 +19,12 @@
 
 # Health
 > Actuator health endpoint served under [http://localhost:8082/actuator/health](http://localhost:8082/actuator/health)
+
+# Swagger UI
+
+> API endpoints documentation served under [http://localhost:8082/v3/api-docs](http://localhost:8082/v3/api-docs)
+> 
+> Swagger documentation served under [http://localhost:8082/swagger-ui/index.html](http://localhost:8082/swagger-ui/index.html)
 
 # Gradle Version Catalog
 > [Documentation](https://docs.gradle.org/current/userguide/platforms.html)

@@ -21,6 +21,13 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation "org.springdoc:springdoc-openapi-ui:${libs.versions.openapi.get()}"
+	implementation "io.github.ehn-digital-green-development:base45:${libs.versions.base45.get()}"
+	implementation "com.google.zxing:core:${libs.versions.zxing.get()}"
+	implementation "com.google.zxing:javase:${libs.versions.zxing.get()}"
+	implementation "com.google.iot.cbor:cbor:${libs.versions.cbor.get()}"
+	implementation "com.augustcellars.cose:cose-java:${libs.versions.coseJava.get()}"
+	implementation "org.apache.clerezza.ext:org.json.simple:${libs.versions.jsonSimple.get()}"
 
 	compileOnly 'org.projectlombok:lombok'
 

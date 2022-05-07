@@ -1,1 +1,7 @@
 [versions]
+openapi = '1.6.7'
+base45 = '0.0.3'
+zxing = '3.4.1'
+cbor = '0.01.02'
+coseJava = '1.1.0'
+jsonSimple = '0.4'
