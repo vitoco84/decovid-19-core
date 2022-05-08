@@ -2,7 +2,7 @@ package ch.vitoco.decovid19core.utils;
 
 import COSE.CoseException;
 import COSE.Message;
-import ch.vitoco.decovid19core.HcertAlgo;
+import ch.vitoco.decovid19core.enums.HcertAlgo;
 import ch.vitoco.decovid19core.exception.ImageDecodeException;
 import ch.vitoco.decovid19core.exception.MessageDecodeException;
 import com.google.iot.cbor.CborMap;

@@ -1,4 +1,4 @@
-package ch.vitoco.decovid19core;
+package ch.vitoco.decovid19core.enums;
 
 public enum HcertAlgo {
   ECDSA_256(-7), RSA_PSS_256(-37);
