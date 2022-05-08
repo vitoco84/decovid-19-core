@@ -40,9 +40,10 @@ public class Decovid19Service {
       try (InputStream imageFileInputStream = imageFile.getInputStream()) {
         String hcertContent = HcertUtils.getHealthCertificateContent(imageFileInputStream);
         Message hcertCoseMessage = HcertUtils.getCOSEMessageFromHcert(hcertContent);
-        String hcertKID = HcertUtils.getKID(hcertCoseMessage);
+        String hcertAlgo = HcertUtils.getAlgo(hcertCoseMessage);
         HcertDTO hcertDTO = getHcertdDTO(hcertCoseMessage);
-        HcertServerResponse hcertResponse = buildHcertResponse(hcertContent, hcertDTO, hcertKID);
+        String hcertKID = HcertUtils.getKID(hcertCoseMessage);
+        HcertServerResponse hcertResponse = buildHcertResponse(hcertContent, hcertDTO, hcertKID, hcertAlgo);
         LOGGER.info("Health Certificate Payload: {}", hcertDTO);
         return ResponseEntity.ok().body(hcertResponse);
       } catch (IOException e) {
@@ -58,9 +59,10 @@ public class Decovid19Service {
     if (!hcertPrefix.getHcertPrefix().isBlank() && hcertPrefix.getHcertPrefix().startsWith(HCERT_HC1_PREFIX)) {
       String hcertContent = hcertPrefix.getHcertPrefix();
       Message hcertCoseMessage = HcertUtils.getCOSEMessageFromHcert(hcertContent);
-      String hcertKID = HcertUtils.getKID(hcertCoseMessage);
       HcertDTO hcertDTO = getHcertdDTO(hcertCoseMessage);
-      HcertServerResponse hcertResponse = buildHcertResponse(hcertContent, hcertDTO, hcertKID);
+      String hcertKID = HcertUtils.getKID(hcertCoseMessage);
+      String hcertAlgo = HcertUtils.getAlgo(hcertCoseMessage);
+      HcertServerResponse hcertResponse = buildHcertResponse(hcertContent, hcertDTO, hcertKID, hcertAlgo);
       LOGGER.info("Health Certificate Payload: {} ", hcertDTO);
       return ResponseEntity.ok().body(hcertResponse);
     } else {
@@ -94,11 +96,15 @@ public class Decovid19Service {
     return hcertDTO;
   }
 
-  private HcertServerResponse buildHcertResponse(String hcertContent, HcertDTO hcertDTO, String hcertKID) {
+  private HcertServerResponse buildHcertResponse(String hcertContent,
+      HcertDTO hcertDTO,
+      String hcertKID,
+      String hcertAlgo) {
     HcertServerResponse hcertResponse = new HcertServerResponse();
     hcertResponse.setHcertPrefix(hcertContent);
     hcertResponse.setHcertPayload(hcertDTO);
     hcertResponse.setHcertKID(hcertKID);
+    hcertResponse.setHcertAlgo(hcertAlgo);
     return hcertResponse;
   }
 
