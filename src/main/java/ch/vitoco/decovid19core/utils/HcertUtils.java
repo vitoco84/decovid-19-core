@@ -2,15 +2,19 @@ package ch.vitoco.decovid19core.utils;
 
 import COSE.CoseException;
 import COSE.Message;
-import ch.vitoco.decovid19core.exception.CborMessageException;
-import ch.vitoco.decovid19core.exception.CoseMessageException;
 import ch.vitoco.decovid19core.exception.ImageDecodeException;
+import ch.vitoco.decovid19core.exception.MessageDecodeException;
 import com.google.iot.cbor.CborMap;
 import com.google.iot.cbor.CborParseException;
 import com.google.zxing.*;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
 import nl.minvws.encoding.Base45;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.tomcat.util.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -20,18 +24,21 @@ import java.io.InputStream;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
-import static ch.vitoco.decovid19core.utils.ExceptionMessages.*;
+import static ch.vitoco.decovid19core.utils.Const.*;
 
 public class HcertUtils {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(HcertUtils.class);
+
   private static final int BUFFER_SIZE = 1024;
   private static final String HCERT_CLAIM_KEY = "-260";
-  private static final int INDEX_UNTIL_START_OF_JSON_PAYLOAD = 8;
-  private static final int INDEX_UNTIL_START_OF_HC1_PREFIX = 4;
+  private static final int START_INDEX_OF_HCERT_JSON_PAYLOAD = 8;
+  private static final int START_INDEX_OF_HCERT_HC1_PREFIX = 4;
+  private static final int START_INDEX_OF_HEX_STRING = 2;
   private static final int START_OFFSET_BYTES_WRITER = 0;
 
   private HcertUtils() {
-    throw new IllegalStateException(UTILITY_CLASS_EXCEPTION_MESSAGE);
+    throw new IllegalStateException(UTILITY_CLASS_EXCEPTION);
   }
 
   public static String getHealthCertificateContent(InputStream imageFileInputStream) {
@@ -42,7 +49,7 @@ public class HcertUtils {
       Result result = new MultiFormatReader().decode(bitmap);
       return result.getText();
     } catch (IOException | NotFoundException e) {
-      throw new ImageDecodeException(IMAGE_DECODE_EXCEPTION_MESSAGE, e);
+      throw new ImageDecodeException(IMAGE_DECODE_EXCEPTION, e);
     }
   }
 
@@ -52,7 +59,7 @@ public class HcertUtils {
   }
 
   private static String removeHealthCertificateHC1Prefix(String hcert) {
-    return hcert.substring(INDEX_UNTIL_START_OF_HC1_PREFIX);
+    return hcert.substring(START_INDEX_OF_HCERT_HC1_PREFIX);
   }
 
   private static ByteArrayOutputStream getCOSEMessageFromHcert(byte[] hcertBase45) {
@@ -66,7 +73,7 @@ public class HcertUtils {
       }
       return outputStream;
     } catch (IOException | DataFormatException e) {
-      throw new CoseMessageException(COSE_FORMAT_EXCEPTION_MESSAGE, e);
+      throw new MessageDecodeException(COSE_FORMAT_EXCEPTION, e);
     }
   }
 
@@ -76,7 +83,7 @@ public class HcertUtils {
     try {
       return Message.DecodeFromBytes(coseMessageFromHcert.toByteArray());
     } catch (CoseException e) {
-      throw new CoseMessageException(COSE_DECODE_EXCEPTION_MESSAGE, e);
+      throw new MessageDecodeException(MESSAGE_DECODE_EXCEPTION, e);
     }
   }
 
@@ -84,12 +91,32 @@ public class HcertUtils {
     try {
       return CborMap.createFromCborByteArray(hcertCOSEMessage.GetContent()).toString();
     } catch (CborParseException e) {
-      throw new CborMessageException(CBOR_DECODE_EXCEPTION_MESSAGE, e);
+      throw new MessageDecodeException(MESSAGE_DECODE_EXCEPTION, e);
     }
   }
 
   public static String getJsonPayloadFromCBORMessage(String cborMessage) {
-    return cborMessage.substring(cborMessage.indexOf(HCERT_CLAIM_KEY) + INDEX_UNTIL_START_OF_JSON_PAYLOAD, cborMessage.lastIndexOf("}") - 1);
+    return cborMessage.substring(cborMessage.indexOf(HCERT_CLAIM_KEY) + START_INDEX_OF_HCERT_JSON_PAYLOAD,
+        cborMessage.lastIndexOf("}") - 1);
+  }
+
+  private static String getProtectedHeader(Message coseMessage) {
+    return coseMessage.getProtectedAttributes().get(4).toString();
+  }
+
+  private static String getTrimmedKID(String kidHex) {
+    return kidHex.substring(START_INDEX_OF_HEX_STRING, kidHex.lastIndexOf("'"));
+  }
+
+  public static String getKID(Message coseMessage) {
+    try {
+      String kidHex = getProtectedHeader(coseMessage);
+      String kidHexTrimmed = getTrimmedKID(kidHex);
+      byte[] kidBytes = Hex.decodeHex(kidHexTrimmed.toCharArray());
+      return Base64.encodeBase64String(kidBytes);
+    } catch (DecoderException e) {
+      throw new MessageDecodeException(MESSAGE_DECODE_EXCEPTION, e);
+    }
   }
 
 }

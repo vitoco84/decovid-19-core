@@ -1,9 +1,9 @@
-package ch.vitoco.decovid19core.domain;
+package ch.vitoco.decovid19core.model;
 
 import lombok.Data;
 
 @Data
-public class HcertTested {
+public class HcertTest {
 
   private String tg;
   private String tt;

@@ -1,9 +1,9 @@
-package ch.vitoco.decovid19core.domain;
+package ch.vitoco.decovid19core.model;
 
 import lombok.Data;
 
 @Data
-public class HcertNam {
+public class HcertName {
 
   private String fn;
   private String fnt;

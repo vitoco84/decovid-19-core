@@ -1,0 +1,234 @@
+{
+	"info": {
+		"_postman_id": "24bf53f7-baca-4699-8029-38d8c603e5ab",
+		"name": "Decovid-19-Core",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health Certificate Image Recovery",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "imageFile",
+							"type": "file",
+							"src": "swissQRCodeRecoveryCertificate.png"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8082/decovid19/hcert/image",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"decovid19",
+						"hcert",
+						"image"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Health Certificate Image Vaccination",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "imageFile",
+							"type": "file",
+							"src": "swissQRCodeVaccinationCertificate.png"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8082/decovid19/hcert/image",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"decovid19",
+						"hcert",
+						"image"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Health Certificate Image Tested",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "imageFile",
+							"type": "file",
+							"src": "swissQRCodeTestedCertificate.png"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8082/decovid19/hcert/image",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"decovid19",
+						"hcert",
+						"image"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Health Certificate HC1 Recovery",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"hcertPrefix\": \"HC1:NCF060XG0/3WUWGSLKH47GO0KNJ9DSWQIIWT8CK DV/70YM8N34GB8FN0ZKCJ15WY03AC *UD97TK0F90GECQHGWJC0FDL:4:KEPH7M/ESDD746KG7+59/96GM8VW6/A8FM8/A8A46L*8/Q6RL60R6JM8WJCT3EYM8XJCS.CNF6OF63W59%6D46XJC/$ENF6OF64W5Y96RF6ZJC+KENF6OF63W5NW6VF6%JC+QE$.32%E6VCHQEU$DE44NXOBJE719$QE0/D+8D-ED.24-G8$:84KCD3DX47B46IL6646I*6GVC*JC1A6/Q63W5KF6746TPCBEC7ZKW.CU2DNXO VD5$C JC3/DMP8$ILZEDZ CW.C9WE.Y9AY8+S9VIAI3D8WEVM8:S9C+9$PC5$CUZCY$5Y$5FBB-205HKSUV$15H+9-IS1WQ1P3LP8O2ERWUC 1LR3E23EAGSFFPBE5 PKZI:-290EUR6:SAE0379W:R8:836/96Y3.FK0XC+2S57P*GJEZ2XATH.V %TZS1%VIHV940LOBWC6C9-6%Y6.RCHHV+2LP V:LP9K2-127-0DZECY00LC*/BRXCTS1GDTC7JX7OLREQ9GH32UT8.WSXD3UAMLKRGB9GRRN21N4VX:J9B88*3IJ0Q I5C5$0CL-MN.KJ69.9AF:L+AL5DAL0B9UTR6JWM6AR4PFJ5P7% COFMKZ7YM015MCY7QZ58 SORR$-4/K62LEU.BJ7HHC1/2GQDOWZPHKH+YK0GQV.895VFMNHYHXLPO09:Q7.AVMVICGN$OQ49VL1534\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8082/decovid19/hcert/prefix",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"decovid19",
+						"hcert",
+						"prefix"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Health Certificate HC1 Vaccination",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"hcertPrefix\": \"HC1:NCFS605G0/3WUWGSLKH47GO0KNJ9DSWQIIWT9CK4600XKY-CE59-G80:84F35RIV R2F3FMMTTBY50.FK6ZK7:EDOLOPCO8F6%E3.DA%EOPC1G72A6YM83G7NA7H:6JM8D%6I:61S8ZW6HL6C460S8VF6VX6UPC0JCZ69FVCPD0LVC6JD846Y96A466W5B56+EDG8F3I80/D6$CBECSUER:C2$NS346$C2%E9VC- CSUE145GB8JA5B$D% D3IA4W5646946%96X47.JCP9EJY8L/5M/5546.96D463KC.SC4KCD3DX47B46IL6646H*6Z/E5JD%96IA74R6646407GVC*JC1A6/Q63W5KF6746TPCBEC7ZKW.CU2DNXO VD5$C JC3/DMP8$ILZEDZ CW.C9WE.Y9AY8+S9VIAI3D8WEVM8:S9C+9$PC5$CUZCY$5Y$5FBBM00T%LTAT1MOQYR8GUN$K15LIGG2P27%A46BT52VUTL.1*B89Y5B428HRSR3I/E5DS/8NBY4H2BCN8NP1D4B:0K9UQQ67BLTH21AF0V8G52R 62+5BQYCV03SO79O6K+8UXL$T4$%RT150DUHZK+Q9TIE+IMQU4E/Q4T303TKWNXTSORE.4WNPCJX66NN-2F9IHTYLR6IR UAB98RR1A0P9DL0CS5KZ*HEGT1%TQWELFQHG5/JO9TI:.T1JQF.K7 EJ 2/CI5GASQP7ULRX4-07%9W2139E2HMGW99Q DQJADB3UAJKUCOVLG+9T+J:15.12U+OBMCJ1KZ+C+87I8I9JGA0T%U2CMFHI5U:L400C.CC/K3KJZ3OM/D59TBL5AZFMPIW4\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8082/decovid19/hcert/prefix",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"decovid19",
+						"hcert",
+						"prefix"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Health Certificate HC1 Tested",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"hcertPrefix\": \"HC1:NCFK70DF0/3WUWGSLKH47GO0KNJ9DSWQIIWT9CK-600XKY-CE59-G80:84F36RIBJ42F3FMMPSKY50.FK6ZKZWEDOLOPCO8F6%E3.DA%EOPC1G72A6YM8JG70Y8I%6557F46G:6TG8ER6WW6F:6$A7+96/B8UPC0JCZ69+EDG8F3I80/D6$CBECSUER:C2$NS346$C2%E9VC- CSUE145GB8JA5B$D:TCQF6SG69/DY3FCEC%JC82E-M8*+A%R81A6M34U1D5UA QE3KC*PCT23846Y96B465W5HX6F462G7M%63R6Y$5F%68JB5WEQPD6$CSUEIN8G/D5$C4KCD3DX47B46IL6646H*6KWEKDDC%6-Q6QW66464KCCWE6T9OF6:/6NA76W5JPCT3E5JDJA76L68463W5/A6..DX%DZJC3/DH$9- NTVDWKEI3DK2D4XOXVD1/DLPCG/DU2D4ZA2T9GY8MPCG/DY-CAY81C9XY8O/EZKEZ96446256V50J.L3VJGEI7H9.VMVC7S+7E7LFEM2TILEVZN9FQDNMTDJCKXAYYV7+RKNPY:IC0FVR4/OGQ NY%B/Q44VC9NUYTUOSFSULKZ8H*S 3AKGQXC7ID2S4VA.B3L1C44G69+M6G4G$2E*H1BBD%-1-G6CAVGZ1%RI3VP59FUL1*O8/:PCRQL7PB9GP67ZRU-.KFE1AA33IP.HD%RM JNF:7DB48/4A.5-5C:GLXIGWM5Y2MU.GUMP*B25+D36H30EO1OJMM671M4U8WGN23OJ3+:6RW4VDPB 6P5CIW7O08U9J1B8KFP$Y7L0VLWCB4T-FJ3IDWTM/*HUV5H4L645NGF72G8C6BLC/+C:7B:N2:UT .LD5RA+GC36+PS YH 8WDLD18WM5T\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8082/decovid19/hcert/prefix",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"decovid19",
+						"hcert",
+						"prefix"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

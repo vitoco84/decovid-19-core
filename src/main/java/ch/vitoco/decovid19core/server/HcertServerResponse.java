@@ -1,6 +1,6 @@
 package ch.vitoco.decovid19core.server;
 
-import ch.vitoco.decovid19core.domain.HcertPayloadDTO;
+import ch.vitoco.decovid19core.model.HcertDTO;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
@@ -9,6 +9,7 @@ import lombok.Data;
 public class HcertServerResponse {
 
   private String hcertPrefix;
-  private HcertPayloadDTO hcertPayload;
+  private HcertDTO hcertPayload;
+  private String hcertKID;
 
 }

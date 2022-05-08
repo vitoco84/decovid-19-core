@@ -26,5 +26,8 @@
 > 
 > Swagger documentation served under [http://localhost:8082/swagger-ui/index.html](http://localhost:8082/swagger-ui/index.html)
 
+# Postman
+> Postman collection for testing purposes is available under `resources/Decovid-19-Core.postman_collection.json`
+
 # Gradle Version Catalog
 > [Documentation](https://docs.gradle.org/current/userguide/platforms.html)
