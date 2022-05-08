@@ -95,7 +95,7 @@ public class HcertUtils {
     }
   }
 
-  public static String getJsonPayloadFromCBORMessage(String cborMessage) {
+  public static String getJSONPayloadFromCBORMessage(String cborMessage) {
     return cborMessage.substring(cborMessage.indexOf(HCERT_CLAIM_KEY) + START_INDEX_OF_HCERT_JSON_PAYLOAD,
         cborMessage.lastIndexOf("}") - 1);
   }

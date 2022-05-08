@@ -71,7 +71,7 @@ public class Decovid19Service {
 
   private HcertDTO getHcertdDTO(Message hcertCoseMessage) {
     String hcertCbor = HcertUtils.getCBORMessage(hcertCoseMessage);
-    String jsonPayloadFromCBORMessage = HcertUtils.getJsonPayloadFromCBORMessage(hcertCbor);
+    String jsonPayloadFromCBORMessage = HcertUtils.getJSONPayloadFromCBORMessage(hcertCbor);
     return buildHcertResponse(jsonPayloadFromCBORMessage);
   }
 
