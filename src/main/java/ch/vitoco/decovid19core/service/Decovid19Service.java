@@ -79,10 +79,10 @@ public class Decovid19Service {
   private HcertDTO getHcertdDTO(Message hcertCoseMessage) {
     String hcertCbor = HcertUtils.getCBORMessage(hcertCoseMessage);
     String jsonPayloadFromCBORMessage = HcertUtils.getJSONPayloadFromCBORMessage(hcertCbor);
-    return buildHcertResponse(jsonPayloadFromCBORMessage);
+    return buildHcertDTO(jsonPayloadFromCBORMessage);
   }
 
-  private HcertDTO buildHcertResponse(String jsonPayloadFromCBORMessage) {
+  private HcertDTO buildHcertDTO(String jsonPayloadFromCBORMessage) {
     ObjectMapper objectMapper = new ObjectMapper();
     HcertDTO hcertDTO = new HcertDTO();
     try {
