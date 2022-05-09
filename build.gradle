@@ -16,6 +16,15 @@ configurations {
     }
 }
 
+sonarqube {
+    properties {
+        property "sonar.projectKey", "vitoco84_decovid-19-core"
+        property "sonar.organization", "vitoco84"
+        property "sonar.host.url", "https://sonarcloud.io"
+        property "sonar.coverage.jacoco.xmlReportPaths", "**/build/reports/jacoco/test/jacocoTestReport.xml"
+    }
+}
+
 jacoco {
     toolVersion = "0.8.8"
 }
