@@ -4,10 +4,6 @@ public class ImageNotValidException extends RuntimeException {
 
   private static final long serialVersionUID = 1L;
 
-  public ImageNotValidException(String message) {
-    super(message);
-  }
-
   public ImageNotValidException(String message, Throwable cause) {
     super(message, cause);
   }

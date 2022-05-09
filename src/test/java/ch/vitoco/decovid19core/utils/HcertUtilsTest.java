@@ -1,7 +1,11 @@
 package ch.vitoco.decovid19core.utils;
 
 
+import static ch.vitoco.decovid19core.utils.Const.COSE_FORMAT_EXCEPTION;
+import static ch.vitoco.decovid19core.utils.Const.IMAGE_DECODE_EXCEPTION;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -18,6 +22,8 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import ch.vitoco.decovid19core.exception.ImageDecodeException;
+import ch.vitoco.decovid19core.exception.MessageDecodeException;
 import ch.vitoco.decovid19core.model.HcertRecovery;
 import ch.vitoco.decovid19core.model.HcertRecoveryDTO;
 import ch.vitoco.decovid19core.model.HcertTest;
@@ -43,6 +49,9 @@ class HcertUtilsTest {
       "src/test/resources/swissQRCodeRecoveryCertificate.png");
   private static final Path SWISS_QR_CODE_RECOVERY_CERT_JSON_PATH = Paths.get(
       "src/test/resources/swissQRCodeRecoveryCertificateContent.json");
+
+  private static final Path FREE_TEST_IMAGE = Paths.get("src/test/resources/freeTestImageFromUnsplash.jpg");
+  private static final String WRONG_HCERT_HC1_PREFIX = "HC1:NCFS605G0/3WUWGSLKH47GO0KNJ9DSWQIIWT9CK4600XKY-CE59-G80:84F35RIV R2F3FMMTTBY50.FK6ZK7:EDOLOPCO8F6%E3.DA%EOPC1G72A6YMZFO7NA7H:6JM8D%6I:61S8ZW6HL6C460S8VF6VX6UPC0JCZ69FVCPD0LVKLMD846Y96A466W5B56+EDG8F3I80/D6$CBECSUER:C2$NS346$C2%E9VC- CSUE145GB8JA5B$D% D3IA4W5646946%96X47.JCP9EJY8L/5M/5546.96D463KC.SC4KCD3DX47B46IL6646H*6Z/E5JD%96IA74R6646407GVC*JC1A6/Q63W5KF6746TPCBEC7ZKW.CU2DNXO VD5$C JC3/DMP8$ILZEDZ CW.C9WE.Y9AY8+S9VW4L3D8WEVM8:S9C+9$PC5$CUZCY$5Y$5FBBM00T%LTAT1MOQYR8GUN$K15LIGG2P27%A46BT52VUTL.1*B89Y5B428HRSR3I/E5DS/8NBY4H2BCN8NP1D4B:0K9UQQ67BLTH21AF0V8G52R 62+5BQYCV03SO79O6K+8UXL$T4$%RT150DUHZK+Q9TIE+IMQU4E/Q4T303TKWNXTSORE.4WNPCJX66NN-2F9IHTYLR6IR UAB98RR1A0P9DL0CS5KZ*HEGT1%TQWELFQHG5/JO9TI:.T1JQF.K7 EJ 2/CI5GASQP7ULRX4-07%9W2139E2HMGW99Q DQJADB3UAJKUCOVLG+9T+J:15.12U+OBMCJ1KZ+C+87I8I9JGA0T%U2CMFHI5U:L400C.CC/K3KJZ3OM/D59TBL5AZFMPIW4";
 
   @Test
   void shouldReturnHealthCertificatePrefixContent() throws IOException, ParseException {
@@ -79,6 +88,8 @@ class HcertUtilsTest {
     JSONObject expectedName = (JSONObject) jsonHcertPaylod.get("nam");
     String expectedLastName = (String) expectedName.get("fn");
     String expectedFirstName = (String) expectedName.get("gn");
+    String expectedStandardLastName = (String) expectedName.get("fnt");
+    String expectedStandardFirstName = (String) expectedName.get("gnt");
 
     String expectedDiseaseTarget = (String) expectedVaccinationInformation.get("tg");
     String expectedVaccineType = (String) expectedVaccinationInformation.get("vp");
@@ -97,6 +108,8 @@ class HcertUtilsTest {
 
     assertEquals(expectedLastName, hcertVaccinationDTO.getNam().getFn());
     assertEquals(expectedFirstName, hcertVaccinationDTO.getNam().getGn());
+    assertEquals(expectedStandardLastName, hcertVaccinationDTO.getNam().getFnt());
+    assertEquals(expectedStandardFirstName, hcertVaccinationDTO.getNam().getGnt());
     assertEquals(expectedVersion, hcertVaccinationDTO.getVer());
     assertEquals(expectedDateOfBirth, hcertVaccinationDTO.getDob());
     assertEquals(expectedDiseaseTarget, hcertVaccination.getTg());
@@ -133,6 +146,8 @@ class HcertUtilsTest {
     JSONObject expectedName = (JSONObject) jsonHcertPaylod.get("nam");
     String expectedLastName = (String) expectedName.get("fn");
     String expectedFirstName = (String) expectedName.get("gn");
+    String expectedStandardLastName = (String) expectedName.get("fnt");
+    String expectedStandardFirstName = (String) expectedName.get("gnt");
 
     String expectedDiseaseTarget = (String) expectedVaccinationInformation.get("tg");
     String expectedTypeOfTest = (String) expectedVaccinationInformation.get("tt");
@@ -151,6 +166,8 @@ class HcertUtilsTest {
 
     assertEquals(expectedLastName, hcertTestDTO.getNam().getFn());
     assertEquals(expectedFirstName, hcertTestDTO.getNam().getGn());
+    assertEquals(expectedStandardLastName, hcertTestDTO.getNam().getFnt());
+    assertEquals(expectedStandardFirstName, hcertTestDTO.getNam().getGnt());
     assertEquals(expectedVersion, hcertTestDTO.getVer());
     assertEquals(expectedDateOfBirth, hcertTestDTO.getDob());
     assertEquals(expectedDiseaseTarget, hcertTest.getTg());
@@ -187,6 +204,8 @@ class HcertUtilsTest {
     JSONObject expectedName = (JSONObject) jsonHcertPaylod.get("nam");
     String expectedLastName = (String) expectedName.get("fn");
     String expectedFirstName = (String) expectedName.get("gn");
+    String expectedStandardLastName = (String) expectedName.get("fnt");
+    String expectedStandardFirstName = (String) expectedName.get("gnt");
 
     String expectedDiseaseTarget = (String) expectedVaccinationInformation.get("tg");
     String expectedDateOfFirstPositiveTest = (String) expectedVaccinationInformation.get("fr");
@@ -202,9 +221,10 @@ class HcertUtilsTest {
 
     assertEquals(expectedLastName, hcertRecoveryDTO.getNam().getFn());
     assertEquals(expectedFirstName, hcertRecoveryDTO.getNam().getGn());
+    assertEquals(expectedStandardLastName, hcertRecoveryDTO.getNam().getFnt());
+    assertEquals(expectedStandardFirstName, hcertRecoveryDTO.getNam().getGnt());
     assertEquals(expectedVersion, hcertRecoveryDTO.getVer());
     assertEquals(expectedDateOfBirth, hcertRecoveryDTO.getDob());
-
     assertEquals(expectedDiseaseTarget, hcertRecovery.getTg());
     assertEquals(expectedDateOfFirstPositiveTest, hcertRecovery.getFr());
     assertEquals(expectedCountryOfOrigin, hcertRecovery.getCo());
@@ -212,6 +232,31 @@ class HcertUtilsTest {
     assertEquals(expectedCertificateValideUntil, hcertRecovery.getDu());
     assertEquals(expectedIssuer, hcertRecovery.getIs());
     assertEquals(expectedUniqueVaccCertificateIdentifier, hcertRecovery.getCi());
+  }
+
+  @Test
+  void shouldThrowImageDecodeException() throws IOException {
+    InputStream testImageInputStream = Files.newInputStream(FREE_TEST_IMAGE);
+
+    Exception exception = assertThrows(ImageDecodeException.class, () -> {
+      HcertUtils.getHealthCertificateContent(testImageInputStream);
+    });
+
+    testImageInputStream.close();
+    String actualMessage = exception.getMessage();
+
+    assertEquals(IMAGE_DECODE_EXCEPTION, actualMessage);
+  }
+
+  @Test
+  void shouldThrowMessageDecodeException() {
+    Exception exception = assertThrows(MessageDecodeException.class, () -> {
+      HcertUtils.getCOSEMessageFromHcert(WRONG_HCERT_HC1_PREFIX);
+    });
+
+    String actualMessage = exception.getMessage();
+
+    assertEquals(COSE_FORMAT_EXCEPTION, actualMessage);
   }
 
   private JSONObject getJsonObjectFromResources(Path path) throws ParseException, IOException {
