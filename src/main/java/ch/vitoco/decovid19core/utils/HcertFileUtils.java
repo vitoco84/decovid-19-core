@@ -5,7 +5,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Set;
 
-import static ch.vitoco.decovid19core.utils.Const.UTILITY_CLASS_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.Const.UTILITY_CLASS_EXCEPTION;
 
 public final class HcertFileUtils {
 

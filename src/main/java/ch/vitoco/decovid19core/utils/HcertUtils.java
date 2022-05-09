@@ -1,9 +1,9 @@
 package ch.vitoco.decovid19core.utils;
 
-import static ch.vitoco.decovid19core.utils.Const.COSE_FORMAT_EXCEPTION;
-import static ch.vitoco.decovid19core.utils.Const.IMAGE_DECODE_EXCEPTION;
-import static ch.vitoco.decovid19core.utils.Const.MESSAGE_DECODE_EXCEPTION;
-import static ch.vitoco.decovid19core.utils.Const.UTILITY_CLASS_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.Const.COSE_FORMAT_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.Const.IMAGE_DECODE_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.Const.MESSAGE_DECODE_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.Const.UTILITY_CLASS_EXCEPTION;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;

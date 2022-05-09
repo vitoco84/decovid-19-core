@@ -1,6 +1,6 @@
 package ch.vitoco.decovid19core.service;
 
-import static ch.vitoco.decovid19core.utils.Const.IMAGE_CORRUPTED_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.Const.IMAGE_CORRUPTED_EXCEPTION;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

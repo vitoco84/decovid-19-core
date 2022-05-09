@@ -1,4 +1,4 @@
-package ch.vitoco.decovid19core.utils;
+package ch.vitoco.decovid19core.constants;
 
 public final class Const {
 

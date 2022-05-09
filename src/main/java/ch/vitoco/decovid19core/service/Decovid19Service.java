@@ -1,7 +1,7 @@
 package ch.vitoco.decovid19core.service;
 
-import static ch.vitoco.decovid19core.utils.Const.IMAGE_CORRUPTED_EXCEPTION;
-import static ch.vitoco.decovid19core.utils.Const.JSON_DESERIALIZE_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.Const.IMAGE_CORRUPTED_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.Const.JSON_DESERIALIZE_EXCEPTION;
 
 import java.io.IOException;
 import java.io.InputStream;
