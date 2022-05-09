@@ -7,7 +7,7 @@ import java.util.Set;
 
 import static ch.vitoco.decovid19core.utils.Const.UTILITY_CLASS_EXCEPTION;
 
-public class HcertFileUtils {
+public final class HcertFileUtils {
 
   private static final Set<String> ALLOWED_IMAGE_EXTENSIONS = Set.of("png", "jpg", "jpeg");
 

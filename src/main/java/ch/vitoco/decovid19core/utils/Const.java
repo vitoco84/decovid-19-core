@@ -1,6 +1,6 @@
 package ch.vitoco.decovid19core.utils;
 
-public class Const {
+public final class Const {
 
   public static final String IMAGE_DECODE_EXCEPTION = "The health certificate content of the image could not be decoded.";
   public static final String IMAGE_CORRUPTED_EXCEPTION = "The uploaded image is corrupted.";

@@ -1,24 +1,10 @@
 package ch.vitoco.decovid19core.utils;
 
-import COSE.CoseException;
-import COSE.Message;
-import ch.vitoco.decovid19core.enums.HcertAlgo;
-import ch.vitoco.decovid19core.exception.ImageDecodeException;
-import ch.vitoco.decovid19core.exception.MessageDecodeException;
-import com.google.iot.cbor.CborMap;
-import com.google.iot.cbor.CborParseException;
-import com.google.zxing.*;
-import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
-import com.google.zxing.common.HybridBinarizer;
-import com.upokecenter.cbor.CBORObject;
-import nl.minvws.encoding.Base45;
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Hex;
-import org.apache.tomcat.util.codec.binary.Base64;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static ch.vitoco.decovid19core.utils.Const.COSE_FORMAT_EXCEPTION;
+import static ch.vitoco.decovid19core.utils.Const.IMAGE_DECODE_EXCEPTION;
+import static ch.vitoco.decovid19core.utils.Const.MESSAGE_DECODE_EXCEPTION;
+import static ch.vitoco.decovid19core.utils.Const.UTILITY_CLASS_EXCEPTION;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -26,9 +12,32 @@ import java.io.InputStream;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
-import static ch.vitoco.decovid19core.utils.Const.*;
+import javax.imageio.ImageIO;
 
-public class HcertUtils {
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.tomcat.util.codec.binary.Base64;
+
+import com.google.iot.cbor.CborMap;
+import com.google.iot.cbor.CborParseException;
+import com.google.zxing.BinaryBitmap;
+import com.google.zxing.LuminanceSource;
+import com.google.zxing.MultiFormatReader;
+import com.google.zxing.NotFoundException;
+import com.google.zxing.Result;
+import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
+import com.google.zxing.common.HybridBinarizer;
+import com.upokecenter.cbor.CBORObject;
+
+import ch.vitoco.decovid19core.enums.HcertAlgo;
+import ch.vitoco.decovid19core.exception.ImageDecodeException;
+import ch.vitoco.decovid19core.exception.MessageDecodeException;
+
+import COSE.CoseException;
+import COSE.Message;
+import nl.minvws.encoding.Base45;
+
+public final class HcertUtils {
 
   private static final int BUFFER_SIZE = 1024;
   private static final String HCERT_CLAIM_KEY = "-260";

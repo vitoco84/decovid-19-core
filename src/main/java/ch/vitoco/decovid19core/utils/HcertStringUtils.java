@@ -5,7 +5,7 @@ import static ch.vitoco.decovid19core.utils.Const.UTILITY_CLASS_EXCEPTION;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-public class HcertStringUtils {
+public final class HcertStringUtils {
 
   private HcertStringUtils() {
     throw new IllegalStateException(UTILITY_CLASS_EXCEPTION);
