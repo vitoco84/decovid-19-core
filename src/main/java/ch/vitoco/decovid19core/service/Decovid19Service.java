@@ -1,6 +1,20 @@
 package ch.vitoco.decovid19core.service;
 
-import COSE.Message;
+import static ch.vitoco.decovid19core.utils.Const.IMAGE_CORRUPTED_EXCEPTION;
+import static ch.vitoco.decovid19core.utils.Const.JSON_DESERIALIZE_EXCEPTION;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import ch.vitoco.decovid19core.exception.ImageNotValidException;
 import ch.vitoco.decovid19core.exception.JsonDeserializeException;
 import ch.vitoco.decovid19core.model.HcertDTO;
@@ -10,20 +24,10 @@ import ch.vitoco.decovid19core.model.HcertVaccinationDTO;
 import ch.vitoco.decovid19core.server.HcertServerRequest;
 import ch.vitoco.decovid19core.server.HcertServerResponse;
 import ch.vitoco.decovid19core.utils.HcertFileUtils;
+import ch.vitoco.decovid19core.utils.HcertStringUtils;
 import ch.vitoco.decovid19core.utils.HcertUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-import static ch.vitoco.decovid19core.utils.Const.IMAGE_CORRUPTED_EXCEPTION;
-import static ch.vitoco.decovid19core.utils.Const.JSON_DESERIALIZE_EXCEPTION;
+import COSE.Message;
 
 @Service
 public class Decovid19Service {
@@ -50,7 +54,8 @@ public class Decovid19Service {
         throw new ImageNotValidException(IMAGE_CORRUPTED_EXCEPTION, e);
       }
     } else {
-      LOGGER.info("Bad Request for: {}", imageFile.getOriginalFilename());
+      String originalFilename = HcertStringUtils.sanitizeUserInputString(imageFile);
+      LOGGER.info("Bad Request for: {}", originalFilename);
       return ResponseEntity.badRequest().build();
     }
   }

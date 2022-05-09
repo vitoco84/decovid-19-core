@@ -30,8 +30,6 @@ import static ch.vitoco.decovid19core.utils.Const.*;
 
 public class HcertUtils {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(HcertUtils.class);
-
   private static final int BUFFER_SIZE = 1024;
   private static final String HCERT_CLAIM_KEY = "-260";
   private static final int START_INDEX_OF_HCERT_JSON_PAYLOAD = 8;
