@@ -1,14 +1,8 @@
 package ch.vitoco.decovid19core.utils;
 
 
-import COSE.Message;
-import ch.vitoco.decovid19core.model.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,8 +10,22 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import ch.vitoco.decovid19core.model.HcertRecovery;
+import ch.vitoco.decovid19core.model.HcertRecoveryDTO;
+import ch.vitoco.decovid19core.model.HcertTest;
+import ch.vitoco.decovid19core.model.HcertTestDTO;
+import ch.vitoco.decovid19core.model.HcertVaccination;
+import ch.vitoco.decovid19core.model.HcertVaccinationDTO;
+
+import COSE.Message;
 
 class HcertUtilsTest {
 

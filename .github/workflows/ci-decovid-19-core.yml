@@ -27,7 +27,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Test
-        run: ./gradlew test --tests "*"
+        run: ./gradlew test sonarqube --tests "*"
 
       - name: Test Report
         if: success() || failure()
