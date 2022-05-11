@@ -16,6 +16,7 @@ import javax.imageio.ImageIO;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.codec.binary.Base64;
 
 import com.google.iot.cbor.CborMap;
@@ -34,6 +35,7 @@ import ch.vitoco.decovid19core.exception.ImageDecodeException;
 import ch.vitoco.decovid19core.exception.MessageDecodeException;
 
 import COSE.CoseException;
+import COSE.HeaderKeys;
 import COSE.Message;
 import nl.minvws.encoding.Base45;
 
@@ -43,8 +45,6 @@ public final class HcertUtils {
   private static final String HCERT_CLAIM_KEY = "-260";
   private static final int START_INDEX_OF_HCERT_JSON_PAYLOAD = 8;
   private static final int START_INDEX_OF_HCERT_HC1_PREFIX = 4;
-  private static final int COSE_MESSAGE_PROTECTED_HEADER_KID_CLAIM_KEY = 4;
-  private static final int COSE_MESSAGE_PROTECTED_HEADER_ALGO_CLAIM_KEY = 1;
   private static final int START_INDEX_OF_HEX_STRING = 2;
   private static final int START_OFFSET_BYTES_WRITER = 0;
 
@@ -122,12 +122,24 @@ public final class HcertUtils {
         cborMessage.lastIndexOf("}") - 1);
   }
 
-  private static String getAlgoProtectedHeader(Message coseMessage) {
-    return coseMessage.getProtectedAttributes().get(COSE_MESSAGE_PROTECTED_HEADER_ALGO_CLAIM_KEY).toString();
+  private static String getHeader(Message coseMessage, CBORObject cborHeaderKey) {
+    StringBuilder stringBuilder = new StringBuilder();
+    CBORObject algoUnprotected = coseMessage.getUnprotectedAttributes().get(cborHeaderKey);
+    CBORObject algoProtected = coseMessage.getProtectedAttributes().get(cborHeaderKey);
+    if (algoUnprotected != null) {
+      stringBuilder.append(algoUnprotected);
+    } else if (algoProtected != null) {
+      stringBuilder.append(algoProtected);
+    }
+    return stringBuilder.toString();
+  }
+
+  private static String getAlgoFromHeader(Message coseMessage) {
+    return getHeader(coseMessage, HeaderKeys.Algorithm.AsCBOR());
   }
 
   public static String getAlgo(Message coseMessage) {
-    int algoId = Integer.parseInt(getAlgoProtectedHeader(coseMessage));
+    int algoId = Integer.parseInt(getAlgoFromHeader(coseMessage));
     StringBuilder algo = new StringBuilder();
     if (algoId == HcertAlgo.ECDSA_256.getAlgo()) {
       algo.append(HcertAlgo.ECDSA_256);
@@ -138,20 +150,24 @@ public final class HcertUtils {
     return algo.toString();
   }
 
-  private static String getKIDProtectedHeader(Message coseMessage) {
-    return coseMessage.getProtectedAttributes().get(COSE_MESSAGE_PROTECTED_HEADER_KID_CLAIM_KEY).toString();
+  private static String getKIDFromHeader(Message coseMessage) {
+    return getHeader(coseMessage, HeaderKeys.KID.AsCBOR());
   }
 
-  private static String getTrimmedKID(String kidHex) {
+  private static String trimmKID(String kidHex) {
     return kidHex.substring(START_INDEX_OF_HEX_STRING, kidHex.lastIndexOf("'"));
   }
 
   public static String getKID(Message coseMessage) {
+    StringBuilder kid = new StringBuilder();
     try {
-      String kidHex = getKIDProtectedHeader(coseMessage);
-      String kidHexTrimmed = getTrimmedKID(kidHex);
-      byte[] kidBytes = Hex.decodeHex(kidHexTrimmed.toCharArray());
-      return Base64.encodeBase64String(kidBytes);
+      String kidHex = getKIDFromHeader(coseMessage);
+      if (!StringUtils.isBlank(kidHex)) {
+        String kidHexTrimmed = trimmKID(kidHex);
+        byte[] kidBytes = Hex.decodeHex(kidHexTrimmed.toCharArray());
+        kid.append(Base64.encodeBase64String(kidBytes));
+      }
+      return kid.toString();
     } catch (DecoderException e) {
       throw new MessageDecodeException(MESSAGE_DECODE_EXCEPTION, e);
     }

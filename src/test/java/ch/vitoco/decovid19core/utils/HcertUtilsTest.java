@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import ch.vitoco.decovid19core.enums.HcertAlgo;
 import ch.vitoco.decovid19core.exception.ImageDecodeException;
 import ch.vitoco.decovid19core.exception.MessageDecodeException;
 import ch.vitoco.decovid19core.model.HcertRecovery;
@@ -52,6 +53,7 @@ class HcertUtilsTest {
 
   private static final Path FREE_TEST_IMAGE = Paths.get("src/test/resources/freeTestImageFromUnsplash.jpg");
   private static final String WRONG_HCERT_HC1_PREFIX = "HC1:NCFS605G0/3WUWGSLKH47GO0KNJ9DSWQIIWT9CK4600XKY-CE59-G80:84F35RIV R2F3FMMTTBY50.FK6ZK7:EDOLOPCO8F6%E3.DA%EOPC1G72A6YMZFO7NA7H:6JM8D%6I:61S8ZW6HL6C460S8VF6VX6UPC0JCZ69FVCPD0LVKLMD846Y96A466W5B56+EDG8F3I80/D6$CBECSUER:C2$NS346$C2%E9VC- CSUE145GB8JA5B$D% D3IA4W5646946%96X47.JCP9EJY8L/5M/5546.96D463KC.SC4KCD3DX47B46IL6646H*6Z/E5JD%96IA74R6646407GVC*JC1A6/Q63W5KF6746TPCBEC7ZKW.CU2DNXO VD5$C JC3/DMP8$ILZEDZ CW.C9WE.Y9AY8+S9VW4L3D8WEVM8:S9C+9$PC5$CUZCY$5Y$5FBBM00T%LTAT1MOQYR8GUN$K15LIGG2P27%A46BT52VUTL.1*B89Y5B428HRSR3I/E5DS/8NBY4H2BCN8NP1D4B:0K9UQQ67BLTH21AF0V8G52R 62+5BQYCV03SO79O6K+8UXL$T4$%RT150DUHZK+Q9TIE+IMQU4E/Q4T303TKWNXTSORE.4WNPCJX66NN-2F9IHTYLR6IR UAB98RR1A0P9DL0CS5KZ*HEGT1%TQWELFQHG5/JO9TI:.T1JQF.K7 EJ 2/CI5GASQP7ULRX4-07%9W2139E2HMGW99Q DQJADB3UAJKUCOVLG+9T+J:15.12U+OBMCJ1KZ+C+87I8I9JGA0T%U2CMFHI5U:L400C.CC/K3KJZ3OM/D59TBL5AZFMPIW4";
+  private static final String SWISS_QR_CODE_VACC_KID = "mmrfzpMU6xc=";
 
   @Test
   void shouldReturnHealthCertificatePrefixContent() throws IOException, ParseException {
@@ -126,9 +128,9 @@ class HcertUtilsTest {
 
   @Test
   void shouldReturnHealthCertificateTestContent() throws IOException, ParseException {
-    InputStream testVaccImageInputStream = Files.newInputStream(SWISS_QR_CODE_TEST_CERT_IMG_PATH);
-    String hcert = HcertUtils.getHealthCertificateContent(testVaccImageInputStream);
-    testVaccImageInputStream.close();
+    InputStream testTestImageInputStream = Files.newInputStream(SWISS_QR_CODE_TEST_CERT_IMG_PATH);
+    String hcert = HcertUtils.getHealthCertificateContent(testTestImageInputStream);
+    testTestImageInputStream.close();
 
     Message hcertCose = HcertUtils.getCOSEMessageFromHcert(hcert);
     String hcertCbor = HcertUtils.getCBORMessage(hcertCose);
@@ -184,9 +186,9 @@ class HcertUtilsTest {
 
   @Test
   void shouldReturnHealthCertificateRecoveryContent() throws IOException, ParseException {
-    InputStream testVaccImageInputStream = Files.newInputStream(SWISS_QR_CODE_RECOVERY_CERT_IMG_PATH);
-    String hcert = HcertUtils.getHealthCertificateContent(testVaccImageInputStream);
-    testVaccImageInputStream.close();
+    InputStream testRecoveryImageInputStream = Files.newInputStream(SWISS_QR_CODE_RECOVERY_CERT_IMG_PATH);
+    String hcert = HcertUtils.getHealthCertificateContent(testRecoveryImageInputStream);
+    testRecoveryImageInputStream.close();
 
     Message hcertCose = HcertUtils.getCOSEMessageFromHcert(hcert);
     String hcertCbor = HcertUtils.getCBORMessage(hcertCose);
@@ -257,6 +259,32 @@ class HcertUtilsTest {
     String actualMessage = exception.getMessage();
 
     assertEquals(COSE_FORMAT_EXCEPTION, actualMessage);
+  }
+
+  @Test
+  void shouldReturnCorrectAlgo() throws IOException {
+    InputStream testVaccImageInputStream = Files.newInputStream(SWISS_QR_CODE_VACC_CERT_IMG_PATH);
+    String hcert = HcertUtils.getHealthCertificateContent(testVaccImageInputStream);
+    testVaccImageInputStream.close();
+
+    Message hcertCose = HcertUtils.getCOSEMessageFromHcert(hcert);
+
+    String actualAlgo = HcertUtils.getAlgo(hcertCose);
+
+    assertEquals(HcertAlgo.RSA_PSS_256.toString(), actualAlgo);
+  }
+
+  @Test
+  void shouldReturnCorrectKID() throws IOException {
+    InputStream testVaccImageInputStream = Files.newInputStream(SWISS_QR_CODE_VACC_CERT_IMG_PATH);
+    String hcert = HcertUtils.getHealthCertificateContent(testVaccImageInputStream);
+    testVaccImageInputStream.close();
+
+    Message hcertCose = HcertUtils.getCOSEMessageFromHcert(hcert);
+
+    String actualKID = HcertUtils.getKID(hcertCose);
+
+    assertEquals(SWISS_QR_CODE_VACC_KID, actualKID);
   }
 
   private JSONObject getJsonObjectFromResources(Path path) throws ParseException, IOException {
