@@ -37,17 +37,7 @@ public class Decovid19Service {
     if (HcertFileUtils.isFileAllowed(imageFile)) {
       try (InputStream imageFileInputStream = imageFile.getInputStream()) {
         String hcertContent = HcertUtils.getHealthCertificateContent(imageFileInputStream);
-        Message hcertCoseMessage = HcertUtils.getCOSEMessageFromHcert(hcertContent);
-        String hcertCborMessage = HcertUtils.getCBORMessage(hcertCoseMessage);
-        String hcertIssuer = HcertUtils.getIssuer(hcertCborMessage);
-        HcertDTO hcertDTO = getHcertdDTO(hcertCborMessage);
-        HcertTimeStampDTO hcertTimeStampDTO = HcertUtils.getHcertTimeStamp(hcertCborMessage);
-        String hcertKID = HcertUtils.getKID(hcertCoseMessage);
-        String hcertAlgo = HcertUtils.getAlgo(hcertCoseMessage);
-        HcertServerResponse hcertResponse = buildHcertResponse(hcertContent, hcertDTO, hcertKID, hcertAlgo, hcertIssuer,
-            hcertTimeStampDTO);
-        LOGGER.info("Health Certificate Payload: {}", hcertDTO);
-        return ResponseEntity.ok().body(hcertResponse);
+        return getHcertServerResponseResponseEntity(hcertContent);
       } catch (IOException e) {
         throw new ImageNotValidException(IMAGE_CORRUPTED_EXCEPTION, e);
       }
@@ -61,21 +51,25 @@ public class Decovid19Service {
   public ResponseEntity<HcertServerResponse> getHealthCertificateContent(HcertServerRequest hcertPrefix) {
     if (!hcertPrefix.getHcertPrefix().isBlank() && hcertPrefix.getHcertPrefix().startsWith(HCERT_HC1_PREFIX)) {
       String hcertContent = hcertPrefix.getHcertPrefix();
-      Message hcertCoseMessage = HcertUtils.getCOSEMessageFromHcert(hcertContent);
-      String hcertCborMessage = HcertUtils.getCBORMessage(hcertCoseMessage);
-      String hcertIssuer = HcertUtils.getIssuer(hcertCborMessage);
-      HcertDTO hcertDTO = getHcertdDTO(hcertCborMessage);
-      HcertTimeStampDTO hcertTimeStampDTO = HcertUtils.getHcertTimeStamp(hcertCborMessage);
-      String hcertKID = HcertUtils.getKID(hcertCoseMessage);
-      String hcertAlgo = HcertUtils.getAlgo(hcertCoseMessage);
-      HcertServerResponse hcertResponse = buildHcertResponse(hcertContent, hcertDTO, hcertKID, hcertAlgo, hcertIssuer,
-          hcertTimeStampDTO);
-      LOGGER.info("Health Certificate Payload: {} ", hcertDTO);
-      return ResponseEntity.ok().body(hcertResponse);
+      return getHcertServerResponseResponseEntity(hcertContent);
     } else {
       LOGGER.info("Bad Request for: {}", hcertPrefix);
       return ResponseEntity.badRequest().build();
     }
+  }
+
+  private ResponseEntity<HcertServerResponse> getHcertServerResponseResponseEntity(String hcertContent) {
+    Message hcertCoseMessage = HcertUtils.getCOSEMessageFromHcert(hcertContent);
+    String hcertCborMessage = HcertUtils.getCBORMessage(hcertCoseMessage);
+    String hcertIssuer = HcertUtils.getIssuer(hcertCborMessage);
+    HcertDTO hcertDTO = getHcertdDTO(hcertCborMessage);
+    HcertTimeStampDTO hcertTimeStampDTO = HcertUtils.getHcertTimeStamp(hcertCborMessage);
+    String hcertKID = HcertUtils.getKID(hcertCoseMessage);
+    String hcertAlgo = HcertUtils.getAlgo(hcertCoseMessage);
+    HcertServerResponse hcertResponse = buildHcertResponse(hcertContent, hcertDTO, hcertKID, hcertAlgo, hcertIssuer,
+        hcertTimeStampDTO);
+    LOGGER.info("Health Certificate Payload: {} ", hcertDTO);
+    return ResponseEntity.ok().body(hcertResponse);
   }
 
   private HcertDTO getHcertdDTO(String hcertCborMessage) {
