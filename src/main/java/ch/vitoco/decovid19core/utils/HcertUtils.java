@@ -43,7 +43,9 @@ public final class HcertUtils {
 
   private static final int BUFFER_SIZE = 1024;
   private static final String HCERT_CLAIM_KEY = "-260";
-  private static final int START_INDEX_OF_HCERT_JSON_PAYLOAD = 8;
+  private static final String ISSUER_CLAIM_KEY = "1";
+  private static final int START_INDEX_OF_HCERT_CONTENT = 8;
+  private static final int START_INDEX_OF_ISSUER = 3;
   private static final int START_INDEX_OF_HCERT_HC1_PREFIX = 4;
   private static final int START_INDEX_OF_HEX_STRING = 2;
   private static final int START_OFFSET_BYTES_WRITER = 0;
@@ -117,8 +119,13 @@ public final class HcertUtils {
     }
   }
 
-  public static String getJSONPayloadFromCBORMessage(String cborMessage) {
-    return cborMessage.substring(cborMessage.indexOf(HCERT_CLAIM_KEY) + START_INDEX_OF_HCERT_JSON_PAYLOAD,
+  public static String getIssuer(String cborMessage) {
+    return cborMessage.substring(cborMessage.indexOf(ISSUER_CLAIM_KEY) + START_INDEX_OF_ISSUER,
+        cborMessage.indexOf(",") - 1);
+  }
+
+  public static String getContent(String cborMessage) {
+    return cborMessage.substring(cborMessage.indexOf(HCERT_CLAIM_KEY) + START_INDEX_OF_HCERT_CONTENT,
         cborMessage.lastIndexOf("}") - 1);
   }
 

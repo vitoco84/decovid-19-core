@@ -12,5 +12,6 @@ public class HcertServerResponse {
   private HcertDTO hcertPayload;
   private String hcertKID;
   private String hcertAlgo;
+  private String hcertIssuer;
 
 }

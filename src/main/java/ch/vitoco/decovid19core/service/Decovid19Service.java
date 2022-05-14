@@ -45,9 +45,12 @@ public class Decovid19Service {
         String hcertContent = HcertUtils.getHealthCertificateContent(imageFileInputStream);
         Message hcertCoseMessage = HcertUtils.getCOSEMessageFromHcert(hcertContent);
         String hcertAlgo = HcertUtils.getAlgo(hcertCoseMessage);
-        HcertDTO hcertDTO = getHcertdDTO(hcertCoseMessage);
+        String hcertCborMessage = HcertUtils.getCBORMessage(hcertCoseMessage);
+        String hcertIssuer = HcertUtils.getIssuer(hcertCborMessage);
+        HcertDTO hcertDTO = getHcertdDTO(hcertCborMessage);
         String hcertKID = HcertUtils.getKID(hcertCoseMessage);
-        HcertServerResponse hcertResponse = buildHcertResponse(hcertContent, hcertDTO, hcertKID, hcertAlgo);
+        HcertServerResponse hcertResponse = buildHcertResponse(hcertContent, hcertDTO, hcertKID, hcertAlgo,
+            hcertIssuer);
         LOGGER.info("Health Certificate Payload: {}", hcertDTO);
         return ResponseEntity.ok().body(hcertResponse);
       } catch (IOException e) {
@@ -64,10 +67,12 @@ public class Decovid19Service {
     if (!hcertPrefix.getHcertPrefix().isBlank() && hcertPrefix.getHcertPrefix().startsWith(HCERT_HC1_PREFIX)) {
       String hcertContent = hcertPrefix.getHcertPrefix();
       Message hcertCoseMessage = HcertUtils.getCOSEMessageFromHcert(hcertContent);
-      HcertDTO hcertDTO = getHcertdDTO(hcertCoseMessage);
+      String hcertCborMessage = HcertUtils.getCBORMessage(hcertCoseMessage);
+      String hcertIssuer = HcertUtils.getIssuer(hcertCborMessage);
+      HcertDTO hcertDTO = getHcertdDTO(hcertCborMessage);
       String hcertKID = HcertUtils.getKID(hcertCoseMessage);
       String hcertAlgo = HcertUtils.getAlgo(hcertCoseMessage);
-      HcertServerResponse hcertResponse = buildHcertResponse(hcertContent, hcertDTO, hcertKID, hcertAlgo);
+      HcertServerResponse hcertResponse = buildHcertResponse(hcertContent, hcertDTO, hcertKID, hcertAlgo, hcertIssuer);
       LOGGER.info("Health Certificate Payload: {} ", hcertDTO);
       return ResponseEntity.ok().body(hcertResponse);
     } else {
@@ -76,9 +81,8 @@ public class Decovid19Service {
     }
   }
 
-  private HcertDTO getHcertdDTO(Message hcertCoseMessage) {
-    String hcertCbor = HcertUtils.getCBORMessage(hcertCoseMessage);
-    String jsonPayloadFromCBORMessage = HcertUtils.getJSONPayloadFromCBORMessage(hcertCbor);
+  private HcertDTO getHcertdDTO(String hcertCborMessage) {
+    String jsonPayloadFromCBORMessage = HcertUtils.getContent(hcertCborMessage);
     return buildHcertDTO(jsonPayloadFromCBORMessage);
   }
 
@@ -104,12 +108,14 @@ public class Decovid19Service {
   private HcertServerResponse buildHcertResponse(String hcertContent,
       HcertDTO hcertDTO,
       String hcertKID,
-      String hcertAlgo) {
+      String hcertAlgo,
+      String hcertIssuer) {
     HcertServerResponse hcertResponse = new HcertServerResponse();
     hcertResponse.setHcertPrefix(hcertContent);
     hcertResponse.setHcertPayload(hcertDTO);
     hcertResponse.setHcertKID(hcertKID);
     hcertResponse.setHcertAlgo(hcertAlgo);
+    hcertResponse.setHcertIssuer(hcertIssuer);
     return hcertResponse;
   }
 

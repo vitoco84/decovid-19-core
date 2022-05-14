@@ -76,7 +76,7 @@ class HcertUtilsTest {
 
     Message hcertCose = HcertUtils.getCOSEMessageFromHcert(hcert);
     String hcertCbor = HcertUtils.getCBORMessage(hcertCose);
-    String cborPayload = HcertUtils.getJSONPayloadFromCBORMessage(hcertCbor);
+    String cborPayload = HcertUtils.getContent(hcertCbor);
 
     JSONObject jsonObject = getJsonObjectFromResources(SWISS_QR_CODE_VACC_CERT_JSON_PATH);
     JSONObject jsonHcertPaylod = (JSONObject) jsonObject.get("JSON");
@@ -134,7 +134,7 @@ class HcertUtilsTest {
 
     Message hcertCose = HcertUtils.getCOSEMessageFromHcert(hcert);
     String hcertCbor = HcertUtils.getCBORMessage(hcertCose);
-    String cborPayload = HcertUtils.getJSONPayloadFromCBORMessage(hcertCbor);
+    String cborPayload = HcertUtils.getContent(hcertCbor);
 
     JSONObject jsonObject = getJsonObjectFromResources(SWISS_QR_CODE_TEST_CERT_JSON_PATH);
     JSONObject jsonHcertPaylod = (JSONObject) jsonObject.get("JSON");
@@ -192,7 +192,7 @@ class HcertUtilsTest {
 
     Message hcertCose = HcertUtils.getCOSEMessageFromHcert(hcert);
     String hcertCbor = HcertUtils.getCBORMessage(hcertCose);
-    String cborPayload = HcertUtils.getJSONPayloadFromCBORMessage(hcertCbor);
+    String cborPayload = HcertUtils.getContent(hcertCbor);
 
     JSONObject jsonObject = getJsonObjectFromResources(SWISS_QR_CODE_RECOVERY_CERT_JSON_PATH);
     JSONObject jsonHcertPaylod = (JSONObject) jsonObject.get("JSON");
