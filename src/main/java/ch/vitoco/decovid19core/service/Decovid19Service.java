@@ -5,6 +5,8 @@ import static ch.vitoco.decovid19core.constants.Const.JSON_DESERIALIZE_EXCEPTION
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
 
 import COSE.Message;
 import ch.vitoco.decovid19core.exception.ImageNotValidException;
@@ -15,6 +17,8 @@ import ch.vitoco.decovid19core.server.HcertServerResponse;
 import ch.vitoco.decovid19core.utils.HcertFileUtils;
 import ch.vitoco.decovid19core.utils.HcertStringUtils;
 import ch.vitoco.decovid19core.utils.HcertUtils;
+import ch.vitoco.decovid19core.valuesets.HcertValueSet;
+import ch.vitoco.decovid19core.valuesets.model.ValueSetValues;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -82,18 +86,104 @@ public class Decovid19Service {
     HcertDTO hcertDTO = new HcertDTO();
     try {
       if (jsonPayloadFromCBORMessage.contains(VACCINATION_PREFIX_PAYLOAD)) {
-        hcertDTO = objectMapper.readValue(jsonPayloadFromCBORMessage, HcertVaccinationDTO.class);
+        hcertDTO = buildHcertVaccinationDTO(jsonPayloadFromCBORMessage, objectMapper);
       }
       if (jsonPayloadFromCBORMessage.contains(TESTED_PREFIX_PAYLOAD)) {
-        hcertDTO = objectMapper.readValue(jsonPayloadFromCBORMessage, HcertTestDTO.class);
+        hcertDTO = buildHcertTestDTO(jsonPayloadFromCBORMessage, objectMapper);
       }
       if (jsonPayloadFromCBORMessage.contains(RECOVERY_PREFIX_PAYLOAD)) {
-        hcertDTO = objectMapper.readValue(jsonPayloadFromCBORMessage, HcertRecoveryDTO.class);
+        hcertDTO = buildHcertRecoveryDTO(jsonPayloadFromCBORMessage, objectMapper);
       }
     } catch (JsonProcessingException e) {
       throw new JsonDeserializeException(JSON_DESERIALIZE_EXCEPTION, e);
     }
     return hcertDTO;
+  }
+
+  private HcertVaccinationDTO buildHcertVaccinationDTO(String jsonPayloadFromCBORMessage, ObjectMapper objectMapper)
+      throws JsonProcessingException {
+    HcertVaccinationDTO hcertVaccinationDTO = objectMapper.readValue(jsonPayloadFromCBORMessage,
+        HcertVaccinationDTO.class);
+    List<HcertVaccination> hcertVaccinationList = hcertVaccinationDTO.getV();
+
+    Map<String, ValueSetValues> countryCodesValueMap = HcertValueSet.getCountryCodes().getValueSetValues();
+    Map<String, ValueSetValues> diseaseAgentValueMap = HcertValueSet.getDiseaseAgentTarget().getValueSetValues();
+
+    Map<String, ValueSetValues> vaccineMarketingAuthValueMap = HcertValueSet.getVaccineMarketingAuthorisations()
+        .getValueSetValues();
+    Map<String, ValueSetValues> vaccineMedicinalProdValueMap = HcertValueSet.getVaccineMedicinalProduct()
+        .getValueSetValues();
+    Map<String, ValueSetValues> vaccineProphylaxisValueMap = HcertValueSet.getVaccineProphylaxis().getValueSetValues();
+
+    for (HcertVaccination hcertVacc : hcertVaccinationList) {
+      if (countryCodesValueMap.containsKey(hcertVacc.getCo())) {
+        hcertVacc.setCo(countryCodesValueMap.get(hcertVacc.getCo()).getDisplay());
+      }
+      if (diseaseAgentValueMap.containsKey(hcertVacc.getTg())) {
+        hcertVacc.setTg(diseaseAgentValueMap.get(hcertVacc.getTg()).getDisplay());
+      }
+      if (vaccineMarketingAuthValueMap.containsKey(hcertVacc.getMa())) {
+        hcertVacc.setMa(vaccineMarketingAuthValueMap.get(hcertVacc.getMa()).getDisplay());
+      }
+      if (vaccineMedicinalProdValueMap.containsKey(hcertVacc.getMp())) {
+        hcertVacc.setMp(vaccineMedicinalProdValueMap.get(hcertVacc.getMp()).getDisplay());
+      }
+      if (vaccineProphylaxisValueMap.containsKey(hcertVacc.getVp())) {
+        hcertVacc.setVp(vaccineProphylaxisValueMap.get(hcertVacc.getVp()).getDisplay());
+      }
+    }
+    return hcertVaccinationDTO;
+  }
+
+  private HcertTestDTO buildHcertTestDTO(String jsonPayloadFromCBORMessage, ObjectMapper objectMapper)
+      throws JsonProcessingException {
+    HcertTestDTO hcertTestDTO = objectMapper.readValue(jsonPayloadFromCBORMessage, HcertTestDTO.class);
+    List<HcertTest> hcertTestList = hcertTestDTO.getT();
+
+    Map<String, ValueSetValues> countryCodesValueMap = HcertValueSet.getCountryCodes().getValueSetValues();
+    Map<String, ValueSetValues> diseaseAgentValueMap = HcertValueSet.getDiseaseAgentTarget().getValueSetValues();
+
+    Map<String, ValueSetValues> testDeviceValueMap = HcertValueSet.getTestDevice().getValueSetValues();
+    Map<String, ValueSetValues> testTypeValueMap = HcertValueSet.getTestType().getValueSetValues();
+    Map<String, ValueSetValues> testResultValueMap = HcertValueSet.getTestResult().getValueSetValues();
+
+    for (HcertTest hcertTest : hcertTestList) {
+      if (countryCodesValueMap.containsKey(hcertTest.getCo())) {
+        hcertTest.setCo(countryCodesValueMap.get(hcertTest.getCo()).getDisplay());
+      }
+      if (diseaseAgentValueMap.containsKey(hcertTest.getTg())) {
+        hcertTest.setTg(diseaseAgentValueMap.get(hcertTest.getTg()).getDisplay());
+      }
+      if (testDeviceValueMap.containsKey(hcertTest.getMa())) {
+        hcertTest.setMa(testDeviceValueMap.get(hcertTest.getMa()).getDisplay());
+      }
+      if (testTypeValueMap.containsKey(hcertTest.getTt())) {
+        hcertTest.setTt(testTypeValueMap.get(hcertTest.getTt()).getDisplay());
+      }
+      if (testResultValueMap.containsKey(hcertTest.getTr())) {
+        hcertTest.setTr(testResultValueMap.get(hcertTest.getTr()).getDisplay());
+      }
+    }
+    return hcertTestDTO;
+  }
+
+  private HcertRecoveryDTO buildHcertRecoveryDTO(String jsonPayloadFromCBORMessage, ObjectMapper objectMapper)
+      throws JsonProcessingException {
+    HcertRecoveryDTO hcertRecoveryDTO = objectMapper.readValue(jsonPayloadFromCBORMessage, HcertRecoveryDTO.class);
+    List<HcertRecovery> hcertRecoveryList = hcertRecoveryDTO.getR();
+
+    Map<String, ValueSetValues> countryCodesValueMap = HcertValueSet.getCountryCodes().getValueSetValues();
+    Map<String, ValueSetValues> diseaseAgentValueMap = HcertValueSet.getDiseaseAgentTarget().getValueSetValues();
+
+    for (HcertRecovery hcertRecovery : hcertRecoveryList) {
+      if (countryCodesValueMap.containsKey(hcertRecovery.getCo())) {
+        hcertRecovery.setCo(countryCodesValueMap.get(hcertRecovery.getCo()).getDisplay());
+      }
+      if (diseaseAgentValueMap.containsKey(hcertRecovery.getTg())) {
+        hcertRecovery.setTg(diseaseAgentValueMap.get(hcertRecovery.getTg()).getDisplay());
+      }
+    }
+    return hcertRecoveryDTO;
   }
 
   private HcertServerResponse buildHcertResponse(String hcertContent,
