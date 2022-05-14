@@ -1,11 +1,11 @@
 package ch.vitoco.decovid19core.utils;
 
-import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
+import static ch.vitoco.decovid19core.constants.Const.UTILITY_CLASS_EXCEPTION;
 
 import java.util.Set;
 
-import static ch.vitoco.decovid19core.constants.Const.UTILITY_CLASS_EXCEPTION;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 public final class HcertFileUtils {
 

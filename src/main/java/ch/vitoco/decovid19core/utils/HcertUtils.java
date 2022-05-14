@@ -1,51 +1,47 @@
 package ch.vitoco.decovid19core.utils;
 
-import static ch.vitoco.decovid19core.constants.Const.COSE_FORMAT_EXCEPTION;
-import static ch.vitoco.decovid19core.constants.Const.IMAGE_DECODE_EXCEPTION;
-import static ch.vitoco.decovid19core.constants.Const.MESSAGE_DECODE_EXCEPTION;
-import static ch.vitoco.decovid19core.constants.Const.UTILITY_CLASS_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.Const.*;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Instant;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
-
-import javax.imageio.ImageIO;
-
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.tomcat.util.codec.binary.Base64;
-
-import com.google.iot.cbor.CborMap;
-import com.google.iot.cbor.CborParseException;
-import com.google.zxing.BinaryBitmap;
-import com.google.zxing.LuminanceSource;
-import com.google.zxing.MultiFormatReader;
-import com.google.zxing.NotFoundException;
-import com.google.zxing.Result;
-import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
-import com.google.zxing.common.HybridBinarizer;
-import com.upokecenter.cbor.CBORObject;
-
-import ch.vitoco.decovid19core.enums.HcertAlgo;
-import ch.vitoco.decovid19core.exception.ImageDecodeException;
-import ch.vitoco.decovid19core.exception.MessageDecodeException;
 
 import COSE.CoseException;
 import COSE.HeaderKeys;
 import COSE.Message;
+import ch.vitoco.decovid19core.enums.HcertAlgo;
+import ch.vitoco.decovid19core.exception.ImageDecodeException;
+import ch.vitoco.decovid19core.exception.JsonDeserializeException;
+import ch.vitoco.decovid19core.exception.MessageDecodeException;
+import ch.vitoco.decovid19core.model.HcertTimeStampDTO;
+import com.google.iot.cbor.CborMap;
+import com.google.iot.cbor.CborParseException;
+import com.google.zxing.*;
+import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
+import com.google.zxing.common.HybridBinarizer;
+import com.upokecenter.cbor.CBORObject;
 import nl.minvws.encoding.Base45;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.tomcat.util.codec.binary.Base64;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 public final class HcertUtils {
 
   private static final int BUFFER_SIZE = 1024;
   private static final String HCERT_CLAIM_KEY = "-260";
+  private static final String HCERT_CLAIM_KEY_CONTENT = "1";
   private static final String ISSUER_CLAIM_KEY = "1";
-  private static final int START_INDEX_OF_HCERT_CONTENT = 8;
-  private static final int START_INDEX_OF_ISSUER = 3;
+  private static final String EXPIRATION_CLAIM_KEY = "4";
+  private static final String ISSUED_AT_CLAIM_KEY = "6";
   private static final int START_INDEX_OF_HCERT_HC1_PREFIX = 4;
   private static final int START_INDEX_OF_HEX_STRING = 2;
   private static final int START_OFFSET_BYTES_WRITER = 0;
@@ -92,9 +88,9 @@ public final class HcertUtils {
   }
 
   public static Message getCOSEMessageFromHcert(String hcert) {
-    byte[] hcertBytes = decodeBase45HealthCertificate(hcert);
-    ByteArrayOutputStream coseMessageFromHcert = getCOSEMessageFromHcert(hcertBytes);
     try {
+      byte[] hcertBytes = decodeBase45HealthCertificate(hcert);
+      ByteArrayOutputStream coseMessageFromHcert = getCOSEMessageFromHcert(hcertBytes);
       return Message.DecodeFromBytes(coseMessageFromHcert.toByteArray());
     } catch (CoseException e) {
       throw new MessageDecodeException(MESSAGE_DECODE_EXCEPTION, e);
@@ -113,20 +109,53 @@ public final class HcertUtils {
 
   public static String getCBORMessage(Message hcertCOSEMessage) {
     try {
-      return CborMap.createFromCborByteArray(hcertCOSEMessage.GetContent()).toString();
+      return CborMap.createFromCborByteArray(hcertCOSEMessage.GetContent()).toJsonString();
     } catch (CborParseException e) {
       throw new MessageDecodeException(MESSAGE_DECODE_EXCEPTION, e);
     }
   }
 
+  public static HcertTimeStampDTO getHcertTimeStamp(String cborMessage) {
+    try {
+      JSONObject parseTimeStamp = getJsonObject(cborMessage);
+      Long expirationTimeStamp = (Long) parseTimeStamp.get(EXPIRATION_CLAIM_KEY);
+      Long issuedAtTimeStamp = (Long) parseTimeStamp.get(ISSUED_AT_CLAIM_KEY);
+      return buildHcertTimeStampResponse(expirationTimeStamp, issuedAtTimeStamp);
+    } catch (ParseException e) {
+      throw new JsonDeserializeException(JSON_DESERIALIZE_EXCEPTION, e);
+    }
+  }
+
+  private static HcertTimeStampDTO buildHcertTimeStampResponse(Long expirationTimeStamp, Long issuedAtTimeStamp) {
+    HcertTimeStampDTO hcertTimeStampDTO = new HcertTimeStampDTO();
+    hcertTimeStampDTO.setHcerExpirationTime(Instant.ofEpochSecond(expirationTimeStamp).toString());
+    hcertTimeStampDTO.setHcertIssuedAtTime(Instant.ofEpochSecond(issuedAtTimeStamp).toString());
+    return hcertTimeStampDTO;
+  }
+
   public static String getIssuer(String cborMessage) {
-    return cborMessage.substring(cborMessage.indexOf(ISSUER_CLAIM_KEY) + START_INDEX_OF_ISSUER,
-        cborMessage.indexOf(",") - 1);
+    try {
+      JSONObject parseIssuer = getJsonObject(cborMessage);
+      return (String) parseIssuer.get(ISSUER_CLAIM_KEY);
+    } catch (ParseException e) {
+      throw new JsonDeserializeException(JSON_DESERIALIZE_EXCEPTION, e);
+    }
   }
 
   public static String getContent(String cborMessage) {
-    return cborMessage.substring(cborMessage.indexOf(HCERT_CLAIM_KEY) + START_INDEX_OF_HCERT_CONTENT,
-        cborMessage.lastIndexOf("}") - 1);
+    try {
+      JSONObject parseContent = getJsonObject(cborMessage);
+      JSONObject contentObject = (JSONObject) parseContent.get(HCERT_CLAIM_KEY);
+      JSONObject content = (JSONObject) contentObject.get(HCERT_CLAIM_KEY_CONTENT);
+      return content.toString();
+    } catch (ParseException e) {
+      throw new JsonDeserializeException(JSON_DESERIALIZE_EXCEPTION, e);
+    }
+  }
+
+  private static JSONObject getJsonObject(String cborMessage) throws ParseException {
+    JSONParser jsonParser = new JSONParser();
+    return (JSONObject) jsonParser.parse(cborMessage);
   }
 
   private static String getHeader(Message coseMessage, CBORObject cborHeaderKey) {
@@ -148,11 +177,10 @@ public final class HcertUtils {
   public static String getAlgo(Message coseMessage) {
     int algoId = Integer.parseInt(getAlgoFromHeader(coseMessage));
     StringBuilder algo = new StringBuilder();
-    if (algoId == HcertAlgo.ECDSA_256.getAlgo()) {
-      algo.append(HcertAlgo.ECDSA_256);
-    }
-    if (algoId == HcertAlgo.RSA_PSS_256.getAlgo()) {
-      algo.append(HcertAlgo.RSA_PSS_256);
+    for (HcertAlgo hcertAlgo : HcertAlgo.values()) {
+      if (algoId == hcertAlgo.getAlgo()) {
+        algo.append(hcertAlgo);
+      }
     }
     return algo.toString();
   }

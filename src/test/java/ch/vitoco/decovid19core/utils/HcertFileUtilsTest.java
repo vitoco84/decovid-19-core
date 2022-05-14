@@ -1,10 +1,10 @@
 package ch.vitoco.decovid19core.utils;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class HcertFileUtilsTest {
 

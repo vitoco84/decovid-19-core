@@ -1,12 +1,8 @@
 package ch.vitoco.decovid19core.utils;
 
 
-import static ch.vitoco.decovid19core.constants.Const.COSE_FORMAT_EXCEPTION;
-import static ch.vitoco.decovid19core.constants.Const.IMAGE_DECODE_EXCEPTION;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static ch.vitoco.decovid19core.constants.Const.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,25 +10,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import COSE.Message;
+import ch.vitoco.decovid19core.enums.HcertAlgo;
+import ch.vitoco.decovid19core.exception.ImageDecodeException;
+import ch.vitoco.decovid19core.exception.JsonDeserializeException;
+import ch.vitoco.decovid19core.exception.MessageDecodeException;
+import ch.vitoco.decovid19core.model.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.junit.jupiter.api.Test;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import ch.vitoco.decovid19core.enums.HcertAlgo;
-import ch.vitoco.decovid19core.exception.ImageDecodeException;
-import ch.vitoco.decovid19core.exception.MessageDecodeException;
-import ch.vitoco.decovid19core.model.HcertRecovery;
-import ch.vitoco.decovid19core.model.HcertRecoveryDTO;
-import ch.vitoco.decovid19core.model.HcertTest;
-import ch.vitoco.decovid19core.model.HcertTestDTO;
-import ch.vitoco.decovid19core.model.HcertVaccination;
-import ch.vitoco.decovid19core.model.HcertVaccinationDTO;
-
-import COSE.Message;
 
 class HcertUtilsTest {
 
@@ -259,6 +248,17 @@ class HcertUtilsTest {
     String actualMessage = exception.getMessage();
 
     assertEquals(COSE_FORMAT_EXCEPTION, actualMessage);
+  }
+
+  @Test
+  void shouldThrowJsonDeserializeException() {
+    Exception exception = assertThrows(JsonDeserializeException.class, () -> {
+      HcertUtils.getIssuer("fooBar");
+    });
+
+    String actualMessage = exception.getMessage();
+
+    assertEquals(JSON_DESERIALIZE_EXCEPTION, actualMessage);
   }
 
   @Test
