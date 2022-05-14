@@ -29,5 +29,8 @@
 # Postman
 > Postman collection for testing purposes is available under `resources/Decovid-19-Core.postman_collection.json`
 
+# Digital Covid Certificate Schema and Value Sets
+> Schema and Valuesets taken from [eu-dcc-schema](https://github.com/ehn-dcc-development/eu-dcc-schema)
+
 # Gradle Version Catalog
 > [Documentation](https://docs.gradle.org/current/userguide/platforms.html)
