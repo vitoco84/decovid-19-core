@@ -12,10 +12,8 @@ import java.nio.file.Paths;
 
 import ch.vitoco.decovid19core.enums.HcertAlgo;
 import ch.vitoco.decovid19core.exception.ImageNotValidException;
-import ch.vitoco.decovid19core.model.HcertRecoveryDTO;
-import ch.vitoco.decovid19core.model.HcertTestDTO;
+import ch.vitoco.decovid19core.model.HcertContentDTO;
 import ch.vitoco.decovid19core.model.HcertTimeStampDTO;
-import ch.vitoco.decovid19core.model.HcertVaccinationDTO;
 import ch.vitoco.decovid19core.server.HcertServerRequest;
 import ch.vitoco.decovid19core.server.HcertServerResponse;
 import org.json.simple.JSONObject;
@@ -76,7 +74,7 @@ class Decovid19ServiceTest {
     String hcertPrefix = healthCertificateContent.getBody().getHcertPrefix();
     String hcertKID = healthCertificateContent.getBody().getHcertKID();
     String hcertAlgo = healthCertificateContent.getBody().getHcertAlgo();
-    HcertVaccinationDTO hcertPayload = (HcertVaccinationDTO) healthCertificateContent.getBody().getHcertPayload();
+    HcertContentDTO hcertContent = (HcertContentDTO) healthCertificateContent.getBody().getHcertContent();
     String hcertIssuer = healthCertificateContent.getBody().getHcertIssuer();
     HcertTimeStampDTO hcertTimeStamp = healthCertificateContent.getBody().getHcertTimeStamp();
 
@@ -84,9 +82,9 @@ class Decovid19ServiceTest {
     assertEquals(expectedHcertPrefix, hcertPrefix);
     assertEquals(SWISS_QR_CODE_VACC_KID, hcertKID);
     assertEquals(HcertAlgo.RSA_PSS_256.toString(), hcertAlgo);
-    assertEquals(expectedVersion, hcertPayload.getVer());
-    assertEquals(expectedDateOfBirth, hcertPayload.getDob());
-    assertFalse(hcertPayload.getV().isEmpty());
+    assertEquals(expectedVersion, hcertContent.getVer());
+    assertEquals(expectedDateOfBirth, hcertContent.getDob());
+    assertFalse(hcertContent.getV().isEmpty());
     assertEquals(SWISS_QR_CODE_ISSUER, hcertIssuer);
     assertTrue(hcertTimeStamp.getHcerExpirationTime().contains("2022-05-29"));
     assertTrue(hcertTimeStamp.getHcertIssuedAtTime().contains("2021-05-29"));
@@ -113,7 +111,7 @@ class Decovid19ServiceTest {
     String hcertPrefix = healthCertificateContent.getBody().getHcertPrefix();
     String hcertKID = healthCertificateContent.getBody().getHcertKID();
     String hcertAlgo = healthCertificateContent.getBody().getHcertAlgo();
-    HcertTestDTO hcertPayload = (HcertTestDTO) healthCertificateContent.getBody().getHcertPayload();
+    HcertContentDTO hcertContent = (HcertContentDTO) healthCertificateContent.getBody().getHcertContent();
     String hcertIssuer = healthCertificateContent.getBody().getHcertIssuer();
     HcertTimeStampDTO hcertTimeStamp = healthCertificateContent.getBody().getHcertTimeStamp();
 
@@ -121,9 +119,9 @@ class Decovid19ServiceTest {
     assertEquals(expectedHcertPrefix, hcertPrefix);
     assertEquals(SWISS_QR_CODE_VACC_KID, hcertKID);
     assertEquals(HcertAlgo.RSA_PSS_256.toString(), hcertAlgo);
-    assertEquals(expectedVersion, hcertPayload.getVer());
-    assertEquals(expectedDateOfBirth, hcertPayload.getDob());
-    assertFalse(hcertPayload.getT().isEmpty());
+    assertEquals(expectedVersion, hcertContent.getVer());
+    assertEquals(expectedDateOfBirth, hcertContent.getDob());
+    assertFalse(hcertContent.getT().isEmpty());
     assertEquals(SWISS_QR_CODE_ISSUER, hcertIssuer);
     assertTrue(hcertTimeStamp.getHcerExpirationTime().contains("2022-05-29"));
     assertTrue(hcertTimeStamp.getHcertIssuedAtTime().contains("2021-05-29"));
@@ -150,7 +148,7 @@ class Decovid19ServiceTest {
     String hcertPrefix = healthCertificateContent.getBody().getHcertPrefix();
     String hcertKID = healthCertificateContent.getBody().getHcertKID();
     String hcertAlgo = healthCertificateContent.getBody().getHcertAlgo();
-    HcertRecoveryDTO hcertPayload = (HcertRecoveryDTO) healthCertificateContent.getBody().getHcertPayload();
+    HcertContentDTO hcertContent = (HcertContentDTO) healthCertificateContent.getBody().getHcertContent();
     String hcertIssuer = healthCertificateContent.getBody().getHcertIssuer();
     HcertTimeStampDTO hcertTimeStamp = healthCertificateContent.getBody().getHcertTimeStamp();
 
@@ -158,9 +156,9 @@ class Decovid19ServiceTest {
     assertEquals(expectedHcertPrefix, hcertPrefix);
     assertEquals(SWISS_QR_CODE_VACC_KID, hcertKID);
     assertEquals(HcertAlgo.RSA_PSS_256.toString(), hcertAlgo);
-    assertEquals(expectedVersion, hcertPayload.getVer());
-    assertEquals(expectedDateOfBirth, hcertPayload.getDob());
-    assertFalse(hcertPayload.getR().isEmpty());
+    assertEquals(expectedVersion, hcertContent.getVer());
+    assertEquals(expectedDateOfBirth, hcertContent.getDob());
+    assertFalse(hcertContent.getR().isEmpty());
     assertEquals(SWISS_QR_CODE_ISSUER, hcertIssuer);
     assertTrue(hcertTimeStamp.getHcerExpirationTime().contains("2022-05-29"));
     assertTrue(hcertTimeStamp.getHcertIssuedAtTime().contains("2021-05-29"));

@@ -1,9 +1,13 @@
 package ch.vitoco.decovid19core.valuesets;
 
+import static ch.vitoco.decovid19core.constants.Const.RESOURCES_READ_EXCEPTION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.nio.file.Paths;
 import java.util.Map;
 
+import ch.vitoco.decovid19core.exception.ResourcesNotFoundException;
 import ch.vitoco.decovid19core.valuesets.model.ValueSet;
 import ch.vitoco.decovid19core.valuesets.model.ValueSetValues;
 import org.junit.jupiter.api.Test;
@@ -86,6 +90,17 @@ class HcertValueSetTest {
 
     assertEquals("Not detected", valueSetValues.get("260415000").getDisplay());
     assertEquals("Detected", valueSetValues.get("260373001").getDisplay());
+  }
+
+  @Test
+  void shouldThrowResourcesNotFoundException() {
+    Exception exception = assertThrows(ResourcesNotFoundException.class, () -> {
+      HcertValueSet.getValueSet(Paths.get("foobar"));
+    });
+
+    String actualMessage = exception.getMessage();
+
+    assertEquals(RESOURCES_READ_EXCEPTION, actualMessage);
   }
 
 }

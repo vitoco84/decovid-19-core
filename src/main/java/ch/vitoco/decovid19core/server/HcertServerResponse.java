@@ -10,7 +10,7 @@ import lombok.Data;
 public class HcertServerResponse {
 
   private String hcertPrefix;
-  private HcertDTO hcertPayload;
+  private HcertDTO hcertContent;
   private String hcertKID;
   private String hcertAlgo;
   private String hcertIssuer;
