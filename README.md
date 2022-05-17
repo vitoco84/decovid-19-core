@@ -81,6 +81,3 @@
 
 # Gradle Version Catalog
 > [Documentation](https://docs.gradle.org/current/userguide/platforms.html)
-
-# Java Documentation
-> The Java Docs is available under the project root folder in the `\docs` directory
