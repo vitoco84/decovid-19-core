@@ -1,21 +1,20 @@
 package ch.vitoco.decovid19core.service;
 
 import static ch.vitoco.decovid19core.constants.Const.IMAGE_CORRUPTED_EXCEPTION;
-import static org.junit.jupiter.api.Assertions.*;
 
-import javax.annotation.Nonnull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import ch.vitoco.decovid19core.enums.HcertAlgo;
-import ch.vitoco.decovid19core.exception.ImageNotValidException;
-import ch.vitoco.decovid19core.model.HcertContentDTO;
-import ch.vitoco.decovid19core.model.HcertTimeStampDTO;
-import ch.vitoco.decovid19core.server.HcertServerRequest;
-import ch.vitoco.decovid19core.server.HcertServerResponse;
+import javax.annotation.Nonnull;
+
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -24,6 +23,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
+
+import ch.vitoco.decovid19core.enums.HcertAlgo;
+import ch.vitoco.decovid19core.exception.ImageNotValidException;
+import ch.vitoco.decovid19core.model.HcertContentDTO;
+import ch.vitoco.decovid19core.model.HcertTimeStampDTO;
+import ch.vitoco.decovid19core.server.HcertServerRequest;
+import ch.vitoco.decovid19core.server.HcertServerResponse;
 
 class Decovid19ServiceTest {
 
@@ -51,7 +57,10 @@ class Decovid19ServiceTest {
   private static final String SWISS_QR_CODE_VACC_KID = "mmrfzpMU6xc=";
   private static final String SWISS_QR_CODE_ISSUER = "CH BAG";
 
-  Decovid19Service decovid19Service = new Decovid19Service();
+  private final Decovid19ValueSetService decovid19ValueSetService = new Decovid19ValueSetService();
+  private final Decovid19HcertService decovid19HcertService = new Decovid19HcertService();
+  private final Decovid19Service decovid19Service = new Decovid19Service(decovid19ValueSetService,
+      decovid19HcertService);
 
   @Test
   void shouldReturnVaccHealthCertificateResponseFromImageFile() throws IOException, ParseException {

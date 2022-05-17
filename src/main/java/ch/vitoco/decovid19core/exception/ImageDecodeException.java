@@ -1,9 +1,16 @@
 package ch.vitoco.decovid19core.exception;
 
+/**
+ * Representation class ImageDecodeException.
+ */
 public class ImageDecodeException extends RuntimeException {
 
-  private static final long serialVersionUID = 1L;
-
+  /**
+   * Constructor.
+   *
+   * @param message the message
+   * @param cause   the cause
+   */
   public ImageDecodeException(String message, Throwable cause) {
     super(message, cause);
   }
