@@ -3,6 +3,9 @@ package ch.vitoco.decovid19core;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+/**
+ * SpringBootApplication DECOVID-19 API.
+ */
 @SpringBootApplication
 public class Decovid19CoreApplication {
 

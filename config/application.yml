@@ -10,11 +10,11 @@ spring:
 management:
   endpoint.health.show-details: always
 
-logging:
-  file.name: 'logs/${spring.application.name}.log'
-  logback:
-    rollingpolicy:
-      file-name-pattern: 'logs/${spring.application.name}-%d{yyyy-MM-dd}.%i.log'
-      max-file-size: 20MB
-      max-history: 100
-      clean-history-on-start: true
+#logging:
+#  file.name: 'logs/${spring.application.name}.log'
+#  logback:
+#    rollingpolicy:
+#      file-name-pattern: 'logs/${spring.application.name}-%d{yyyy-MM-dd}.%i.log'
+#      max-file-size: 20MB
+#      max-history: 100
+#      clean-history-on-start: true

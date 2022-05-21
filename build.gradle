@@ -1,7 +1,9 @@
 plugins {
-	id 'org.springframework.boot' version '2.6.7'
-	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-	id 'java'
+    id 'org.springframework.boot' version '2.6.7'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+    id 'jacoco'
+    id 'org.sonarqube' version '3.3'
 }
 
 group = 'ch.vitoco'
@@ -9,26 +11,61 @@ version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
 configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+sonarqube {
+    properties {
+        property "sonar.projectKey", "vitoco84_decovid-19-core"
+        property "sonar.organization", "vitoco84"
+        property "sonar.host.url", "https://sonarcloud.io"
+        property "sonar.coverage.jacoco.xmlReportPaths", "**/build/reports/jacoco/test/jacocoTestReport.xml"
+        property "sonar.exclusions", "**/src/main/java/ch/vitoco/decovid19core/constants/**"
+    }
+}
+
+jacoco {
+    toolVersion = "0.8.7"
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+    }
+}
+
+test {
+    finalizedBy jacocoTestReport
+    include '**/*Test*.class'
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation "org.springdoc:springdoc-openapi-ui:${libs.versions.openapi.get()}"
+    implementation "io.github.ehn-digital-green-development:base45:${libs.versions.base45.get()}"
+    implementation "com.google.zxing:core:${libs.versions.zxing.get()}"
+    implementation "com.google.zxing:javase:${libs.versions.zxing.get()}"
+    implementation "com.google.iot.cbor:cbor:${libs.versions.cbor.get()}"
+    implementation "com.augustcellars.cose:cose-java:${libs.versions.coseJava.get()}"
+    implementation "org.apache.clerezza.ext:org.json.simple:${libs.versions.jsonSimple.get()}"
+    implementation "commons-codec:commons-codec:${libs.versions.commonsCodec.get()}"
 
-	compileOnly 'org.projectlombok:lombok'
+    compileOnly 'org.projectlombok:lombok'
 
-	annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
 
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: "com.vaadin.external.google", module: "android-json"
+    }
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }

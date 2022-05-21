@@ -1,1 +1,8 @@
 [versions]
+openapi = "1.6.8"
+base45 = "0.0.3"
+zxing = "3.5.0"
+cbor = "0.01.02"
+coseJava = "1.1.0"
+jsonSimple = "0.4"
+commonsCodec = "1.15"
