@@ -24,7 +24,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 
-import ch.vitoco.decovid19core.enums.HcertAlgo;
+import ch.vitoco.decovid19core.enums.HcertAlgoKeys;
 import ch.vitoco.decovid19core.exception.ImageNotValidException;
 import ch.vitoco.decovid19core.model.HcertContentDTO;
 import ch.vitoco.decovid19core.model.HcertTimeStampDTO;
@@ -90,7 +90,7 @@ class Decovid19ServiceTest {
     assertEquals(HttpStatus.OK, statusCode);
     assertEquals(expectedHcertPrefix, hcertPrefix);
     assertEquals(SWISS_QR_CODE_VACC_KID, hcertKID);
-    assertEquals(HcertAlgo.RSA_PSS_256.toString(), hcertAlgo);
+    assertEquals(HcertAlgoKeys.RSA_PSS_256.toString(), hcertAlgo);
     assertEquals(expectedVersion, hcertContent.getVer());
     assertEquals(expectedDateOfBirth, hcertContent.getDob());
     assertFalse(hcertContent.getV().isEmpty());
@@ -127,7 +127,7 @@ class Decovid19ServiceTest {
     assertEquals(HttpStatus.OK, statusCode);
     assertEquals(expectedHcertPrefix, hcertPrefix);
     assertEquals(SWISS_QR_CODE_VACC_KID, hcertKID);
-    assertEquals(HcertAlgo.RSA_PSS_256.toString(), hcertAlgo);
+    assertEquals(HcertAlgoKeys.RSA_PSS_256.toString(), hcertAlgo);
     assertEquals(expectedVersion, hcertContent.getVer());
     assertEquals(expectedDateOfBirth, hcertContent.getDob());
     assertFalse(hcertContent.getT().isEmpty());
@@ -164,7 +164,7 @@ class Decovid19ServiceTest {
     assertEquals(HttpStatus.OK, statusCode);
     assertEquals(expectedHcertPrefix, hcertPrefix);
     assertEquals(SWISS_QR_CODE_VACC_KID, hcertKID);
-    assertEquals(HcertAlgo.RSA_PSS_256.toString(), hcertAlgo);
+    assertEquals(HcertAlgoKeys.RSA_PSS_256.toString(), hcertAlgo);
     assertEquals(expectedVersion, hcertContent.getVer());
     assertEquals(expectedDateOfBirth, hcertContent.getDob());
     assertFalse(hcertContent.getR().isEmpty());

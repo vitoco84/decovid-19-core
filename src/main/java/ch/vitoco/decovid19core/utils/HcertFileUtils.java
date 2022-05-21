@@ -15,7 +15,7 @@ public final class HcertFileUtils {
   /**
    * Set of allowed image file extensions.
    */
-  private static final Set<String> ALLOWED_IMAGE_EXTENSIONS = Set.of("png", "jpg", "jpeg");
+  private static final Set<String> ALLOWED_IMAGE_FORMAT = Set.of("png", "jpg", "jpeg");
 
   /**
    * Constructor.
@@ -34,7 +34,7 @@ public final class HcertFileUtils {
     String originalFilename = imageFile.getOriginalFilename();
     if (StringUtils.hasLength(originalFilename) && originalFilename.contains(".")) {
       String fileNameExt = getFileExtension(originalFilename);
-      return ALLOWED_IMAGE_EXTENSIONS.contains(fileNameExt);
+      return ALLOWED_IMAGE_FORMAT.contains(fileNameExt);
     }
     return false;
   }

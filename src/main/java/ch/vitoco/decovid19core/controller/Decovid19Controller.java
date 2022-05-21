@@ -29,11 +29,11 @@ public class Decovid19Controller {
     this.decovid19Service = decovid19Service;
   }
 
-  @Operation(summary = "Decode Covid-19 Health Certificate with QR-Code Image")
+  @Operation(summary = "Decode Covid-19 Health Certificate with QR-Code")
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Decoded Covid-19 HCERT", content = {
       @Content(mediaType = "application/json", schema = @Schema(implementation = HcertServerResponse.class))}),
-      @ApiResponse(responseCode = "400", description = "Invalid image or format supplied", content = @Content)})
-  @PostMapping(value = "/hcert/image", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}, produces = {
+      @ApiResponse(responseCode = "400", description = "Invalid QR-Code supplied", content = @Content)})
+  @PostMapping(value = "/hcert/qrcode", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}, produces = {
       MediaType.APPLICATION_JSON_VALUE, "application/json"})
   public ResponseEntity<HcertServerResponse> getHealthCertificateContent(@RequestParam("imageFile") MultipartFile imageFile) {
     return decovid19Service.getHealthCertificateContent(imageFile);

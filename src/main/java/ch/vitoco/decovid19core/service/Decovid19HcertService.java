@@ -1,10 +1,8 @@
 package ch.vitoco.decovid19core.service;
 
-import static ch.vitoco.decovid19core.constants.Const.COSE_FORMAT_EXCEPTION;
-import static ch.vitoco.decovid19core.constants.Const.IMAGE_DECODE_EXCEPTION;
-import static ch.vitoco.decovid19core.constants.Const.JSON_DESERIALIZE_EXCEPTION;
-import static ch.vitoco.decovid19core.constants.Const.MESSAGE_DECODE_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.Const.*;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -13,38 +11,23 @@ import java.time.Instant;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
-import javax.imageio.ImageIO;
-
+import COSE.HeaderKeys;
+import ch.vitoco.decovid19core.enums.HcertAlgoKeys;
+import ch.vitoco.decovid19core.enums.HcertCBORKeys;
+import ch.vitoco.decovid19core.enums.HcertClaimKeys;
+import ch.vitoco.decovid19core.exception.ImageDecodeException;
+import ch.vitoco.decovid19core.exception.MessageDecodeException;
+import ch.vitoco.decovid19core.model.HcertTimeStampDTO;
+import com.google.zxing.*;
+import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
+import com.google.zxing.common.HybridBinarizer;
+import com.upokecenter.cbor.CBORObject;
+import nl.minvws.encoding.Base45;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.codec.binary.Base64;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.springframework.stereotype.Service;
-
-import com.google.iot.cbor.CborMap;
-import com.google.iot.cbor.CborParseException;
-import com.google.zxing.BinaryBitmap;
-import com.google.zxing.LuminanceSource;
-import com.google.zxing.MultiFormatReader;
-import com.google.zxing.NotFoundException;
-import com.google.zxing.Result;
-import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
-import com.google.zxing.common.HybridBinarizer;
-import com.upokecenter.cbor.CBORObject;
-
-import ch.vitoco.decovid19core.enums.HcertAlgo;
-import ch.vitoco.decovid19core.exception.ImageDecodeException;
-import ch.vitoco.decovid19core.exception.JsonDeserializeException;
-import ch.vitoco.decovid19core.exception.MessageDecodeException;
-import ch.vitoco.decovid19core.model.HcertTimeStampDTO;
-
-import COSE.CoseException;
-import COSE.HeaderKeys;
-import COSE.Message;
-import nl.minvws.encoding.Base45;
 
 /**
  * Service class for the Health Certificate decoding process.
@@ -52,15 +35,8 @@ import nl.minvws.encoding.Base45;
 @Service
 public class Decovid19HcertService {
 
-  private static final int BUFFER_SIZE = 1024;
-  private static final String HCERT_CLAIM_KEY = "-260";
-  private static final String HCERT_CLAIM_KEY_CONTENT = "1";
-  private static final String ISSUER_CLAIM_KEY = "1";
-  private static final String EXPIRATION_CLAIM_KEY = "4";
-  private static final String ISSUED_AT_CLAIM_KEY = "6";
   private static final int START_INDEX_OF_HCERT_CONTENT = 4;
   private static final int START_INDEX_OF_HEX_STRING = 2;
-  private static final int START_OFFSET_BYTES_WRITER = 0;
 
   /**
    * Gets the content of the Health Certificate.
@@ -81,42 +57,26 @@ public class Decovid19HcertService {
   }
 
   private byte[] decodeBase45HealthCertificate(String hcert) {
-    String hcertWithoutPrefix = removeHealthCertificateHC1Prefix(hcert);
+    String hcertWithoutPrefix = removeHcertHC1Prefix(hcert);
     return Base45.getDecoder().decode(hcertWithoutPrefix);
   }
 
-  private String removeHealthCertificateHC1Prefix(String hcert) {
+  private String removeHcertHC1Prefix(String hcert) {
     return hcert.substring(START_INDEX_OF_HCERT_CONTENT);
   }
 
-  private ByteArrayOutputStream getCOSEMessageFromHcert(byte[] hcertBase45) {
+  private ByteArrayOutputStream decompressCOSEMessage(byte[] hcertBase45) {
     Inflater inflater = new Inflater();
     inflater.setInput(hcertBase45);
     try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(hcertBase45.length)) {
-      byte[] buffer = new byte[BUFFER_SIZE];
+      byte[] buffer = new byte[2056];
       while (!inflater.finished()) {
         final int count = inflater.inflate(buffer);
-        outputStream.write(buffer, START_OFFSET_BYTES_WRITER, count);
+        outputStream.write(buffer, 0, count);
       }
       return outputStream;
     } catch (IOException | DataFormatException e) {
       throw new MessageDecodeException(COSE_FORMAT_EXCEPTION, e);
-    }
-  }
-
-  /**
-   * Gets the COSE Message from the Health Certificate.
-   *
-   * @param hcert Health Certificate content as String
-   * @return Message
-   */
-  public Message getCOSEMessageFromHcert(String hcert) {
-    try {
-      byte[] hcertBytes = decodeBase45HealthCertificate(hcert);
-      ByteArrayOutputStream coseMessageFromHcert = getCOSEMessageFromHcert(hcertBytes);
-      return Message.DecodeFromBytes(coseMessageFromHcert.toByteArray());
-    } catch (CoseException e) {
-      throw new MessageDecodeException(MESSAGE_DECODE_EXCEPTION, e);
     }
   }
 
@@ -128,49 +88,75 @@ public class Decovid19HcertService {
    */
   public CBORObject getCBORObject(String hcert) {
     byte[] hcertBytes = decodeBase45HealthCertificate(hcert);
-    ByteArrayOutputStream coseMessageFromHcert = getCOSEMessageFromHcert(hcertBytes);
+    ByteArrayOutputStream coseMessageFromHcert = decompressCOSEMessage(hcertBytes);
     return CBORObject.DecodeFromBytes(coseMessageFromHcert.toByteArray());
   }
 
-  /**
-   * Gets the COSE Signature from the Health Certificate CBORObject.
-   *
-   * @param hcertCBORObject Health Certificate CBORObject
-   * @return CBORObject
-   */
-  public CBORObject getCOSESignature(CBORObject hcertCBORObject) {
-    return hcertCBORObject.get(3);
+  private CBORObject getProtectedHeader(CBORObject hcertCBORObject) {
+    return hcertCBORObject.get(HcertCBORKeys.PROTECTED_HEADER.getCborKey());
+  }
+
+  private CBORObject getUnprotectedHeader(CBORObject hcertCBORObject) {
+    return hcertCBORObject.get(HcertCBORKeys.UNPROTECTED_HEADER.getCborKey());
+  }
+
+  private byte[] getMessageContent(CBORObject hcertCBORObject) {
+    return hcertCBORObject.get(HcertCBORKeys.MESSAGE_CONTENT.getCborKey()).GetByteString();
+  }
+
+  private byte[] getCOSESignature(CBORObject hcertCBORObject) {
+    return hcertCBORObject.get(HcertCBORKeys.SIGNATUR.getCborKey()).GetByteString();
   }
 
   /**
-   * Gets the CBOR Message from the Health Certificate COSE Message.
+   * Gets the Issuer of the Health Certificate from the CBOR Message.
    *
-   * @param hcertCOSEMessage Health Certificate COSE Message
-   * @return CBOR Message as String
+   * @param cborMessage Health Certificate CBOR Message
+   * @return Health Certificate Issuer
    */
-  public String getCBORMessage(Message hcertCOSEMessage) {
-    try {
-      return CborMap.createFromCborByteArray(hcertCOSEMessage.GetContent()).toJsonString();
-    } catch (CborParseException e) {
-      throw new MessageDecodeException(MESSAGE_DECODE_EXCEPTION, e);
-    }
+  public String getIssuer(CBORObject cborMessage) {
+    byte[] messageContent = getMessageContent(cborMessage);
+    CBORObject cborObject = CBORObject.DecodeFromBytes(messageContent);
+    return cborObject.get(HcertClaimKeys.ISSUER_CLAIM_KEY.getClaimKey()).AsString();
+  }
+
+  /**
+   * Gets the content of the Health Certificate from the CBOR Message.
+   *
+   * @param cborMessage Health Certificate CBOR Message
+   * @return Health Certificate content as String
+   */
+  public String getContent(CBORObject cborMessage) {
+    byte[] messageContent = getMessageContent(cborMessage);
+    CBORObject cborObject = CBORObject.DecodeFromBytes(messageContent);
+    CBORObject cborObjectContent = cborObject.get(HcertClaimKeys.HCERT_CLAIM_KEY.getClaimKey());
+    return cborObjectContent.get(HcertClaimKeys.HCERT_MESSAGE_TAG.getClaimKey()).ToJSONString();
+  }
+
+  private String getIssuedAt(CBORObject cborMessage) {
+    byte[] messageContent = getMessageContent(cborMessage);
+    CBORObject cborObject = CBORObject.DecodeFromBytes(messageContent);
+    return cborObject.get(HcertClaimKeys.ISSUED_AT_CLAIM_KEY.getClaimKey()).ToJSONString();
+  }
+
+  private String getExpiration(CBORObject cborMessage) {
+    byte[] messageContent = getMessageContent(cborMessage);
+    CBORObject cborObject = CBORObject.DecodeFromBytes(messageContent);
+    return cborObject.get(HcertClaimKeys.EXPIRATION_CLAIM_KEY.getClaimKey()).ToJSONString();
   }
 
   /**
    * Gets the Time Stamp of the Health Certificate from the CBOR Message.
    *
-   * @param cborMessage Health Certificate CBOR Message as String
+   * @param cborMessage Health Certificate CBOR Message
    * @return HcertTimeStampDTO
    */
-  public HcertTimeStampDTO getHcertTimeStamp(String cborMessage) {
-    try {
-      JSONObject parseTimeStamp = getJsonObject(cborMessage);
-      Long expirationTimeStamp = (Long) parseTimeStamp.get(EXPIRATION_CLAIM_KEY);
-      Long issuedAtTimeStamp = (Long) parseTimeStamp.get(ISSUED_AT_CLAIM_KEY);
-      return buildHcertTimeStampResponse(expirationTimeStamp, issuedAtTimeStamp);
-    } catch (ParseException e) {
-      throw new JsonDeserializeException(JSON_DESERIALIZE_EXCEPTION, e);
-    }
+  public HcertTimeStampDTO getHcertTimeStamp(CBORObject cborMessage) {
+    String issuedAt = getIssuedAt(cborMessage);
+    String expiration = getExpiration(cborMessage);
+    Long expirationTimeStamp = Long.parseLong(expiration);
+    Long issuedAtTimeStamp = Long.parseLong(issuedAt);
+    return buildHcertTimeStampResponse(expirationTimeStamp, issuedAtTimeStamp);
   }
 
   private HcertTimeStampDTO buildHcertTimeStampResponse(Long expirationTimeStamp, Long issuedAtTimeStamp) {
@@ -180,78 +166,44 @@ public class Decovid19HcertService {
     return hcertTimeStampDTO;
   }
 
-  /**
-   * Gets the Issuer of the Health Certificate from the CBOR Message.
-   *
-   * @param cborMessage Health Certificate CBOR Message as String
-   * @return Health Certificate issuer
-   */
-  public String getIssuer(String cborMessage) {
-    try {
-      JSONObject parseIssuer = getJsonObject(cborMessage);
-      return (String) parseIssuer.get(ISSUER_CLAIM_KEY);
-    } catch (ParseException e) {
-      throw new JsonDeserializeException(JSON_DESERIALIZE_EXCEPTION, e);
-    }
-  }
-
-  /**
-   * Gets the content of the Health Certificate from the CBOR Message.
-   *
-   * @param cborMessage Health Certificate CBOR Message as String
-   * @return Health Certificate content as String
-   */
-  public String getContent(String cborMessage) {
-    try {
-      JSONObject parseContent = getJsonObject(cborMessage);
-      JSONObject contentObject = (JSONObject) parseContent.get(HCERT_CLAIM_KEY);
-      JSONObject content = (JSONObject) contentObject.get(HCERT_CLAIM_KEY_CONTENT);
-      return content.toString();
-    } catch (ParseException e) {
-      throw new JsonDeserializeException(JSON_DESERIALIZE_EXCEPTION, e);
-    }
-  }
-
-  private JSONObject getJsonObject(String cborMessage) throws ParseException {
-    JSONParser jsonParser = new JSONParser();
-    return (JSONObject) jsonParser.parse(cborMessage);
-  }
-
-  private String getHeader(Message coseMessage, CBORObject cborHeaderKey) {
+  private String getHeader(CBORObject cborObject, CBORObject cborHeaderKey) {
     StringBuilder stringBuilder = new StringBuilder();
-    CBORObject algoUnprotected = coseMessage.getUnprotectedAttributes().get(cborHeaderKey);
-    CBORObject algoProtected = coseMessage.getProtectedAttributes().get(cborHeaderKey);
-    if (algoUnprotected != null) {
-      stringBuilder.append(algoUnprotected);
-    } else if (algoProtected != null) {
-      stringBuilder.append(algoProtected);
+    CBORObject protectedHeader = getProtectedHeader(cborObject);
+    CBORObject cborObjectProtectedHeader = CBORObject.DecodeFromBytes(protectedHeader.GetByteString());
+
+    if (cborObjectProtectedHeader.get(cborHeaderKey) == null) {
+      CBORObject unprotectedHeader = getUnprotectedHeader(cborObject);
+      CBORObject unprotectedHeaderContent = unprotectedHeader.get(cborHeaderKey);
+      stringBuilder.append(unprotectedHeaderContent.toString());
+    } else {
+      stringBuilder.append(cborObjectProtectedHeader.get(cborHeaderKey));
     }
     return stringBuilder.toString();
   }
 
-  private String getAlgoFromHeader(Message coseMessage) {
-    return getHeader(coseMessage, HeaderKeys.Algorithm.AsCBOR());
+  private String getAlgoFromHeader(CBORObject cborObject) {
+    return getHeader(cborObject, HeaderKeys.Algorithm.AsCBOR());
   }
 
   /**
-   * Gets the Signature Algorithm of the Health Certificate from the COSE Message.
+   * Gets the Algorithm of the Health Certificate from the CBOR Message.
    *
-   * @param coseMessage Health Certificate COSE Message
-   * @return Signature Algorithm
+   * @param cborObject Health Certificate CBOR Message
+   * @return Algorithm
    */
-  public String getAlgo(Message coseMessage) {
-    int algoId = Integer.parseInt(getAlgoFromHeader(coseMessage));
+  public String getAlgo(CBORObject cborObject) {
+    int algoId = Integer.parseInt(getAlgoFromHeader(cborObject));
     StringBuilder algo = new StringBuilder();
-    for (HcertAlgo hcertAlgo : HcertAlgo.values()) {
-      if (algoId == hcertAlgo.getAlgoId()) {
-        algo.append(hcertAlgo);
+    for (HcertAlgoKeys hcertAlgoKeys : HcertAlgoKeys.values()) {
+      if (algoId == hcertAlgoKeys.getAlgoId()) {
+        algo.append(hcertAlgoKeys);
       }
     }
     return algo.toString();
   }
 
-  private String getKIDFromHeader(Message coseMessage) {
-    return getHeader(coseMessage, HeaderKeys.KID.AsCBOR());
+  private String getKIDFromHeader(CBORObject cborObject) {
+    return getHeader(cborObject, HeaderKeys.KID.AsCBOR());
   }
 
   private String trimmKID(String kidHex) {
@@ -259,15 +211,15 @@ public class Decovid19HcertService {
   }
 
   /**
-   * Gets the Key Identifier from the Health Certificate COSE Message.
+   * Gets the Key Identifier of the Health Certificate from the CBOR Message.
    *
-   * @param coseMessage Health Certificate COSE Message
+   * @param cborObject Health Certificate CBOR Message
    * @return Key Identifier
    */
-  public String getKID(Message coseMessage) {
+  public String getKID(CBORObject cborObject) {
     StringBuilder kid = new StringBuilder();
     try {
-      String kidHex = getKIDFromHeader(coseMessage);
+      String kidHex = getKIDFromHeader(cborObject);
       if (!StringUtils.isBlank(kidHex)) {
         String kidHexTrimmed = trimmKID(kidHex);
         byte[] kidBytes = Hex.decodeHex(kidHexTrimmed.toCharArray());

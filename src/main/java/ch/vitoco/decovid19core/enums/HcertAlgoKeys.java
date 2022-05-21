@@ -3,7 +3,7 @@ package ch.vitoco.decovid19core.enums;
 /**
  * Representation enum of supported signature algorithms.
  */
-public enum HcertAlgo {
+public enum HcertAlgoKeys {
   /**
    * ECDSA with SHA-256.
    */
@@ -39,7 +39,7 @@ public enum HcertAlgo {
    *
    * @param algoId the value of the algorithm id as int
    */
-  HcertAlgo(int algoId) {
+  HcertAlgoKeys(int algoId) {
     this.algoId = algoId;
   }
 

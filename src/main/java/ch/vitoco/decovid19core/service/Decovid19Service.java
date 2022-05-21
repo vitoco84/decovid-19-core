@@ -6,15 +6,6 @@ import static ch.vitoco.decovid19core.constants.Const.JSON_DESERIALIZE_EXCEPTION
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import ch.vitoco.decovid19core.exception.ImageNotValidException;
 import ch.vitoco.decovid19core.exception.JsonDeserializeException;
 import ch.vitoco.decovid19core.model.HcertContentDTO;
@@ -24,8 +15,14 @@ import ch.vitoco.decovid19core.server.HcertServerRequest;
 import ch.vitoco.decovid19core.server.HcertServerResponse;
 import ch.vitoco.decovid19core.utils.HcertFileUtils;
 import ch.vitoco.decovid19core.utils.HcertStringUtils;
-
-import COSE.Message;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.upokecenter.cbor.CBORObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Service class Decovid19Service.
@@ -35,7 +32,10 @@ public class Decovid19Service {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(Decovid19Service.class);
 
-  private static final String HCERT_HC1_PREFIX = "HC1:";
+  /**
+   * Header String that is prefixed to Base45 encoded Health Certificate.
+   */
+  private static final String HCERT_HEADER = "HC1:";
 
   private final Decovid19ValueSetService decovid19ValueSetService;
   private final Decovid19HcertService decovid19HcertService;
@@ -80,7 +80,7 @@ public class Decovid19Service {
    * @return HcertServerResponse
    */
   public ResponseEntity<HcertServerResponse> getHealthCertificateContent(HcertServerRequest hcertPrefix) {
-    if (!hcertPrefix.getHcertPrefix().isBlank() && hcertPrefix.getHcertPrefix().startsWith(HCERT_HC1_PREFIX)) {
+    if (!hcertPrefix.getHcertPrefix().isBlank() && hcertPrefix.getHcertPrefix().startsWith(HCERT_HEADER)) {
       String hcertContent = hcertPrefix.getHcertPrefix();
       return getHcertServerResponseResponseEntity(hcertContent);
     } else {
@@ -90,13 +90,12 @@ public class Decovid19Service {
   }
 
   private ResponseEntity<HcertServerResponse> getHcertServerResponseResponseEntity(String hcertContent) {
-    Message hcertCoseMessage = decovid19HcertService.getCOSEMessageFromHcert(hcertContent);
-    String hcertCborMessage = decovid19HcertService.getCBORMessage(hcertCoseMessage);
-    String hcertIssuer = decovid19HcertService.getIssuer(hcertCborMessage);
-    HcertDTO hcertDTO = getHcertdDTO(hcertCborMessage);
-    HcertTimeStampDTO hcertTimeStampDTO = decovid19HcertService.getHcertTimeStamp(hcertCborMessage);
-    String hcertKID = decovid19HcertService.getKID(hcertCoseMessage);
-    String hcertAlgo = decovid19HcertService.getAlgo(hcertCoseMessage);
+    CBORObject cborObject = decovid19HcertService.getCBORObject(hcertContent);
+    String hcertIssuer = decovid19HcertService.getIssuer(cborObject);
+    HcertDTO hcertDTO = getHcertdDTO(cborObject);
+    HcertTimeStampDTO hcertTimeStampDTO = decovid19HcertService.getHcertTimeStamp(cborObject);
+    String hcertKID = decovid19HcertService.getKID(cborObject);
+    String hcertAlgo = decovid19HcertService.getAlgo(cborObject);
     HcertServerResponse hcertResponse = buildHcertResponse(hcertContent, hcertDTO, hcertKID, hcertAlgo, hcertIssuer,
         hcertTimeStampDTO);
     LOGGER.info("Health Certificate Content: {}, KID: {}, Algo: {}, Issuer: {} ", hcertDTO, hcertKID, hcertAlgo,
@@ -104,8 +103,8 @@ public class Decovid19Service {
     return ResponseEntity.ok().body(hcertResponse);
   }
 
-  private HcertDTO getHcertdDTO(String hcertCborMessage) {
-    String jsonPayloadFromCBORMessage = decovid19HcertService.getContent(hcertCborMessage);
+  private HcertDTO getHcertdDTO(CBORObject cborObject) {
+    String jsonPayloadFromCBORMessage = decovid19HcertService.getContent(cborObject);
     return buildHcertDTO(jsonPayloadFromCBORMessage);
   }
 

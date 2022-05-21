@@ -1,5 +1,6 @@
 package ch.vitoco.decovid19core.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.Data;
@@ -8,6 +9,7 @@ import lombok.Data;
  * Representation class of the Health Certificate Test information.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties("dr")
 @Data
 public class HcertTest extends Hcert {
 

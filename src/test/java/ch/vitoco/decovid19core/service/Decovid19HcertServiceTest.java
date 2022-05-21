@@ -1,12 +1,7 @@
 package ch.vitoco.decovid19core.service;
 
-import static ch.vitoco.decovid19core.constants.Const.COSE_FORMAT_EXCEPTION;
 import static ch.vitoco.decovid19core.constants.Const.IMAGE_DECODE_EXCEPTION;
-import static ch.vitoco.decovid19core.constants.Const.JSON_DESERIALIZE_EXCEPTION;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,24 +9,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import ch.vitoco.decovid19core.enums.HcertAlgoKeys;
+import ch.vitoco.decovid19core.exception.ImageDecodeException;
+import ch.vitoco.decovid19core.model.HcertContentDTO;
+import ch.vitoco.decovid19core.model.HcertRecovery;
+import ch.vitoco.decovid19core.model.HcertTest;
+import ch.vitoco.decovid19core.model.HcertVaccination;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.upokecenter.cbor.CBORObject;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.junit.jupiter.api.Test;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import ch.vitoco.decovid19core.enums.HcertAlgo;
-import ch.vitoco.decovid19core.exception.ImageDecodeException;
-import ch.vitoco.decovid19core.exception.JsonDeserializeException;
-import ch.vitoco.decovid19core.exception.MessageDecodeException;
-import ch.vitoco.decovid19core.model.HcertContentDTO;
-import ch.vitoco.decovid19core.model.HcertRecovery;
-import ch.vitoco.decovid19core.model.HcertTest;
-import ch.vitoco.decovid19core.model.HcertVaccination;
-
-import COSE.Message;
 
 class Decovid19HcertServiceTest {
 
@@ -75,9 +65,8 @@ class Decovid19HcertServiceTest {
     String hcert = decovid19HcertService.getHealthCertificateContent(testVaccImageInputStream);
     testVaccImageInputStream.close();
 
-    Message hcertCose = decovid19HcertService.getCOSEMessageFromHcert(hcert);
-    String hcertCbor = decovid19HcertService.getCBORMessage(hcertCose);
-    String cborPayload = decovid19HcertService.getContent(hcertCbor);
+    CBORObject cborObject = decovid19HcertService.getCBORObject(hcert);
+    String cborPayload = decovid19HcertService.getContent(cborObject);
 
     JSONObject jsonObject = getJsonObjectFromResources(SWISS_QR_CODE_VACC_CERT_JSON_PATH);
     JSONObject jsonHcertPaylod = (JSONObject) jsonObject.get("JSON");
@@ -133,9 +122,8 @@ class Decovid19HcertServiceTest {
     String hcert = decovid19HcertService.getHealthCertificateContent(testTestImageInputStream);
     testTestImageInputStream.close();
 
-    Message hcertCose = decovid19HcertService.getCOSEMessageFromHcert(hcert);
-    String hcertCbor = decovid19HcertService.getCBORMessage(hcertCose);
-    String cborPayload = decovid19HcertService.getContent(hcertCbor);
+    CBORObject cborObject = decovid19HcertService.getCBORObject(hcert);
+    String cborPayload = decovid19HcertService.getContent(cborObject);
 
     JSONObject jsonObject = getJsonObjectFromResources(SWISS_QR_CODE_TEST_CERT_JSON_PATH);
     JSONObject jsonHcertPaylod = (JSONObject) jsonObject.get("JSON");
@@ -191,9 +179,8 @@ class Decovid19HcertServiceTest {
     String hcert = decovid19HcertService.getHealthCertificateContent(testRecoveryImageInputStream);
     testRecoveryImageInputStream.close();
 
-    Message hcertCose = decovid19HcertService.getCOSEMessageFromHcert(hcert);
-    String hcertCbor = decovid19HcertService.getCBORMessage(hcertCose);
-    String cborPayload = decovid19HcertService.getContent(hcertCbor);
+    CBORObject cborObject = decovid19HcertService.getCBORObject(hcert);
+    String cborPayload = decovid19HcertService.getContent(cborObject);
 
     JSONObject jsonObject = getJsonObjectFromResources(SWISS_QR_CODE_RECOVERY_CERT_JSON_PATH);
     JSONObject jsonHcertPaylod = (JSONObject) jsonObject.get("JSON");
@@ -252,38 +239,15 @@ class Decovid19HcertServiceTest {
   }
 
   @Test
-  void shouldThrowMessageDecodeException() {
-    Exception exception = assertThrows(MessageDecodeException.class, () -> {
-      decovid19HcertService.getCOSEMessageFromHcert(WRONG_HCERT_HC1_PREFIX);
-    });
-
-    String actualMessage = exception.getMessage();
-
-    assertEquals(COSE_FORMAT_EXCEPTION, actualMessage);
-  }
-
-  @Test
-  void shouldThrowJsonDeserializeException() {
-    Exception exception = assertThrows(JsonDeserializeException.class, () -> {
-      decovid19HcertService.getIssuer("fooBar");
-    });
-
-    String actualMessage = exception.getMessage();
-
-    assertEquals(JSON_DESERIALIZE_EXCEPTION, actualMessage);
-  }
-
-  @Test
   void shouldReturnCorrectAlgo() throws IOException {
     InputStream testVaccImageInputStream = Files.newInputStream(SWISS_QR_CODE_VACC_CERT_IMG_PATH);
     String hcert = decovid19HcertService.getHealthCertificateContent(testVaccImageInputStream);
     testVaccImageInputStream.close();
 
-    Message hcertCose = decovid19HcertService.getCOSEMessageFromHcert(hcert);
+    CBORObject cborObject = decovid19HcertService.getCBORObject(hcert);
+    String actualAlgo = decovid19HcertService.getAlgo(cborObject);
 
-    String actualAlgo = decovid19HcertService.getAlgo(hcertCose);
-
-    assertEquals(HcertAlgo.RSA_PSS_256.toString(), actualAlgo);
+    assertEquals(HcertAlgoKeys.RSA_PSS_256.toString(), actualAlgo);
   }
 
   @Test
@@ -292,9 +256,8 @@ class Decovid19HcertServiceTest {
     String hcert = decovid19HcertService.getHealthCertificateContent(testVaccImageInputStream);
     testVaccImageInputStream.close();
 
-    Message hcertCose = decovid19HcertService.getCOSEMessageFromHcert(hcert);
-
-    String actualKID = decovid19HcertService.getKID(hcertCose);
+    CBORObject cborObject = decovid19HcertService.getCBORObject(hcert);
+    String actualKID = decovid19HcertService.getKID(cborObject);
 
     assertEquals(SWISS_QR_CODE_VACC_KID, actualKID);
   }
