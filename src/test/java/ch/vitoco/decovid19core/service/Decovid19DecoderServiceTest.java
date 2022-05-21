@@ -31,7 +31,7 @@ import ch.vitoco.decovid19core.model.HcertTimeStampDTO;
 import ch.vitoco.decovid19core.server.HcertServerRequest;
 import ch.vitoco.decovid19core.server.HcertServerResponse;
 
-class Decovid19ServiceTest {
+class Decovid19DecoderServiceTest {
 
   private static final String NAME = "foo";
   private static final String FILE_NAME_PNG_EXT_ALLOWED = "TestFile.png";
@@ -59,7 +59,7 @@ class Decovid19ServiceTest {
 
   private final Decovid19ValueSetService decovid19ValueSetService = new Decovid19ValueSetService();
   private final Decovid19HcertService decovid19HcertService = new Decovid19HcertService();
-  private final Decovid19Service decovid19Service = new Decovid19Service(decovid19ValueSetService,
+  private final Decovid19DecoderService decovid19DecoderService = new Decovid19DecoderService(decovid19ValueSetService,
       decovid19HcertService);
 
   @Test
@@ -76,7 +76,7 @@ class Decovid19ServiceTest {
     String expectedVersion = (String) jsonHcertPaylod.get("ver");
     String expectedDateOfBirth = (String) jsonHcertPaylod.get("dob");
 
-    ResponseEntity<HcertServerResponse> healthCertificateContent = decovid19Service.getHealthCertificateContent(
+    ResponseEntity<HcertServerResponse> healthCertificateContent = decovid19DecoderService.getHealthCertificateContent(
         mockMultipartFile);
 
     HttpStatus statusCode = healthCertificateContent.getStatusCode();
@@ -113,7 +113,7 @@ class Decovid19ServiceTest {
     String expectedVersion = (String) jsonHcertPaylod.get("ver");
     String expectedDateOfBirth = (String) jsonHcertPaylod.get("dob");
 
-    ResponseEntity<HcertServerResponse> healthCertificateContent = decovid19Service.getHealthCertificateContent(
+    ResponseEntity<HcertServerResponse> healthCertificateContent = decovid19DecoderService.getHealthCertificateContent(
         mockMultipartFile);
 
     HttpStatus statusCode = healthCertificateContent.getStatusCode();
@@ -150,7 +150,7 @@ class Decovid19ServiceTest {
     String expectedVersion = (String) jsonHcertPaylod.get("ver");
     String expectedDateOfBirth = (String) jsonHcertPaylod.get("dob");
 
-    ResponseEntity<HcertServerResponse> healthCertificateContent = decovid19Service.getHealthCertificateContent(
+    ResponseEntity<HcertServerResponse> healthCertificateContent = decovid19DecoderService.getHealthCertificateContent(
         mockMultipartFile);
 
     HttpStatus statusCode = healthCertificateContent.getStatusCode();
@@ -177,7 +177,7 @@ class Decovid19ServiceTest {
   void shouldReturnHealthCertificateResponseFromHC1Prefix() {
     HcertServerRequest hcertServerRequest = new HcertServerRequest();
     hcertServerRequest.setHcertPrefix(SWISS_QR_CODE_VACC_HC1_PREFIX);
-    ResponseEntity<HcertServerResponse> healthCertificateContent = decovid19Service.getHealthCertificateContent(
+    ResponseEntity<HcertServerResponse> healthCertificateContent = decovid19DecoderService.getHealthCertificateContent(
         hcertServerRequest);
 
     HttpStatus statusCode = healthCertificateContent.getStatusCode();
@@ -192,7 +192,7 @@ class Decovid19ServiceTest {
         MediaType.MULTIPART_FORM_DATA_VALUE, testVaccImageInputStream);
     testVaccImageInputStream.close();
 
-    ResponseEntity<HcertServerResponse> healthCertificateContent = decovid19Service.getHealthCertificateContent(
+    ResponseEntity<HcertServerResponse> healthCertificateContent = decovid19DecoderService.getHealthCertificateContent(
         mockMultipartFile);
 
     HttpStatus statusCode = healthCertificateContent.getStatusCode();
@@ -204,7 +204,7 @@ class Decovid19ServiceTest {
   void shouldReturnBadRequestIfWrongHC1Prefix() {
     HcertServerRequest hcertServerRequest = new HcertServerRequest();
     hcertServerRequest.setHcertPrefix(SWISS_QR_CODE_VACC_HC1_PREFIX_WRONG);
-    ResponseEntity<HcertServerResponse> healthCertificateContent = decovid19Service.getHealthCertificateContent(
+    ResponseEntity<HcertServerResponse> healthCertificateContent = decovid19DecoderService.getHealthCertificateContent(
         hcertServerRequest);
 
     HttpStatus statusCode = healthCertificateContent.getStatusCode();
@@ -220,7 +220,7 @@ class Decovid19ServiceTest {
     testVaccImageInputStream.close();
 
     Exception exception = assertThrows(ImageNotValidException.class, () -> {
-      decovid19Service.getHealthCertificateContent(customMockMultipartFile);
+      decovid19DecoderService.getHealthCertificateContent(customMockMultipartFile);
     });
 
     String actualMessage = exception.getMessage();

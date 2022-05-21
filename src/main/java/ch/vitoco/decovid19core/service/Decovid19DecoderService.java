@@ -25,12 +25,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * Service class Decovid19Service.
+ * Service class Decovid19DecoderService.
  */
 @Service
-public class Decovid19Service {
+public class Decovid19DecoderService {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(Decovid19Service.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(Decovid19DecoderService.class);
 
   /**
    * Header String that is prefixed to Base45 encoded Health Certificate.
@@ -46,7 +46,7 @@ public class Decovid19Service {
    * @param decovid19ValueSetService the Decovid19ValueSetService
    * @param decovid19HcertService    the Decovid19HcertService
    */
-  public Decovid19Service(Decovid19ValueSetService decovid19ValueSetService,
+  public Decovid19DecoderService(Decovid19ValueSetService decovid19ValueSetService,
       Decovid19HcertService decovid19HcertService) {
     this.decovid19ValueSetService = decovid19ValueSetService;
     this.decovid19HcertService = decovid19HcertService;
