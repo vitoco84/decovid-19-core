@@ -15,6 +15,8 @@ import ch.vitoco.decovid19core.model.HcertCertificates;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -28,7 +30,12 @@ class Decovid19TrustListServiceTest {
       "src/test/resources/fakePublicKeyResponseBody.txt");
 
   private final Decovid19TrustListService decovid19TrustListService = new Decovid19TrustListService();
+  private final MockWebServer mockWebServer = new MockWebServer();
 
+  @BeforeEach
+  void setupMockWebServer() throws IOException {
+    mockWebServer.start();
+  }
 
   @Disabled("Only used for local testing and verification. MockWebServer is used instead, see Test shouldRetrieveCertificatesWithMockWebServer().")
   @Test
@@ -57,7 +64,6 @@ class Decovid19TrustListServiceTest {
   void shouldRetrieveCertificatesWithMockWebServer() throws IOException {
     String body = Files.readString(FAKE_CERTIFICATES_RESPONSE_BODY).replace("\r\n", "");
 
-    final MockWebServer mockWebServer = new MockWebServer();
     mockWebServer.enqueue(new MockResponse().setBody(body));
 
     HttpUrl baseUrl = mockWebServer.url("/decovid/certs/");
@@ -77,15 +83,12 @@ class Decovid19TrustListServiceTest {
     assertEquals("thumbprint", hcertCertificate.getThumbprint());
     assertEquals("timestamp", hcertCertificate.getTimestamp());
     assertEquals(3, certificatesList.size());
-
-    mockWebServer.shutdown();
   }
 
   @Test
   void shouldRetrievePublicKeyWithMockWebServer() throws IOException {
     String body = Files.readString(FAKE_PUBLIC_KEY_RESPONSE_BODY).replace("\r\n", "");
 
-    final MockWebServer mockWebServer = new MockWebServer();
     mockWebServer.enqueue(new MockResponse().setBody(body));
 
     HttpUrl baseUrl = mockWebServer.url("/decovid/pubKey/");
@@ -94,8 +97,10 @@ class Decovid19TrustListServiceTest {
 
     assertEquals(HttpStatus.OK, publicKey.getStatusCode());
     assertTrue(Objects.requireNonNull(publicKey.getBody()).startsWith("-----BEGIN PUBLIC KEY-----"));
-    assertTrue(Objects.requireNonNull(publicKey.getBody()).endsWith("-----END PUBLIC KEY-----"));
+  }
 
+  @AfterEach
+  void cleanUpMockWebServer() throws IOException {
     mockWebServer.shutdown();
   }
 
