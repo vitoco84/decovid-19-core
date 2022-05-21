@@ -23,6 +23,9 @@
 # Test Data
 > Test Data taken from: [dcc-testdata](https://github.com/ehn-dcc-development/dcc-testdata)
 
+# Trusted Document Signing Certificates (DSC)
+> Trust List Documentation API and Endpoints taken from: [Digitaler-Impfnachweis](https://github.com/Digitaler-Impfnachweis/certification-apis)
+
 # Swagger UI
 
 > API endpoints documentation served under [http://localhost:8082/v3/api-docs](http://localhost:8082/v3/api-docs)

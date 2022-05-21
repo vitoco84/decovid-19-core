@@ -48,6 +48,7 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation "org.springframework.boot:spring-boot-starter-webflux:${libs.versions.webFlux.get()}"
     implementation "org.springdoc:springdoc-openapi-ui:${libs.versions.openapi.get()}"
     implementation "io.github.ehn-digital-green-development:base45:${libs.versions.base45.get()}"
     implementation "com.google.zxing:core:${libs.versions.zxing.get()}"
@@ -64,6 +65,8 @@ dependencies {
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: "com.vaadin.external.google", module: "android-json"
     }
+    testImplementation "com.squareup.okhttp3:mockwebserver:${libs.versions.mockWebServer.get()}"
+    testImplementation "com.squareup.okhttp3:okhttp:${libs.versions.mockWebServer.get()}"
 }
 
 tasks.named('test') {

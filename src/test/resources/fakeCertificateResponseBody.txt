@@ -1,0 +1,2 @@
+FAKEseh3545kl4wetegEGNESGNEG/Q==
+{"certificates": [{"certificateType": "DSC","country": "DE","kid": "kid","rawData": "rawData","signature": "signature","thumbprint": "thumbprint","timestamp": "timestamp"},{"certificateType": "DSC","country": "IT","kid": "kid","rawData": "rawData","signature": "signature","thumbprint": "thumbprint","timestamp": "timestamp"},{"certificateType": "DSC","country": "CH","kid": "kid","rawData": "rawData","signature": "signature","thumbprint": "thumbprint","timestamp": "timestamp"}]}
