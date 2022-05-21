@@ -6,7 +6,7 @@
 	},
 	"item": [
 		{
-			"name": "Health Certificate Image Recovery",
+			"name": "Health Certificate QR-Code Recovery",
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -21,7 +21,7 @@
 					]
 				},
 				"url": {
-					"raw": "http://localhost:8082/decovid19/hcert/image",
+					"raw": "http://localhost:8082/decovid19/hcert/qrcode",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -30,7 +30,7 @@
 					"path": [
 						"decovid19",
 						"hcert",
-						"image"
+						"qrcode"
 					],
 					"query": [
 						{
@@ -44,7 +44,7 @@
 			"response": []
 		},
 		{
-			"name": "Health Certificate Image Vaccination",
+			"name": "Health Certificate QR-Code Vaccination",
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -59,7 +59,7 @@
 					]
 				},
 				"url": {
-					"raw": "http://localhost:8082/decovid19/hcert/image",
+					"raw": "http://localhost:8082/decovid19/hcert/qrcode",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -68,7 +68,7 @@
 					"path": [
 						"decovid19",
 						"hcert",
-						"image"
+						"qrcode"
 					],
 					"query": [
 						{
@@ -82,7 +82,7 @@
 			"response": []
 		},
 		{
-			"name": "Health Certificate Image Tested",
+			"name": "Health Certificate QR-Code Test",
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -92,12 +92,12 @@
 						{
 							"key": "imageFile",
 							"type": "file",
-							"src": "swissQRCodeTestedCertificate.png"
+							"src": "swissQRCodeTestCertificate.png"
 						}
 					]
 				},
 				"url": {
-					"raw": "http://localhost:8082/decovid19/hcert/image",
+					"raw": "http://localhost:8082/decovid19/hcert/qrcode",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -106,7 +106,7 @@
 					"path": [
 						"decovid19",
 						"hcert",
-						"image"
+						"qrcode"
 					],
 					"query": [
 						{
