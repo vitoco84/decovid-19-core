@@ -6,21 +6,21 @@ package ch.vitoco.decovid19core.constants;
 public final class Const {
 
   /**
-   * Image decode exception message.
+   * QR-Code decode exception message.
    */
-  public static final String IMAGE_DECODE_EXCEPTION = "The health certificate content of the image could not be decoded.";
+  public static final String QR_CODE_DECODE_EXCEPTION = "The Health Certificate content of the QR-Code could not be decoded.";
   /**
-   * Image corrupted exception message.
+   * QR-Code corrupted exception message.
    */
-  public static final String IMAGE_CORRUPTED_EXCEPTION = "The uploaded image is corrupted.";
+  public static final String QR_CODE_CORRUPTED_EXCEPTION = "The uploaded QR-Code is corrupted.";
   /**
    * COSE format exception message.
    */
-  public static final String COSE_FORMAT_EXCEPTION = "The COSE message could not be formatted correctly.";
+  public static final String MESSAGE_FORMAT_EXCEPTION = "The Message could not be formatted correctly.";
   /**
    * Decode exception message.
    */
-  public static final String MESSAGE_DECODE_EXCEPTION = "The message could not be decoded.";
+  public static final String MESSAGE_DECODE_EXCEPTION = "The Message could not be decoded.";
   /**
    * JSON deserialize exception message.
    */

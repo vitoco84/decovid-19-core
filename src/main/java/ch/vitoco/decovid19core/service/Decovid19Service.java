@@ -1,6 +1,6 @@
 package ch.vitoco.decovid19core.service;
 
-import static ch.vitoco.decovid19core.constants.Const.IMAGE_CORRUPTED_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.Const.QR_CODE_CORRUPTED_EXCEPTION;
 import static ch.vitoco.decovid19core.constants.Const.JSON_DESERIALIZE_EXCEPTION;
 
 import java.io.IOException;
@@ -64,7 +64,7 @@ public class Decovid19Service {
         String hcertContent = decovid19HcertService.getHealthCertificateContent(imageFileInputStream);
         return getHcertServerResponseResponseEntity(hcertContent);
       } catch (IOException e) {
-        throw new ImageNotValidException(IMAGE_CORRUPTED_EXCEPTION, e);
+        throw new ImageNotValidException(QR_CODE_CORRUPTED_EXCEPTION, e);
       }
     } else {
       String originalFilename = HcertStringUtils.sanitizeUserInputString(imageFile);

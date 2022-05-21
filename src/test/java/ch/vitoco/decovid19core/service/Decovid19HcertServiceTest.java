@@ -1,6 +1,6 @@
 package ch.vitoco.decovid19core.service;
 
-import static ch.vitoco.decovid19core.constants.Const.IMAGE_DECODE_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.Const.QR_CODE_DECODE_EXCEPTION;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
@@ -235,7 +235,7 @@ class Decovid19HcertServiceTest {
     testImageInputStream.close();
     String actualMessage = exception.getMessage();
 
-    assertEquals(IMAGE_DECODE_EXCEPTION, actualMessage);
+    assertEquals(QR_CODE_DECODE_EXCEPTION, actualMessage);
   }
 
   @Test

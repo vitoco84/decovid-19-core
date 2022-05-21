@@ -52,7 +52,7 @@ public class Decovid19HcertService {
       Result result = new MultiFormatReader().decode(bitmap);
       return result.getText();
     } catch (IOException | NotFoundException e) {
-      throw new ImageDecodeException(IMAGE_DECODE_EXCEPTION, e);
+      throw new ImageDecodeException(QR_CODE_DECODE_EXCEPTION, e);
     }
   }
 
@@ -76,7 +76,7 @@ public class Decovid19HcertService {
       }
       return outputStream;
     } catch (IOException | DataFormatException e) {
-      throw new MessageDecodeException(COSE_FORMAT_EXCEPTION, e);
+      throw new MessageDecodeException(MESSAGE_FORMAT_EXCEPTION, e);
     }
   }
 

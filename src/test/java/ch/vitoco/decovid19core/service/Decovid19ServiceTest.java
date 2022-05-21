@@ -1,6 +1,6 @@
 package ch.vitoco.decovid19core.service;
 
-import static ch.vitoco.decovid19core.constants.Const.IMAGE_CORRUPTED_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.Const.QR_CODE_CORRUPTED_EXCEPTION;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -225,7 +225,7 @@ class Decovid19ServiceTest {
 
     String actualMessage = exception.getMessage();
 
-    assertEquals(IMAGE_CORRUPTED_EXCEPTION, actualMessage);
+    assertEquals(QR_CODE_CORRUPTED_EXCEPTION, actualMessage);
   }
 
   private static class CustomMockMultipartFile extends MockMultipartFile {
