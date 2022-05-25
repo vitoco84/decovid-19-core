@@ -26,6 +26,9 @@
 # Trusted Document Signing Certificates (DSC)
 > Trust List Documentation API and Endpoints taken from: [Digitaler-Impfnachweis](https://github.com/Digitaler-Impfnachweis/certification-apis)
 
+# DSC Trust List API
+> A collection of REST API endpoints can be found here: [EU DCC Gateway REST API](https://eu-digital-green-certificates.github.io/dgc-gateway/)
+
 # Swagger UI
 
 > API endpoints documentation served under [http://localhost:8082/v3/api-docs](http://localhost:8082/v3/api-docs)
@@ -75,6 +78,14 @@
 >     }
 > }
 > ```
+> ## Example QRCodeServerRequest:
+> ```yaml
+> {
+>    "url": "https://www.google.ch/"
+> }
+> ```
+> ## Example QRCodeServerResponse:
+> ![Google URL](src/main/resources/images/QRCodeServerResponse.png)
 
 # Postman
 > Postman collection for testing purposes is available under `resources/Decovid-19-Core.postman_collection.json`

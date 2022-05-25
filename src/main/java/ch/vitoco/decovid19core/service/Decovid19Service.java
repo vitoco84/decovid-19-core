@@ -1,36 +1,44 @@
 package ch.vitoco.decovid19core.service;
 
-import static ch.vitoco.decovid19core.constants.Const.QR_CODE_CORRUPTED_EXCEPTION;
 import static ch.vitoco.decovid19core.constants.Const.JSON_DESERIALIZE_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.Const.QR_CODE_CORRUPTED_EXCEPTION;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.cert.X509Certificate;
+import java.security.interfaces.ECPublicKey;
+import java.security.interfaces.RSAPublicKey;
 
-import ch.vitoco.decovid19core.exception.ImageNotValidException;
-import ch.vitoco.decovid19core.exception.JsonDeserializeException;
-import ch.vitoco.decovid19core.model.HcertContentDTO;
-import ch.vitoco.decovid19core.model.HcertDTO;
-import ch.vitoco.decovid19core.model.HcertTimeStampDTO;
-import ch.vitoco.decovid19core.server.HcertServerRequest;
-import ch.vitoco.decovid19core.server.HcertServerResponse;
-import ch.vitoco.decovid19core.utils.HcertFileUtils;
-import ch.vitoco.decovid19core.utils.HcertStringUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.upokecenter.cbor.CBORObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.upokecenter.cbor.CBORObject;
+
+import ch.vitoco.decovid19core.exception.ImageNotValidException;
+import ch.vitoco.decovid19core.exception.JsonDeserializeException;
+import ch.vitoco.decovid19core.model.HcertContentDTO;
+import ch.vitoco.decovid19core.model.HcertDTO;
+import ch.vitoco.decovid19core.model.HcertPublicKeyDTO;
+import ch.vitoco.decovid19core.model.HcertTimeStampDTO;
+import ch.vitoco.decovid19core.server.HcertServerRequest;
+import ch.vitoco.decovid19core.server.HcertServerResponse;
+import ch.vitoco.decovid19core.server.PEMCertServerRequest;
+import ch.vitoco.decovid19core.server.PEMCertServerResponse;
+import ch.vitoco.decovid19core.utils.HcertFileUtils;
+import ch.vitoco.decovid19core.utils.HcertStringUtils;
+
 /**
  * Service class Decovid19DecoderService.
  */
 @Service
-public class Decovid19DecoderService {
+public class Decovid19Service {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(Decovid19DecoderService.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(Decovid19Service.class);
 
   /**
    * Header String that is prefixed to Base45 encoded Health Certificate.
@@ -39,17 +47,21 @@ public class Decovid19DecoderService {
 
   private final Decovid19ValueSetService decovid19ValueSetService;
   private final Decovid19HcertService decovid19HcertService;
+  private final Decovid19TrustListService decovid19TrustListService;
 
   /**
    * Constructor.
    *
-   * @param decovid19ValueSetService the Decovid19ValueSetService
-   * @param decovid19HcertService    the Decovid19HcertService
+   * @param decovid19ValueSetService  the Decovid19ValueSetService
+   * @param decovid19HcertService     the Decovid19HcertService
+   * @param decovid19TrustListService the Decovid19TrustListService
    */
-  public Decovid19DecoderService(Decovid19ValueSetService decovid19ValueSetService,
-      Decovid19HcertService decovid19HcertService) {
+  public Decovid19Service(Decovid19ValueSetService decovid19ValueSetService,
+      Decovid19HcertService decovid19HcertService,
+      Decovid19TrustListService decovid19TrustListService) {
     this.decovid19ValueSetService = decovid19ValueSetService;
     this.decovid19HcertService = decovid19HcertService;
+    this.decovid19TrustListService = decovid19TrustListService;
   }
 
   /**
@@ -142,6 +154,46 @@ public class Decovid19DecoderService {
     hcertResponse.setHcertIssuer(hcertIssuer);
     hcertResponse.setHcertTimeStamp(hcertTimeStampDTO);
     return hcertResponse;
+  }
+
+  public ResponseEntity<PEMCertServerResponse> getX509Certificate(PEMCertServerRequest pemCertificate) {
+    X509Certificate x509Certificate = decovid19TrustListService.convertCertificateToX509(
+        pemCertificate.getPemCertificate());
+
+    PEMCertServerResponse pemCertServerResponse = buildPEMCertServerResponse(x509Certificate);
+
+    return ResponseEntity.ok().body(pemCertServerResponse);
+  }
+
+  private PEMCertServerResponse buildPEMCertServerResponse(X509Certificate x509Certificate) {
+    PEMCertServerResponse pemCertServerResponse = new PEMCertServerResponse();
+    pemCertServerResponse.setVersion(String.valueOf(x509Certificate.getVersion()));
+    pemCertServerResponse.setSubject(x509Certificate.getSubjectDN().getName());
+    pemCertServerResponse.setSignatureAlgorithm(x509Certificate.getSigAlgName());
+    pemCertServerResponse.setKey(x509Certificate.getPublicKey().toString());
+    pemCertServerResponse.setValidTo(x509Certificate.getNotAfter().toString());
+    pemCertServerResponse.setValidFrom(x509Certificate.getNotBefore().toString());
+    pemCertServerResponse.setSerialNumber(x509Certificate.getSerialNumber().toString());
+    pemCertServerResponse.setIssuer(x509Certificate.getIssuerDN().getName());
+    pemCertServerResponse.setHcertPublicKey(buildPublicKeyResponse(x509Certificate));
+    return pemCertServerResponse;
+  }
+
+  private HcertPublicKeyDTO buildPublicKeyResponse(X509Certificate x509Certificate) {
+    HcertPublicKeyDTO hcertPublicKeyDTO = new HcertPublicKeyDTO();
+    if (x509Certificate.getSigAlgName().contains("RSA")) {
+      RSAPublicKey x509RSATemp = (RSAPublicKey) x509Certificate.getPublicKey();
+      hcertPublicKeyDTO.setPublicExponent(String.valueOf(x509RSATemp.getPublicExponent()));
+      hcertPublicKeyDTO.setModulus(String.valueOf(x509RSATemp.getModulus()));
+      hcertPublicKeyDTO.setAlgo(x509RSATemp.getAlgorithm());
+    }
+    if (x509Certificate.getSigAlgName().contains("ECDSA")) {
+      ECPublicKey x509ECDSATemp = (ECPublicKey) x509Certificate.getPublicKey();
+      hcertPublicKeyDTO.setXCoord(x509ECDSATemp.getW().getAffineX().toString());
+      hcertPublicKeyDTO.setYCoord(x509ECDSATemp.getW().getAffineY().toString());
+      hcertPublicKeyDTO.setAlgo(x509ECDSATemp.getAlgorithm());
+    }
+    return hcertPublicKeyDTO;
   }
 
 }

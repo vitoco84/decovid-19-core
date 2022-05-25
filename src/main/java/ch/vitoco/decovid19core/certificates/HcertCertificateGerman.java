@@ -1,14 +1,15 @@
-package ch.vitoco.decovid19core.model;
+package ch.vitoco.decovid19core.certificates;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import lombok.Data;
 
 /**
- * Representation class for the Health Certificate content.
+ * Representation class for the Health Certificate Trust List content from: <a href="https://eu-digital-green-certificates.github.io/dgc-gateway/#/Trust%20Lists/downloadTrustList">eu-dcc-gateway-rest-api</a>.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
-public class HcertCertificate {
+public class HcertCertificateGerman {
 
   /**
    * The Health Certificate Type.

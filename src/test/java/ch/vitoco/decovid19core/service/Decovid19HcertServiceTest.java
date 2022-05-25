@@ -1,7 +1,10 @@
 package ch.vitoco.decovid19core.service;
 
 import static ch.vitoco.decovid19core.constants.Const.QR_CODE_DECODE_EXCEPTION;
-import static org.junit.jupiter.api.Assertions.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,36 +12,39 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import ch.vitoco.decovid19core.enums.HcertAlgoKeys;
-import ch.vitoco.decovid19core.exception.ImageDecodeException;
-import ch.vitoco.decovid19core.model.HcertContentDTO;
-import ch.vitoco.decovid19core.model.HcertRecovery;
-import ch.vitoco.decovid19core.model.HcertTest;
-import ch.vitoco.decovid19core.model.HcertVaccination;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.upokecenter.cbor.CBORObject;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.upokecenter.cbor.CBORObject;
+
+import ch.vitoco.decovid19core.enums.HcertAlgoKeys;
+import ch.vitoco.decovid19core.exception.ImageDecodeException;
+import ch.vitoco.decovid19core.exception.MessageDecodeException;
+import ch.vitoco.decovid19core.model.HcertContentDTO;
+import ch.vitoco.decovid19core.model.HcertRecovery;
+import ch.vitoco.decovid19core.model.HcertTest;
+import ch.vitoco.decovid19core.model.HcertVaccination;
+
 class Decovid19HcertServiceTest {
 
   private static final Path SWISS_QR_CODE_VACC_CERT_IMG_PATH = Paths.get(
       "src/test/resources/swissQRCodeVaccinationCertificate.png");
   private static final Path SWISS_QR_CODE_VACC_CERT_JSON_PATH = Paths.get(
-      "src/test/resources/swissQRCodeVaccinationCertificateContent.json");
+      "src/test/resources/swissQRCodeVaccinationCertificate.json");
 
   private static final Path SWISS_QR_CODE_TEST_CERT_IMG_PATH = Paths.get(
       "src/test/resources/swissQRCodeTestCertificate.png");
   private static final Path SWISS_QR_CODE_TEST_CERT_JSON_PATH = Paths.get(
-      "src/test/resources/swissQRCodeTestCertificateContent.json");
+      "src/test/resources/swissQRCodeTestCertificate.json");
 
   private static final Path SWISS_QR_CODE_RECOVERY_CERT_IMG_PATH = Paths.get(
       "src/test/resources/swissQRCodeRecoveryCertificate.png");
   private static final Path SWISS_QR_CODE_RECOVERY_CERT_JSON_PATH = Paths.get(
-      "src/test/resources/swissQRCodeRecoveryCertificateContent.json");
+      "src/test/resources/swissQRCodeRecoveryCertificate.json");
 
   private static final Path FREE_TEST_IMAGE = Paths.get("src/test/resources/freeTestImageFromUnsplash.jpg");
   private static final String SWISS_QR_CODE_VACC_KID = "mmrfzpMU6xc=";
@@ -232,6 +238,17 @@ class Decovid19HcertServiceTest {
     });
 
     testImageInputStream.close();
+    String actualMessage = exception.getMessage();
+
+    assertEquals(QR_CODE_DECODE_EXCEPTION, actualMessage);
+  }
+
+  @Test
+  void shouldThrowMessageDecodeException() {
+    Exception exception = assertThrows(MessageDecodeException.class, () -> {
+      decovid19HcertService.decodeBase45HealthCertificate("foobar");
+    });
+
     String actualMessage = exception.getMessage();
 
     assertEquals(QR_CODE_DECODE_EXCEPTION, actualMessage);

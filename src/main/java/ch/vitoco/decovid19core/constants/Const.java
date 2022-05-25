@@ -35,6 +35,16 @@ public final class Const {
   public static final String RESOURCES_READ_EXCEPTION = "Could not read resources.";
 
   /**
+   * URL encode exception message.
+   */
+  public static final String URL_ENCODE_EXCEPTION = "Could not encode the given URL.";
+
+  /**
+   * Private or Public Key exception message.
+   */
+  public static final String KEY_SPEC_EXCEPTION = "The public or private key could not be retrieved.";
+
+  /**
    * Constructor.
    */
   private Const() {

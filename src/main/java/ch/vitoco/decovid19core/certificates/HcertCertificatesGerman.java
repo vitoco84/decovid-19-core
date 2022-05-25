@@ -1,4 +1,4 @@
-package ch.vitoco.decovid19core.model;
+package ch.vitoco.decovid19core.certificates;
 
 import java.util.List;
 
@@ -10,11 +10,11 @@ import lombok.Data;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
-public class HcertCertificates {
+public class HcertCertificatesGerman {
 
   /**
    * List of Health Certificates.
    */
-  private List<HcertCertificate> certificates;
+  private List<HcertCertificateGerman> certificates;
 
 }

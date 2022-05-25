@@ -22,38 +22,38 @@ public final class HcertValueSet {
   /**
    * Path of the country codes resources.
    */
-  private static final Path COUNTRY_CODES_VALUE_SET_PATH = Paths.get("src/main/resources/country-2-codes.json");
+  private static final Path COUNTRY_CODES_VALUE_SET_PATH = Paths.get("src/main/resources/valuesets/country-2-codes.json");
   /**
    * Path of the disease or agent targeted resources.
    */
   private static final Path DISEASE_AGENT_TARGET_VALUE_SET_PATH = Paths.get(
-      "src/main/resources/disease-agent-targeted.json");
+      "src/main/resources/valuesets/disease-agent-targeted.json");
 
   /**
    * Path of the vaccine marketing authorisation holder or manufacturer resources.
    */
-  private static final Path VACC_MARKETING_AUTHORISATION = Paths.get("src/main/resources/vaccine-mah-manf.json");
+  private static final Path VACC_MARKETING_AUTHORISATION = Paths.get("src/main/resources/valuesets/vaccine-mah-manf.json");
   /**
    * path of the vaccine medicinal product resources.
    */
-  private static final Path VACC_MEDICINAL_PRODUCT = Paths.get("src/main/resources/vaccine-medicinal-product.json");
+  private static final Path VACC_MEDICINAL_PRODUCT = Paths.get("src/main/resources/valuesets/vaccine-medicinal-product.json");
   /**
    * Path of the vaccine or prophylaxis resources.
    */
-  private static final Path VACC_PROPHYLAXIS = Paths.get("src/main/resources/vaccine-prophylaxis.json");
+  private static final Path VACC_PROPHYLAXIS = Paths.get("src/main/resources/valuesets/vaccine-prophylaxis.json");
 
   /**
    * Path of the test type resources.
    */
-  private static final Path TEST_TYPE = Paths.get("src/main/resources/test-type.json");
+  private static final Path TEST_TYPE = Paths.get("src/main/resources/valuesets/test-type.json");
   /**
    * Path ot the test device identifier resources.
    */
-  private static final Path TEST_DEVICE = Paths.get("src/main/resources/test-manf.json");
+  private static final Path TEST_DEVICE = Paths.get("src/main/resources/valuesets/test-manf.json");
   /**
    * Path of the test result resources.
    */
-  private static final Path TEST_RESULT = Paths.get("src/main/resources/test-result.json");
+  private static final Path TEST_RESULT = Paths.get("src/main/resources/valuesets/test-result.json");
 
   private static final ObjectMapper jsonMapper = new ObjectMapper();
 
