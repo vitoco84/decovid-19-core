@@ -15,6 +15,11 @@ import java.security.cert.X509Certificate;
 import java.security.spec.X509EncodedKeySpec;
 import java.time.Duration;
 
+import ch.vitoco.decovid19core.certificates.GermanCertificates;
+import ch.vitoco.decovid19core.exception.JsonDeserializeException;
+import ch.vitoco.decovid19core.exception.KeySpecsException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
@@ -24,14 +29,6 @@ import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import ch.vitoco.decovid19core.certificates.HcertCertificatesGerman;
-import ch.vitoco.decovid19core.exception.JsonDeserializeException;
-import ch.vitoco.decovid19core.exception.KeySpecsException;
-
 import reactor.netty.http.client.HttpClient;
 
 /**
@@ -61,7 +58,7 @@ public class Decovid19TrustListService {
   /**
    * Gets the public keys from the given endpoint.
    *
-   * @param baseUrl the base URL for retrieving public keys
+   * @param baseUrl the base URL for retrieving public keys as PEM formatted String
    * @return Public Key
    */
   public ResponseEntity<String> getPublicKey(String baseUrl) {
@@ -97,11 +94,11 @@ public class Decovid19TrustListService {
    * @param certificates the Health Certificate content retrieved from the given endpoint
    * @return HcertCertificates
    */
-  public HcertCertificatesGerman buildGermanHcertCertificates(String certificates) {
+  public GermanCertificates buildGermanHcertCertificates(String certificates) {
     try {
       String substring = certificates.substring(certificates.indexOf("{"));
       ObjectMapper objectMapper = new ObjectMapper();
-      return objectMapper.readValue(substring, HcertCertificatesGerman.class);
+      return objectMapper.readValue(substring, GermanCertificates.class);
     } catch (JsonProcessingException e) {
       throw new JsonDeserializeException(JSON_DESERIALIZE_EXCEPTION, e);
     }
@@ -131,7 +128,8 @@ public class Decovid19TrustListService {
    * @return PublicKey
    */
   public PublicKey readPublicKey(String publicKey, String algorithm) {
-    try (StringReader keyReader = new StringReader(publicKey); PemReader pemReader = new PemReader(keyReader)) {
+    String publicKeyTmp = addPublicKeyPrefix(publicKey);
+    try (StringReader keyReader = new StringReader(publicKeyTmp); PemReader pemReader = new PemReader(keyReader)) {
       PemObject pemObject = pemReader.readPemObject();
       byte[] content = pemObject.getContent();
       X509EncodedKeySpec pubKeySpec = new X509EncodedKeySpec(content);

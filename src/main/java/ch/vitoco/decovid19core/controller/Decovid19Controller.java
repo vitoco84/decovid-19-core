@@ -1,30 +1,19 @@
 package ch.vitoco.decovid19core.controller;
 
 import java.awt.image.BufferedImage;
-import java.security.cert.X509Certificate;
 
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
-import ch.vitoco.decovid19core.server.HcertServerRequest;
-import ch.vitoco.decovid19core.server.HcertServerResponse;
-import ch.vitoco.decovid19core.server.PEMCertServerRequest;
-import ch.vitoco.decovid19core.server.PEMCertServerResponse;
-import ch.vitoco.decovid19core.server.QRCodeServerRequest;
+import ch.vitoco.decovid19core.server.*;
 import ch.vitoco.decovid19core.service.Decovid19Service;
 import ch.vitoco.decovid19core.service.QRCodeGeneratorService;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/decovid19")
@@ -68,6 +57,10 @@ public class Decovid19Controller {
     return qrCodeGeneratorService.getQRCode(url);
   }
 
+  @Operation(summary = "Decode PEM Data")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Decode PEM Data", content = {
+      @Content(mediaType = "application/json", schema = @Schema(implementation = PEMCertServerResponse.class))}),
+      @ApiResponse(responseCode = "400", description = "Invalid PEM data supplied", content = @Content)})
   @PostMapping(value = "/hcert/qrcode/pem", consumes = {MediaType.APPLICATION_JSON_VALUE,
       "application/json"}, produces = {MediaType.APPLICATION_JSON_VALUE, "application/json"})
   public ResponseEntity<PEMCertServerResponse> getX509Certificate(@RequestBody PEMCertServerRequest pemCertificate) {

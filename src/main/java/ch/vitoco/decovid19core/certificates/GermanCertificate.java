@@ -9,7 +9,7 @@ import lombok.Data;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
-public class HcertCertificateGerman {
+public class GermanCertificate {
 
   /**
    * The Health Certificate Type.

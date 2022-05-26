@@ -13,5 +13,6 @@ public class HcertPublicKeyDTO {
   private String xCoord;
   private String yCoord;
   private String algo;
+  private String bitLength;
 
 }

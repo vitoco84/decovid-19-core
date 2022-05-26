@@ -8,29 +8,28 @@ import java.io.InputStream;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.upokecenter.cbor.CBORObject;
+import java.util.Base64;
 
 import ch.vitoco.decovid19core.exception.ImageNotValidException;
 import ch.vitoco.decovid19core.exception.JsonDeserializeException;
+import ch.vitoco.decovid19core.exception.KeySpecsException;
 import ch.vitoco.decovid19core.model.HcertContentDTO;
 import ch.vitoco.decovid19core.model.HcertDTO;
 import ch.vitoco.decovid19core.model.HcertPublicKeyDTO;
-import ch.vitoco.decovid19core.model.HcertTimeStampDTO;
 import ch.vitoco.decovid19core.server.HcertServerRequest;
 import ch.vitoco.decovid19core.server.HcertServerResponse;
 import ch.vitoco.decovid19core.server.PEMCertServerRequest;
 import ch.vitoco.decovid19core.server.PEMCertServerResponse;
 import ch.vitoco.decovid19core.utils.HcertFileUtils;
 import ch.vitoco.decovid19core.utils.HcertStringUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.upokecenter.cbor.CBORObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Service class Decovid19DecoderService.
@@ -40,10 +39,10 @@ public class Decovid19Service {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(Decovid19Service.class);
 
-  /**
-   * Header String that is prefixed to Base45 encoded Health Certificate.
-   */
   private static final String HCERT_HEADER = "HC1:";
+  private static final int RADIX_HEX = 16;
+  private static final String SIGNATURE_ALGO_RSA = "RSA";
+  private static final String SIGNATURE_ALGO_ECDSA = "EC";
 
   private final Decovid19ValueSetService decovid19ValueSetService;
   private final Decovid19HcertService decovid19HcertService;
@@ -102,16 +101,8 @@ public class Decovid19Service {
   }
 
   private ResponseEntity<HcertServerResponse> getHcertServerResponseResponseEntity(String hcertContent) {
-    CBORObject cborObject = decovid19HcertService.getCBORObject(hcertContent);
-    String hcertIssuer = decovid19HcertService.getIssuer(cborObject);
-    HcertDTO hcertDTO = getHcertdDTO(cborObject);
-    HcertTimeStampDTO hcertTimeStampDTO = decovid19HcertService.getHcertTimeStamp(cborObject);
-    String hcertKID = decovid19HcertService.getKID(cborObject);
-    String hcertAlgo = decovid19HcertService.getAlgo(cborObject);
-    HcertServerResponse hcertResponse = buildHcertResponse(hcertContent, hcertDTO, hcertKID, hcertAlgo, hcertIssuer,
-        hcertTimeStampDTO);
-    LOGGER.info("Health Certificate Content: {}, KID: {}, Algo: {}, Issuer: {} ", hcertDTO, hcertKID, hcertAlgo,
-        hcertIssuer);
+    HcertServerResponse hcertResponse = buildHcertResponse(decovid19HcertService, hcertContent);
+    LOGGER.info("Health Certificate Content: {} ", hcertResponse);
     return ResponseEntity.ok().body(hcertResponse);
   }
 
@@ -132,65 +123,63 @@ public class Decovid19Service {
   private HcertContentDTO buildHcertContentDTO(String jsonPayloadFromCBORMessage, ObjectMapper objectMapper)
       throws JsonProcessingException {
     HcertContentDTO hcertContentDTO = objectMapper.readValue(jsonPayloadFromCBORMessage, HcertContentDTO.class);
-
     decovid19ValueSetService.mappingVaccinationValueSet(hcertContentDTO.getV());
     decovid19ValueSetService.mappingTestValueSet(hcertContentDTO.getT());
     decovid19ValueSetService.mappingRecoveryValueSet(hcertContentDTO.getR());
-
     return hcertContentDTO;
   }
 
-  private HcertServerResponse buildHcertResponse(String hcertContent,
-      HcertDTO hcertDTO,
-      String hcertKID,
-      String hcertAlgo,
-      String hcertIssuer,
-      HcertTimeStampDTO hcertTimeStampDTO) {
+  private HcertServerResponse buildHcertResponse(Decovid19HcertService decovid19HcertService, String hcertContent) {
     HcertServerResponse hcertResponse = new HcertServerResponse();
+    CBORObject cborObject = decovid19HcertService.getCBORObject(hcertContent);
     hcertResponse.setHcertPrefix(hcertContent);
-    hcertResponse.setHcertContent(hcertDTO);
-    hcertResponse.setHcertKID(hcertKID);
-    hcertResponse.setHcertAlgo(hcertAlgo);
-    hcertResponse.setHcertIssuer(hcertIssuer);
-    hcertResponse.setHcertTimeStamp(hcertTimeStampDTO);
+    hcertResponse.setHcertContent(getHcertdDTO(cborObject));
+    hcertResponse.setHcertKID(decovid19HcertService.getKID(cborObject));
+    hcertResponse.setHcertAlgo(decovid19HcertService.getAlgo(cborObject));
+    hcertResponse.setHcertIssuer(decovid19HcertService.getIssuer(cborObject));
+    hcertResponse.setHcertTimeStamp(decovid19HcertService.getHcertTimeStamp(cborObject));
     return hcertResponse;
   }
 
   public ResponseEntity<PEMCertServerResponse> getX509Certificate(PEMCertServerRequest pemCertificate) {
-    X509Certificate x509Certificate = decovid19TrustListService.convertCertificateToX509(
-        pemCertificate.getPemCertificate());
-
-    PEMCertServerResponse pemCertServerResponse = buildPEMCertServerResponse(x509Certificate);
-
-    return ResponseEntity.ok().body(pemCertServerResponse);
+    try {
+      X509Certificate x509Certificate = decovid19TrustListService.convertCertificateToX509(
+          pemCertificate.getPemCertificate());
+      PEMCertServerResponse pemCertServerResponse = buildPEMCertServerResponse(x509Certificate);
+      LOGGER.info("PEM Certificate Content: {} ", pemCertServerResponse);
+      return ResponseEntity.ok().body(pemCertServerResponse);
+    } catch (KeySpecsException e) {
+      return ResponseEntity.badRequest().build();
+    }
   }
 
   private PEMCertServerResponse buildPEMCertServerResponse(X509Certificate x509Certificate) {
     PEMCertServerResponse pemCertServerResponse = new PEMCertServerResponse();
-    pemCertServerResponse.setVersion(String.valueOf(x509Certificate.getVersion()));
+    pemCertServerResponse.setPublicKey(Base64.getEncoder().encodeToString(x509Certificate.getPublicKey().getEncoded()));
     pemCertServerResponse.setSubject(x509Certificate.getSubjectDN().getName());
     pemCertServerResponse.setSignatureAlgorithm(x509Certificate.getSigAlgName());
-    pemCertServerResponse.setKey(x509Certificate.getPublicKey().toString());
     pemCertServerResponse.setValidTo(x509Certificate.getNotAfter().toString());
     pemCertServerResponse.setValidFrom(x509Certificate.getNotBefore().toString());
-    pemCertServerResponse.setSerialNumber(x509Certificate.getSerialNumber().toString());
+    pemCertServerResponse.setSerialNumber(x509Certificate.getSerialNumber().toString(RADIX_HEX));
     pemCertServerResponse.setIssuer(x509Certificate.getIssuerDN().getName());
-    pemCertServerResponse.setHcertPublicKey(buildPublicKeyResponse(x509Certificate));
+    pemCertServerResponse.setPublicKeyParams(buildPublicKeyResponse(x509Certificate));
     return pemCertServerResponse;
   }
 
   private HcertPublicKeyDTO buildPublicKeyResponse(X509Certificate x509Certificate) {
     HcertPublicKeyDTO hcertPublicKeyDTO = new HcertPublicKeyDTO();
-    if (x509Certificate.getSigAlgName().contains("RSA")) {
+    if (x509Certificate.getPublicKey().getAlgorithm().equals(SIGNATURE_ALGO_RSA)) {
       RSAPublicKey x509RSATemp = (RSAPublicKey) x509Certificate.getPublicKey();
-      hcertPublicKeyDTO.setPublicExponent(String.valueOf(x509RSATemp.getPublicExponent()));
-      hcertPublicKeyDTO.setModulus(String.valueOf(x509RSATemp.getModulus()));
+      hcertPublicKeyDTO.setPublicExponent(x509RSATemp.getPublicExponent().toString(RADIX_HEX));
+      hcertPublicKeyDTO.setModulus(x509RSATemp.getModulus().toString(RADIX_HEX));
+      hcertPublicKeyDTO.setBitLength(String.valueOf(x509RSATemp.getModulus().bitLength()));
       hcertPublicKeyDTO.setAlgo(x509RSATemp.getAlgorithm());
     }
-    if (x509Certificate.getSigAlgName().contains("ECDSA")) {
+    if (x509Certificate.getPublicKey().getAlgorithm().equals(SIGNATURE_ALGO_ECDSA)) {
       ECPublicKey x509ECDSATemp = (ECPublicKey) x509Certificate.getPublicKey();
-      hcertPublicKeyDTO.setXCoord(x509ECDSATemp.getW().getAffineX().toString());
-      hcertPublicKeyDTO.setYCoord(x509ECDSATemp.getW().getAffineY().toString());
+      hcertPublicKeyDTO.setXCoord(x509ECDSATemp.getW().getAffineX().toString(RADIX_HEX));
+      hcertPublicKeyDTO.setYCoord(x509ECDSATemp.getW().getAffineY().toString(RADIX_HEX));
+      hcertPublicKeyDTO.setBitLength(String.valueOf(x509ECDSATemp.getW().getAffineX().bitLength()));
       hcertPublicKeyDTO.setAlgo(x509ECDSATemp.getAlgorithm());
     }
     return hcertPublicKeyDTO;

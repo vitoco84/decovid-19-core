@@ -10,11 +10,11 @@ import lombok.Data;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
-public class HcertCertificatesGerman {
+public class GermanCertificates {
 
   /**
    * List of Health Certificates.
    */
-  private List<HcertCertificateGerman> certificates;
+  private List<GermanCertificate> certificates;
 
 }

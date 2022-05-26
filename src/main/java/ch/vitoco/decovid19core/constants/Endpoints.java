@@ -13,23 +13,23 @@ public final class Endpoints {
    * The Response is a JSON Object with a rawData field.
    * The rawData field is a PEM formatted X.509 certificate.
    */
-  public static final String GERMAN_CERTS = "https://de.dscg.ubirch.com/trustList/DSC/";
+  public static final String GERMAN_CERTS_API = "https://de.dscg.ubirch.com/trustList/DSC/";
   /**
    * Health Certificates Public Key Endpoint used by German API.
    */
-  public static final String GERMAN_PUBLIC_KEY = "https://github.com/Digitaler-Impfnachweis/covpass-ios/raw/main/Certificates/PROD_RKI/CA/pubkey.pem";
+  public static final String GERMAN_PUBLIC_KEY_API = "https://github.com/Digitaler-Impfnachweis/covpass-ios/raw/main/Certificates/PROD_RKI/CA/pubkey.pem";
   /**
    * Health Certificates Active Key Identifiers Endpoint used by Swiss API.
    */
-  public static final String SWISS_ACTIVE_KID = "https://www.cc.bit.admin.ch/trust/v2/keys/list/";
+  public static final String SWISS_ACTIVE_KID_API = "https://www.cc.bit.admin.ch/trust/v2/keys/list/";
   /**
    * Health Certificates Trust List Certificates Endpoint used by Swiss API.
    */
-  public static final String SWISS_CERTS = "https://www.cc.bit.admin.ch/trust/v1/keys/updates?certFormat=ANDROID";
+  public static final String SWISS_CERTS_API = "https://www.cc.bit.admin.ch/trust/v1/keys/updates?certFormat=ANDROID";
   /**
    * Health Certificates Revocation List Certificates Endpoint used by Swiss API.
    */
-  public static final String SWISS_REVOCATION_LIST = "https://www.cc.bit.admin.ch/trust/v2/revocationList";
+  public static final String SWISS_REVOCATION_LIST_API = "https://www.cc.bit.admin.ch/trust/v2/revocationList";
 
   /**
    * Health Certificates Public Keys used by the Netherlands API.

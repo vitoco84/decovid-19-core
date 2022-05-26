@@ -22,7 +22,7 @@ sonarqube {
         property "sonar.organization", "vitoco84"
         property "sonar.host.url", "https://sonarcloud.io"
         property "sonar.coverage.jacoco.xmlReportPaths", "**/build/reports/jacoco/test/jacocoTestReport.xml"
-        property "sonar.exclusions", "**/src/main/java/ch/vitoco/decovid19core/constants/**"
+        property "sonar.exclusions", "**/src/main/java/ch/vitoco/decovid19core/constants/**", "**/src/main/java/ch/vitoco/decovid19core/config/**"
     }
 }
 
