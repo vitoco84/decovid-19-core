@@ -158,8 +158,8 @@ public class Decovid19Service {
     pemCertServerResponse.setPublicKey(Base64.getEncoder().encodeToString(x509Certificate.getPublicKey().getEncoded()));
     pemCertServerResponse.setSubject(x509Certificate.getSubjectDN().getName());
     pemCertServerResponse.setSignatureAlgorithm(x509Certificate.getSigAlgName());
-    pemCertServerResponse.setValidTo(x509Certificate.getNotAfter().toString());
-    pemCertServerResponse.setValidFrom(x509Certificate.getNotBefore().toString());
+    pemCertServerResponse.setValidTo(x509Certificate.getNotAfter().toInstant().toString());
+    pemCertServerResponse.setValidFrom(x509Certificate.getNotBefore().toInstant().toString());
     pemCertServerResponse.setSerialNumber(x509Certificate.getSerialNumber().toString(RADIX_HEX));
     pemCertServerResponse.setIssuer(x509Certificate.getIssuerDN().getName());
     pemCertServerResponse.setPublicKeyParams(buildPublicKeyResponse(x509Certificate));

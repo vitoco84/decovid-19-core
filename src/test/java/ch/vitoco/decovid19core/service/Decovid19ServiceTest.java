@@ -254,8 +254,8 @@ class Decovid19ServiceTest {
         "CN=BAG Covid-19 Signer A TEST, OU=Covid-19-Zertifikat, OU=GE-0220-BAG, OU=, O=Bundesamt für Gesundheit (BAG), OID.2.5.4.97=NTRCH-CHE-467.023.568, OID.2.5.4.15=Government Entity, L=Köniz, ST=BE, C=CH",
         pemCertServerResponse.getSubject());
     assertEquals("SHA256withRSA", pemCertServerResponse.getSignatureAlgorithm());
-    assertEquals("Sat May 04 16:15:51 CEST 2024", pemCertServerResponse.getValidTo());
-    assertEquals("Tue May 04 16:15:51 CEST 2021", pemCertServerResponse.getValidFrom());
+    assertEquals("2024-05-04T14:15:51Z", pemCertServerResponse.getValidTo());
+    assertEquals("2021-05-04T14:15:51Z", pemCertServerResponse.getValidFrom());
     assertEquals("2e46d100e4e5d8d4489f3bca20ba66dc", pemCertServerResponse.getSerialNumber());
     assertEquals(
         "CN=Swiss Government aRegulated CA 02, OU=Swiss Government PKI, O=Bundesamt fuer Informatik und Telekommunikation (BIT), OID.2.5.4.97=VATCH-CHE-221.032.573, C=CH",
@@ -283,8 +283,8 @@ class Decovid19ServiceTest {
         "SERIALNUMBER=CSM017143437, OID.2.5.4.97=DT:DE-UGNOTPROVIDED, L=Köln, CN=Ubirch GmbH, O=Ubirch GmbH, C=DE",
         pemCertServerResponse.getSubject());
     assertEquals("RSASSA-PSS", pemCertServerResponse.getSignatureAlgorithm());
-    assertEquals("Sat Apr 30 11:31:22 CEST 2022", pemCertServerResponse.getValidTo());
-    assertEquals("Tue Apr 27 11:31:22 CEST 2021", pemCertServerResponse.getValidFrom());
+    assertEquals("2022-04-30T09:31:22Z", pemCertServerResponse.getValidTo());
+    assertEquals("2021-04-27T09:31:22Z", pemCertServerResponse.getValidFrom());
     assertEquals("5e0ecd06e9c3e5e68ba4edc583d4449f", pemCertServerResponse.getSerialNumber());
     assertEquals("OID.2.5.4.97=NTRDE-HRB74346, CN=D-TRUST Test CA 2-2 2019, O=D-Trust GmbH, C=DE",
         pemCertServerResponse.getIssuer());
