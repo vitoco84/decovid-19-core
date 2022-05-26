@@ -9,10 +9,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import ch.vitoco.decovid19core.exception.ResourcesNotFoundException;
 import ch.vitoco.decovid19core.valuesets.model.ValueSet;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Representation class for value sets from: <a href="https://github.com/ehn-dcc-development/eu-dcc-valuesets">eu-dcc-valuesets</a>.
@@ -22,7 +21,8 @@ public final class HcertValueSet {
   /**
    * Path of the country codes resources.
    */
-  private static final Path COUNTRY_CODES_VALUE_SET_PATH = Paths.get("src/main/resources/valuesets/country-2-codes.json");
+  private static final Path COUNTRY_CODES_VALUE_SET_PATH = Paths.get(
+      "src/main/resources/valuesets/country-2-codes.json");
   /**
    * Path of the disease or agent targeted resources.
    */
@@ -32,11 +32,13 @@ public final class HcertValueSet {
   /**
    * Path of the vaccine marketing authorisation holder or manufacturer resources.
    */
-  private static final Path VACC_MARKETING_AUTHORISATION = Paths.get("src/main/resources/valuesets/vaccine-mah-manf.json");
+  private static final Path VACC_MARKETING_AUTHORISATION = Paths.get(
+      "src/main/resources/valuesets/vaccine-mah-manf.json");
   /**
    * path of the vaccine medicinal product resources.
    */
-  private static final Path VACC_MEDICINAL_PRODUCT = Paths.get("src/main/resources/valuesets/vaccine-medicinal-product.json");
+  private static final Path VACC_MEDICINAL_PRODUCT = Paths.get(
+      "src/main/resources/valuesets/vaccine-medicinal-product.json");
   /**
    * Path of the vaccine or prophylaxis resources.
    */

@@ -1,25 +1,13 @@
 package ch.vitoco.decovid19core.service;
 
 import static ch.vitoco.decovid19core.constants.Const.QR_CODE_DECODE_EXCEPTION;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-import org.junit.jupiter.api.Test;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.upokecenter.cbor.CBORObject;
 
 import ch.vitoco.decovid19core.enums.HcertAlgoKeys;
 import ch.vitoco.decovid19core.exception.ImageDecodeException;
@@ -28,6 +16,13 @@ import ch.vitoco.decovid19core.model.HcertContentDTO;
 import ch.vitoco.decovid19core.model.HcertRecovery;
 import ch.vitoco.decovid19core.model.HcertTest;
 import ch.vitoco.decovid19core.model.HcertVaccination;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.upokecenter.cbor.CBORObject;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import org.junit.jupiter.api.Test;
 
 class Decovid19HcertServiceTest {
 

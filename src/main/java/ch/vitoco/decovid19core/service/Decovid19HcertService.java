@@ -1,9 +1,8 @@
 package ch.vitoco.decovid19core.service;
 
-import static ch.vitoco.decovid19core.constants.Const.MESSAGE_DECODE_EXCEPTION;
-import static ch.vitoco.decovid19core.constants.Const.MESSAGE_FORMAT_EXCEPTION;
-import static ch.vitoco.decovid19core.constants.Const.QR_CODE_DECODE_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.Const.*;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -12,32 +11,23 @@ import java.time.Instant;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
-import javax.imageio.ImageIO;
-
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.tomcat.util.codec.binary.Base64;
-import org.springframework.stereotype.Service;
-
-import com.google.zxing.BinaryBitmap;
-import com.google.zxing.LuminanceSource;
-import com.google.zxing.MultiFormatReader;
-import com.google.zxing.NotFoundException;
-import com.google.zxing.Result;
-import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
-import com.google.zxing.common.HybridBinarizer;
-import com.upokecenter.cbor.CBORObject;
-
+import COSE.HeaderKeys;
 import ch.vitoco.decovid19core.enums.HcertAlgoKeys;
 import ch.vitoco.decovid19core.enums.HcertCBORKeys;
 import ch.vitoco.decovid19core.enums.HcertClaimKeys;
 import ch.vitoco.decovid19core.exception.ImageDecodeException;
 import ch.vitoco.decovid19core.exception.MessageDecodeException;
 import ch.vitoco.decovid19core.model.HcertTimeStampDTO;
-
-import COSE.HeaderKeys;
+import com.google.zxing.*;
+import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
+import com.google.zxing.common.HybridBinarizer;
+import com.upokecenter.cbor.CBORObject;
 import nl.minvws.encoding.Base45;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.tomcat.util.codec.binary.Base64;
+import org.springframework.stereotype.Service;
 
 /**
  * Service class for the Health Certificate decoding process.

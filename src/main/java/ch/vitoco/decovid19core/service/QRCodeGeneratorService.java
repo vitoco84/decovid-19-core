@@ -8,17 +8,15 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-
+import ch.vitoco.decovid19core.exception.URLEncodeException;
+import ch.vitoco.decovid19core.server.QRCodeServerRequest;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
-
-import ch.vitoco.decovid19core.exception.URLEncodeException;
-import ch.vitoco.decovid19core.server.QRCodeServerRequest;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 
 /**
  * Service class QRCodeGeneratorService.

@@ -3,14 +3,13 @@ package ch.vitoco.decovid19core.service;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.stereotype.Service;
-
 import ch.vitoco.decovid19core.model.Hcert;
 import ch.vitoco.decovid19core.model.HcertRecovery;
 import ch.vitoco.decovid19core.model.HcertTest;
 import ch.vitoco.decovid19core.model.HcertVaccination;
 import ch.vitoco.decovid19core.valuesets.HcertValueSet;
 import ch.vitoco.decovid19core.valuesets.model.ValueSetValues;
+import org.springframework.stereotype.Service;
 
 /**
  * Service class for the Health Certificate ValueSet mappings.

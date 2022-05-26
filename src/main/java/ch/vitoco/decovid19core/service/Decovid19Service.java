@@ -141,6 +141,12 @@ public class Decovid19Service {
     return hcertResponse;
   }
 
+  /**
+   * Gets the PEMCertServerResponse.
+   *
+   * @param pemCertificate the PEMCertServerRequest with the Certificate as String.
+   * @return PEMCertServerResponse
+   */
   public ResponseEntity<PEMCertServerResponse> getX509Certificate(PEMCertServerRequest pemCertificate) {
     try {
       X509Certificate x509Certificate = decovid19TrustListService.convertCertificateToX509(

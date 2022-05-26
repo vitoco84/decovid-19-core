@@ -4,11 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.awt.image.BufferedImage;
 
+import ch.vitoco.decovid19core.server.QRCodeServerRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
-import ch.vitoco.decovid19core.server.QRCodeServerRequest;
 
 class QRCodeGeneratorServiceTest {
 
@@ -22,8 +21,7 @@ class QRCodeGeneratorServiceTest {
     QRCodeServerRequest qrCodeServerRequest = new QRCodeServerRequest();
     qrCodeServerRequest.setUrl(URL_VALID);
 
-    ResponseEntity<BufferedImage> bufferedImageResponseEntity = qrCodeGeneratorService.getQRCode(
-        qrCodeServerRequest);
+    ResponseEntity<BufferedImage> bufferedImageResponseEntity = qrCodeGeneratorService.getQRCode(qrCodeServerRequest);
     HttpStatus statusCode = bufferedImageResponseEntity.getStatusCode();
     BufferedImage bufferedImage = bufferedImageResponseEntity.getBody();
     int actualImgHeight = bufferedImage.getHeight();
@@ -39,8 +37,7 @@ class QRCodeGeneratorServiceTest {
     QRCodeServerRequest qrCodeServerRequest = new QRCodeServerRequest();
     qrCodeServerRequest.setUrl(URL_INVALID);
 
-    ResponseEntity<BufferedImage> bufferedImageResponseEntity = qrCodeGeneratorService.getQRCode(
-        qrCodeServerRequest);
+    ResponseEntity<BufferedImage> bufferedImageResponseEntity = qrCodeGeneratorService.getQRCode(qrCodeServerRequest);
 
     HttpStatus statusCode = bufferedImageResponseEntity.getStatusCode();
 

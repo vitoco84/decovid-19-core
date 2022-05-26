@@ -1,7 +1,6 @@
 package ch.vitoco.decovid19core.certificates;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import lombok.Data;
 
 /**

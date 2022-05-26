@@ -5,7 +5,7 @@ import javax.validation.constraints.NotBlank;
 import lombok.Data;
 
 /**
- * Representation class of a PEM formatted String.
+ * Representation class of the PEM formatted Server Request.
  */
 @Data
 public class PEMCertServerRequest {
