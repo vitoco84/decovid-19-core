@@ -16,8 +16,7 @@ import java.security.spec.X509EncodedKeySpec;
 import java.time.Duration;
 
 import ch.vitoco.decovid19core.certificates.GermanCertificates;
-import ch.vitoco.decovid19core.exception.JsonDeserializeException;
-import ch.vitoco.decovid19core.exception.KeySpecsException;
+import ch.vitoco.decovid19core.exception.ServerException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -100,7 +99,7 @@ public class Decovid19TrustListService {
       ObjectMapper objectMapper = new ObjectMapper();
       return objectMapper.readValue(substring, GermanCertificates.class);
     } catch (JsonProcessingException e) {
-      throw new JsonDeserializeException(JSON_DESERIALIZE_EXCEPTION, e);
+      throw new ServerException(JSON_DESERIALIZE_EXCEPTION, e);
     }
   }
 
@@ -116,7 +115,7 @@ public class Decovid19TrustListService {
       CertificateFactory certFactory = CertificateFactory.getInstance(X509_CERT_TYPE);
       return (X509Certificate) certFactory.generateCertificate(inputStream);
     } catch (IOException | CertificateException e) {
-      throw new KeySpecsException(KEY_SPEC_EXCEPTION, e);
+      throw new ServerException(KEY_SPEC_EXCEPTION, e);
     }
   }
 
@@ -136,7 +135,7 @@ public class Decovid19TrustListService {
       KeyFactory factory = KeyFactory.getInstance(algorithm, new BouncyCastleProvider());
       return factory.generatePublic(pubKeySpec);
     } catch (Exception e) {
-      throw new KeySpecsException(KEY_SPEC_EXCEPTION, e);
+      throw new ServerException(KEY_SPEC_EXCEPTION, e);
     }
   }
 

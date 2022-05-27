@@ -8,7 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 
-import ch.vitoco.decovid19core.exception.ResourcesNotFoundException;
+import ch.vitoco.decovid19core.exception.ServerException;
 import ch.vitoco.decovid19core.valuesets.model.ValueSet;
 import ch.vitoco.decovid19core.valuesets.model.ValueSetValues;
 import org.junit.jupiter.api.Test;
@@ -94,9 +94,9 @@ class HcertValueSetTest {
   }
 
   @Test
-  void shouldThrowResourcesNotFoundException() {
+  void shouldThrowServerException() {
     Path path = Paths.get("foobar");
-    Exception exception = assertThrows(ResourcesNotFoundException.class, () -> {
+    Exception exception = assertThrows(ServerException.class, () -> {
       HcertValueSet.getValueSet(path);
     });
 

@@ -45,6 +45,44 @@
 			"response": []
 		},
 		{
+			"name": "QR-Code Generator Fake Test Covid Certificate",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"nam\": {\r\n\t\t\"fn\": \"Uncle\",\r\n\t\t\"fnt\": \"UNCLE\",\r\n\t\t\"gn\": \"Bob\",\r\n\t\t\"gnt\": \"BOB\"\r\n\t},\r\n\t\"dob\": \"1943-02-01\",\r\n\t\"ver\": \"1.0.0\",\r\n\t\"t\": [\r\n\t\t{\r\n\t\t\t\"tg\": \"COVID-19\",\r\n\t\t\t\"co\": \"Switzerland\",\r\n\t\t\t\"tt\": \"Rapid Test\",\r\n\t\t\t\"nm\": \"COVID-19\",\r\n\t\t\t\"ma\": \"COVID-19 Test\",\r\n\t\t\t\"sc\": \"2021-04-30\",\r\n\t\t\t\"tr\": \"Not detected\",\r\n\t\t\t\"tc\": \"Test Center\",\r\n\t\t\t\"is\": \"Bundesamt für Gesundheit (BAG)\"\r\n\t\t}\r\n\t]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8082/decovid19/hcert/qrcode/hcert",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"decovid19",
+						"hcert",
+						"qrcode",
+						"hcert"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Health Certificate QR-Code Recovery",
 			"request": {
 				"method": "POST",

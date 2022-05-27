@@ -16,7 +16,7 @@ import java.util.Objects;
 import ch.vitoco.decovid19core.certificates.GermanCertificate;
 import ch.vitoco.decovid19core.certificates.GermanCertificates;
 import ch.vitoco.decovid19core.constants.Endpoints;
-import ch.vitoco.decovid19core.exception.KeySpecsException;
+import ch.vitoco.decovid19core.exception.ServerException;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -157,8 +157,8 @@ class Decovid19TrustListServiceTest {
   }
 
   @Test
-  void shouldThrowKeySpecsException() {
-    Exception exception = assertThrows(KeySpecsException.class, () -> {
+  void shouldThrowServerException() {
+    Exception exception = assertThrows(ServerException.class, () -> {
       decovid19TrustListService.convertCertificateToX509("foobar");
     });
 

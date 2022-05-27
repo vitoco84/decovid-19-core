@@ -1,9 +1,9 @@
 package ch.vitoco.decovid19core.exception;
 
 /**
- * Representation class ImageDecodeException.
+ * Representation class ServerException.
  */
-public class ImageDecodeException extends RuntimeException {
+public class ServerException extends RuntimeException {
 
   /**
    * Constructor.
@@ -11,7 +11,7 @@ public class ImageDecodeException extends RuntimeException {
    * @param message the message
    * @param cause   the cause
    */
-  public ImageDecodeException(String message, Throwable cause) {
+  public ServerException(String message, Throwable cause) {
     super(message, cause);
   }
 

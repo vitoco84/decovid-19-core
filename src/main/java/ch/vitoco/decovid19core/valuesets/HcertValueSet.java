@@ -9,7 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import ch.vitoco.decovid19core.exception.ResourcesNotFoundException;
+import ch.vitoco.decovid19core.exception.ServerException;
 import ch.vitoco.decovid19core.valuesets.model.ValueSet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -149,7 +149,7 @@ public final class HcertValueSet {
     try (InputStream inputStream = getInputStream(countryCodesValueSetPath)) {
       return jsonMapper.readValue(inputStream, ValueSet.class);
     } catch (IOException e) {
-      throw new ResourcesNotFoundException(RESOURCES_READ_EXCEPTION, e);
+      throw new ServerException(RESOURCES_READ_EXCEPTION, e);
     }
   }
 

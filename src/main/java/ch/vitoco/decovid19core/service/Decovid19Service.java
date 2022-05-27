@@ -10,9 +10,7 @@ import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Base64;
 
-import ch.vitoco.decovid19core.exception.ImageNotValidException;
-import ch.vitoco.decovid19core.exception.JsonDeserializeException;
-import ch.vitoco.decovid19core.exception.KeySpecsException;
+import ch.vitoco.decovid19core.exception.ServerException;
 import ch.vitoco.decovid19core.model.HcertContentDTO;
 import ch.vitoco.decovid19core.model.HcertDTO;
 import ch.vitoco.decovid19core.model.HcertPublicKeyDTO;
@@ -75,7 +73,7 @@ public class Decovid19Service {
         String hcertContent = decovid19HcertService.getHealthCertificateContent(imageFileInputStream);
         return getHcertServerResponseResponseEntity(hcertContent);
       } catch (IOException e) {
-        throw new ImageNotValidException(QR_CODE_CORRUPTED_EXCEPTION, e);
+        throw new ServerException(QR_CODE_CORRUPTED_EXCEPTION, e);
       }
     } else {
       String originalFilename = HcertStringUtils.sanitizeUserInputString(imageFile);
@@ -116,7 +114,7 @@ public class Decovid19Service {
       ObjectMapper objectMapper = new ObjectMapper();
       return buildHcertContentDTO(jsonPayloadFromCBORMessage, objectMapper);
     } catch (JsonProcessingException e) {
-      throw new JsonDeserializeException(JSON_DESERIALIZE_EXCEPTION, e);
+      throw new ServerException(JSON_DESERIALIZE_EXCEPTION, e);
     }
   }
 
@@ -154,7 +152,7 @@ public class Decovid19Service {
       PEMCertServerResponse pemCertServerResponse = buildPEMCertServerResponse(x509Certificate);
       LOGGER.info("PEM Certificate Content: {} ", pemCertServerResponse);
       return ResponseEntity.ok().body(pemCertServerResponse);
-    } catch (KeySpecsException e) {
+    } catch (ServerException e) {
       return ResponseEntity.badRequest().build();
     }
   }

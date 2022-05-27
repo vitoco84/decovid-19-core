@@ -60,6 +60,7 @@ dependencies {
     implementation "commons-codec:commons-codec:${libs.versions.commonsCodec.get()}"
     implementation "org.bouncycastle:bcprov-jdk15on:${libs.versions.bouncyCastle.get()}"
     implementation "org.bouncycastle:bcpkix-jdk15on:${libs.versions.bouncyCastle.get()}"
+    implementation "org.apache.commons:commons-compress:${libs.versions.commonsCompress.get()}"
 
     compileOnly 'org.projectlombok:lombok'
 

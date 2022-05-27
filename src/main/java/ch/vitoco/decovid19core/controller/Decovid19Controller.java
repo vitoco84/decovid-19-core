@@ -2,6 +2,7 @@ package ch.vitoco.decovid19core.controller;
 
 import java.awt.image.BufferedImage;
 
+import ch.vitoco.decovid19core.model.HcertContentDTO;
 import ch.vitoco.decovid19core.server.*;
 import ch.vitoco.decovid19core.service.Decovid19Service;
 import ch.vitoco.decovid19core.service.QRCodeGeneratorService;
@@ -54,7 +55,16 @@ public class Decovid19Controller {
       @ApiResponse(responseCode = "400", description = "Invalid URL supplied", content = @Content)})
   @PostMapping(value = "/hcert/qrcode/url", produces = {MediaType.IMAGE_PNG_VALUE})
   public ResponseEntity<BufferedImage> getQRCode(@RequestBody QRCodeServerRequest url) {
-    return qrCodeGeneratorService.getQRCode(url);
+    return qrCodeGeneratorService.getURLQRCode(url);
+  }
+
+  @Operation(summary = "Fake Covid Test Certificate QR-Code Generator")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "URL QR-Code", content = {
+      @Content(mediaType = "image/png", schema = @Schema(implementation = BufferedImage.class))}),
+      @ApiResponse(responseCode = "400", description = "Invalid JSON supplied", content = @Content)})
+  @PostMapping(value = "/hcert/qrcode/hcert", produces = {MediaType.IMAGE_PNG_VALUE})
+  public ResponseEntity<BufferedImage> getTestCovidQRCode(@RequestBody HcertContentDTO hcertContentDTO) {
+    return qrCodeGeneratorService.getTestCovidQRCode(hcertContentDTO);
   }
 
   @Operation(summary = "Decode PEM Data")

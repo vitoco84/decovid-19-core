@@ -15,8 +15,7 @@ import COSE.HeaderKeys;
 import ch.vitoco.decovid19core.enums.HcertAlgoKeys;
 import ch.vitoco.decovid19core.enums.HcertCBORKeys;
 import ch.vitoco.decovid19core.enums.HcertClaimKeys;
-import ch.vitoco.decovid19core.exception.ImageDecodeException;
-import ch.vitoco.decovid19core.exception.MessageDecodeException;
+import ch.vitoco.decovid19core.exception.ServerException;
 import ch.vitoco.decovid19core.model.HcertTimeStampDTO;
 import com.google.zxing.*;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
@@ -52,16 +51,16 @@ public class Decovid19HcertService {
       Result result = new MultiFormatReader().decode(bitmap);
       return result.getText();
     } catch (IOException | NotFoundException e) {
-      throw new ImageDecodeException(QR_CODE_DECODE_EXCEPTION, e);
+      throw new ServerException(QR_CODE_DECODE_EXCEPTION, e);
     }
   }
 
-  public byte[] decodeBase45HealthCertificate(String hcert) {
+  private byte[] decodeBase45HealthCertificate(String hcert) {
     try {
       String hcertWithoutPrefix = removeHcertHC1Prefix(hcert);
       return Base45.getDecoder().decode(hcertWithoutPrefix);
     } catch (IllegalArgumentException e) {
-      throw new MessageDecodeException(QR_CODE_DECODE_EXCEPTION, e);
+      throw new ServerException(QR_CODE_DECODE_EXCEPTION, e);
     }
   }
 
@@ -80,7 +79,7 @@ public class Decovid19HcertService {
       }
       return outputStream;
     } catch (IOException | DataFormatException e) {
-      throw new MessageDecodeException(MESSAGE_FORMAT_EXCEPTION, e);
+      throw new ServerException(MESSAGE_FORMAT_EXCEPTION, e);
     }
   }
 
@@ -121,7 +120,7 @@ public class Decovid19HcertService {
   public String getIssuer(CBORObject cborMessage) {
     byte[] messageContent = getMessageContent(cborMessage);
     CBORObject cborObject = CBORObject.DecodeFromBytes(messageContent);
-    return cborObject.get(HcertClaimKeys.ISSUER_CLAIM_KEY.getClaimKey()).AsString();
+    return cborObject.get(HcertClaimKeys.HCERT_ISSUER_CLAIM_KEY.getClaimKey()).AsString();
   }
 
   /**
@@ -140,13 +139,13 @@ public class Decovid19HcertService {
   private String getIssuedAt(CBORObject cborMessage) {
     byte[] messageContent = getMessageContent(cborMessage);
     CBORObject cborObject = CBORObject.DecodeFromBytes(messageContent);
-    return cborObject.get(HcertClaimKeys.ISSUED_AT_CLAIM_KEY.getClaimKey()).ToJSONString();
+    return cborObject.get(HcertClaimKeys.HCERT_ISSUED_AT_CLAIM_KEY.getClaimKey()).ToJSONString();
   }
 
   private String getExpiration(CBORObject cborMessage) {
     byte[] messageContent = getMessageContent(cborMessage);
     CBORObject cborObject = CBORObject.DecodeFromBytes(messageContent);
-    return cborObject.get(HcertClaimKeys.EXPIRATION_CLAIM_KEY.getClaimKey()).ToJSONString();
+    return cborObject.get(HcertClaimKeys.HCERT_EXPIRATION_CLAIM_KEY.getClaimKey()).ToJSONString();
   }
 
   /**
@@ -231,7 +230,7 @@ public class Decovid19HcertService {
       }
       return kid.toString();
     } catch (DecoderException e) {
-      throw new MessageDecodeException(MESSAGE_DECODE_EXCEPTION, e);
+      throw new ServerException(MESSAGE_DECODE_EXCEPTION, e);
     }
   }
 

@@ -11,7 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import ch.vitoco.decovid19core.enums.HcertAlgoKeys;
-import ch.vitoco.decovid19core.exception.ImageNotValidException;
+import ch.vitoco.decovid19core.exception.ServerException;
 import ch.vitoco.decovid19core.model.HcertContentDTO;
 import ch.vitoco.decovid19core.model.HcertPublicKeyDTO;
 import ch.vitoco.decovid19core.model.HcertTimeStampDTO;
@@ -224,13 +224,13 @@ class Decovid19ServiceTest {
   }
 
   @Test
-  void shouldThrowImageNotValidException() throws IOException {
+  void shouldThrowServerException() throws IOException {
     InputStream testVaccImageInputStream = Files.newInputStream(SWISS_QR_CODE_VACC_CERT_IMG_PATH);
     CustomMockMultipartFile customMockMultipartFile = new CustomMockMultipartFile(NAME, FILE_NAME_PNG_EXT_ALLOWED,
         MediaType.MULTIPART_FORM_DATA_VALUE, testVaccImageInputStream);
     testVaccImageInputStream.close();
 
-    Exception exception = assertThrows(ImageNotValidException.class, () -> {
+    Exception exception = assertThrows(ServerException.class, () -> {
       decovid19Service.getHealthCertificateContent(customMockMultipartFile);
     });
 

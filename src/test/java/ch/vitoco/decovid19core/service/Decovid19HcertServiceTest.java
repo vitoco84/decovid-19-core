@@ -10,8 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import ch.vitoco.decovid19core.enums.HcertAlgoKeys;
-import ch.vitoco.decovid19core.exception.ImageDecodeException;
-import ch.vitoco.decovid19core.exception.MessageDecodeException;
+import ch.vitoco.decovid19core.exception.ServerException;
 import ch.vitoco.decovid19core.model.HcertContentDTO;
 import ch.vitoco.decovid19core.model.HcertRecovery;
 import ch.vitoco.decovid19core.model.HcertTest;
@@ -228,22 +227,11 @@ class Decovid19HcertServiceTest {
   void shouldThrowImageDecodeException() throws IOException {
     InputStream testImageInputStream = Files.newInputStream(FREE_TEST_IMAGE);
 
-    Exception exception = assertThrows(ImageDecodeException.class, () -> {
+    Exception exception = assertThrows(ServerException.class, () -> {
       decovid19HcertService.getHealthCertificateContent(testImageInputStream);
     });
 
     testImageInputStream.close();
-    String actualMessage = exception.getMessage();
-
-    assertEquals(QR_CODE_DECODE_EXCEPTION, actualMessage);
-  }
-
-  @Test
-  void shouldThrowMessageDecodeException() {
-    Exception exception = assertThrows(MessageDecodeException.class, () -> {
-      decovid19HcertService.decodeBase45HealthCertificate("foobar");
-    });
-
     String actualMessage = exception.getMessage();
 
     assertEquals(QR_CODE_DECODE_EXCEPTION, actualMessage);
