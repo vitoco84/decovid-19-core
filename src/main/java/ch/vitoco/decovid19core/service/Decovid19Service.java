@@ -42,23 +42,23 @@ public class Decovid19Service {
   private static final String SIGNATURE_ALGO_RSA = "RSA";
   private static final String SIGNATURE_ALGO_ECDSA = "EC";
 
-  private final Decovid19ValueSetService decovid19ValueSetService;
-  private final Decovid19HcertService decovid19HcertService;
-  private final Decovid19TrustListService decovid19TrustListService;
+  private final ValueSetService valueSetService;
+  private final HcertService hcertService;
+  private final TrustListService trustListService;
 
   /**
    * Constructor.
    *
-   * @param decovid19ValueSetService  the Decovid19ValueSetService
-   * @param decovid19HcertService     the Decovid19HcertService
-   * @param decovid19TrustListService the Decovid19TrustListService
+   * @param valueSetService  the ValueSetService
+   * @param hcertService     the HcertService
+   * @param trustListService the TrustListService
    */
-  public Decovid19Service(Decovid19ValueSetService decovid19ValueSetService,
-      Decovid19HcertService decovid19HcertService,
-      Decovid19TrustListService decovid19TrustListService) {
-    this.decovid19ValueSetService = decovid19ValueSetService;
-    this.decovid19HcertService = decovid19HcertService;
-    this.decovid19TrustListService = decovid19TrustListService;
+  public Decovid19Service(ValueSetService valueSetService,
+      HcertService hcertService,
+      TrustListService trustListService) {
+    this.valueSetService = valueSetService;
+    this.hcertService = hcertService;
+    this.trustListService = trustListService;
   }
 
   /**
@@ -70,7 +70,7 @@ public class Decovid19Service {
   public ResponseEntity<HcertServerResponse> getHealthCertificateContent(MultipartFile imageFile) {
     if (HcertFileUtils.isFileAllowed(imageFile)) {
       try (InputStream imageFileInputStream = imageFile.getInputStream()) {
-        String hcertContent = decovid19HcertService.getHealthCertificateContent(imageFileInputStream);
+        String hcertContent = hcertService.getHealthCertificateContent(imageFileInputStream);
         return getHcertServerResponseResponseEntity(hcertContent);
       } catch (IOException e) {
         throw new ServerException(QR_CODE_CORRUPTED_EXCEPTION, e);
@@ -99,13 +99,13 @@ public class Decovid19Service {
   }
 
   private ResponseEntity<HcertServerResponse> getHcertServerResponseResponseEntity(String hcertContent) {
-    HcertServerResponse hcertResponse = buildHcertResponse(decovid19HcertService, hcertContent);
+    HcertServerResponse hcertResponse = buildHcertResponse(hcertService, hcertContent);
     LOGGER.info("Health Certificate Content: {} ", hcertResponse);
     return ResponseEntity.ok().body(hcertResponse);
   }
 
   private HcertDTO getHcertdDTO(CBORObject cborObject) {
-    String jsonPayloadFromCBORMessage = decovid19HcertService.getContent(cborObject);
+    String jsonPayloadFromCBORMessage = hcertService.getContent(cborObject);
     return buildHcertDTO(jsonPayloadFromCBORMessage);
   }
 
@@ -121,21 +121,21 @@ public class Decovid19Service {
   private HcertContentDTO buildHcertContentDTO(String jsonPayloadFromCBORMessage, ObjectMapper objectMapper)
       throws JsonProcessingException {
     HcertContentDTO hcertContentDTO = objectMapper.readValue(jsonPayloadFromCBORMessage, HcertContentDTO.class);
-    decovid19ValueSetService.mappingVaccinationValueSet(hcertContentDTO.getV());
-    decovid19ValueSetService.mappingTestValueSet(hcertContentDTO.getT());
-    decovid19ValueSetService.mappingRecoveryValueSet(hcertContentDTO.getR());
+    valueSetService.mappingVaccinationValueSet(hcertContentDTO.getV());
+    valueSetService.mappingTestValueSet(hcertContentDTO.getT());
+    valueSetService.mappingRecoveryValueSet(hcertContentDTO.getR());
     return hcertContentDTO;
   }
 
-  private HcertServerResponse buildHcertResponse(Decovid19HcertService decovid19HcertService, String hcertContent) {
+  private HcertServerResponse buildHcertResponse(HcertService hcertService, String hcertContent) {
     HcertServerResponse hcertResponse = new HcertServerResponse();
-    CBORObject cborObject = decovid19HcertService.getCBORObject(hcertContent);
+    CBORObject cborObject = hcertService.getCBORObject(hcertContent);
     hcertResponse.setHcertPrefix(hcertContent);
     hcertResponse.setHcertContent(getHcertdDTO(cborObject));
-    hcertResponse.setHcertKID(decovid19HcertService.getKID(cborObject));
-    hcertResponse.setHcertAlgo(decovid19HcertService.getAlgo(cborObject));
-    hcertResponse.setHcertIssuer(decovid19HcertService.getIssuer(cborObject));
-    hcertResponse.setHcertTimeStamp(decovid19HcertService.getHcertTimeStamp(cborObject));
+    hcertResponse.setHcertKID(hcertService.getKID(cborObject));
+    hcertResponse.setHcertAlgo(hcertService.getAlgo(cborObject));
+    hcertResponse.setHcertIssuer(hcertService.getIssuer(cborObject));
+    hcertResponse.setHcertTimeStamp(hcertService.getHcertTimeStamp(cborObject));
     return hcertResponse;
   }
 
@@ -147,7 +147,7 @@ public class Decovid19Service {
    */
   public ResponseEntity<PEMCertServerResponse> getX509Certificate(PEMCertServerRequest pemCertificate) {
     try {
-      X509Certificate x509Certificate = decovid19TrustListService.convertCertificateToX509(
+      X509Certificate x509Certificate = trustListService.convertCertificateToX509(
           pemCertificate.getPemCertificate());
       PEMCertServerResponse pemCertServerResponse = buildPEMCertServerResponse(x509Certificate);
       LOGGER.info("PEM Certificate Content: {} ", pemCertServerResponse);

@@ -271,7 +271,7 @@
 			"response": []
 		},
 		{
-			"name": "Health Certificate HC1 Tested",
+			"name": "Health Certificate HC1 Test",
 			"request": {
 				"method": "POST",
 				"header": [],

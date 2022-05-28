@@ -23,7 +23,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.junit.jupiter.api.Test;
 
-class Decovid19HcertServiceTest {
+class HcertServiceTest {
 
   private static final Path SWISS_QR_CODE_VACC_CERT_IMG_PATH = Paths.get(
       "src/test/resources/swissQRCodeVaccinationCertificate.png");
@@ -43,12 +43,12 @@ class Decovid19HcertServiceTest {
   private static final Path FREE_TEST_IMAGE = Paths.get("src/test/resources/freeTestImageFromUnsplash.jpg");
   private static final String SWISS_QR_CODE_VACC_KID = "mmrfzpMU6xc=";
 
-  private final Decovid19HcertService decovid19HcertService = new Decovid19HcertService();
+  private final HcertService hcertService = new HcertService();
 
   @Test
   void shouldReturnHealthCertificatePrefixContent() throws IOException, ParseException {
     InputStream testVaccImageInputStream = Files.newInputStream(SWISS_QR_CODE_VACC_CERT_IMG_PATH);
-    String actualHealthCertificateContent = decovid19HcertService.getHealthCertificateContent(testVaccImageInputStream);
+    String actualHealthCertificateContent = hcertService.getHealthCertificateContent(testVaccImageInputStream);
     testVaccImageInputStream.close();
 
     JSONObject jsonObject = getJsonObjectFromResources(SWISS_QR_CODE_VACC_CERT_JSON_PATH);
@@ -61,11 +61,11 @@ class Decovid19HcertServiceTest {
   @Test
   void shouldReturnHealthCertificateVaccinationContent() throws IOException, ParseException {
     InputStream testVaccImageInputStream = Files.newInputStream(SWISS_QR_CODE_VACC_CERT_IMG_PATH);
-    String hcert = decovid19HcertService.getHealthCertificateContent(testVaccImageInputStream);
+    String hcert = hcertService.getHealthCertificateContent(testVaccImageInputStream);
     testVaccImageInputStream.close();
 
-    CBORObject cborObject = decovid19HcertService.getCBORObject(hcert);
-    String cborPayload = decovid19HcertService.getContent(cborObject);
+    CBORObject cborObject = hcertService.getCBORObject(hcert);
+    String cborPayload = hcertService.getContent(cborObject);
 
     JSONObject jsonObject = getJsonObjectFromResources(SWISS_QR_CODE_VACC_CERT_JSON_PATH);
     JSONObject jsonHcertPaylod = (JSONObject) jsonObject.get("JSON");
@@ -118,11 +118,11 @@ class Decovid19HcertServiceTest {
   @Test
   void shouldReturnHealthCertificateTestContent() throws IOException, ParseException {
     InputStream testTestImageInputStream = Files.newInputStream(SWISS_QR_CODE_TEST_CERT_IMG_PATH);
-    String hcert = decovid19HcertService.getHealthCertificateContent(testTestImageInputStream);
+    String hcert = hcertService.getHealthCertificateContent(testTestImageInputStream);
     testTestImageInputStream.close();
 
-    CBORObject cborObject = decovid19HcertService.getCBORObject(hcert);
-    String cborPayload = decovid19HcertService.getContent(cborObject);
+    CBORObject cborObject = hcertService.getCBORObject(hcert);
+    String cborPayload = hcertService.getContent(cborObject);
 
     JSONObject jsonObject = getJsonObjectFromResources(SWISS_QR_CODE_TEST_CERT_JSON_PATH);
     JSONObject jsonHcertPaylod = (JSONObject) jsonObject.get("JSON");
@@ -175,11 +175,11 @@ class Decovid19HcertServiceTest {
   @Test
   void shouldReturnHealthCertificateRecoveryContent() throws IOException, ParseException {
     InputStream testRecoveryImageInputStream = Files.newInputStream(SWISS_QR_CODE_RECOVERY_CERT_IMG_PATH);
-    String hcert = decovid19HcertService.getHealthCertificateContent(testRecoveryImageInputStream);
+    String hcert = hcertService.getHealthCertificateContent(testRecoveryImageInputStream);
     testRecoveryImageInputStream.close();
 
-    CBORObject cborObject = decovid19HcertService.getCBORObject(hcert);
-    String cborPayload = decovid19HcertService.getContent(cborObject);
+    CBORObject cborObject = hcertService.getCBORObject(hcert);
+    String cborPayload = hcertService.getContent(cborObject);
 
     JSONObject jsonObject = getJsonObjectFromResources(SWISS_QR_CODE_RECOVERY_CERT_JSON_PATH);
     JSONObject jsonHcertPaylod = (JSONObject) jsonObject.get("JSON");
@@ -228,7 +228,7 @@ class Decovid19HcertServiceTest {
     InputStream testImageInputStream = Files.newInputStream(FREE_TEST_IMAGE);
 
     Exception exception = assertThrows(ServerException.class, () -> {
-      decovid19HcertService.getHealthCertificateContent(testImageInputStream);
+      hcertService.getHealthCertificateContent(testImageInputStream);
     });
 
     testImageInputStream.close();
@@ -240,11 +240,11 @@ class Decovid19HcertServiceTest {
   @Test
   void shouldReturnCorrectAlgo() throws IOException {
     InputStream testVaccImageInputStream = Files.newInputStream(SWISS_QR_CODE_VACC_CERT_IMG_PATH);
-    String hcert = decovid19HcertService.getHealthCertificateContent(testVaccImageInputStream);
+    String hcert = hcertService.getHealthCertificateContent(testVaccImageInputStream);
     testVaccImageInputStream.close();
 
-    CBORObject cborObject = decovid19HcertService.getCBORObject(hcert);
-    String actualAlgo = decovid19HcertService.getAlgo(cborObject);
+    CBORObject cborObject = hcertService.getCBORObject(hcert);
+    String actualAlgo = hcertService.getAlgo(cborObject);
 
     assertEquals(HcertAlgoKeys.RSA_PSS_256.toString(), actualAlgo);
   }
@@ -252,11 +252,11 @@ class Decovid19HcertServiceTest {
   @Test
   void shouldReturnCorrectKID() throws IOException {
     InputStream testVaccImageInputStream = Files.newInputStream(SWISS_QR_CODE_VACC_CERT_IMG_PATH);
-    String hcert = decovid19HcertService.getHealthCertificateContent(testVaccImageInputStream);
+    String hcert = hcertService.getHealthCertificateContent(testVaccImageInputStream);
     testVaccImageInputStream.close();
 
-    CBORObject cborObject = decovid19HcertService.getCBORObject(hcert);
-    String actualKID = decovid19HcertService.getKID(cborObject);
+    CBORObject cborObject = hcertService.getCBORObject(hcert);
+    String actualKID = hcertService.getKID(cborObject);
 
     assertEquals(SWISS_QR_CODE_VACC_KID, actualKID);
   }

@@ -13,8 +13,8 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.List;
 import java.util.Objects;
 
-import ch.vitoco.decovid19core.certificates.GermanCertificate;
-import ch.vitoco.decovid19core.certificates.GermanCertificates;
+import ch.vitoco.decovid19core.certificates.model.GermanCertificate;
+import ch.vitoco.decovid19core.certificates.model.GermanCertificates;
 import ch.vitoco.decovid19core.constants.Endpoints;
 import ch.vitoco.decovid19core.exception.ServerException;
 import okhttp3.HttpUrl;
@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-class Decovid19TrustListServiceTest {
+class TrustListServiceTest {
 
   private static final Path FAKE_CERTIFICATES_RESPONSE_BODY = Paths.get(
       "src/test/resources/fakeCertificateResponseBody.txt");
@@ -50,7 +50,7 @@ class Decovid19TrustListServiceTest {
   private static final String PUBLIC_KEY_PREFIX = "-----BEGIN PUBLIC KEY-----";
   private static final String PUBLIC_KEY_POSTFIX = "-----END PUBLIC KEY-----";
 
-  private final Decovid19TrustListService decovid19TrustListService = new Decovid19TrustListService();
+  private final TrustListService trustListService = new TrustListService();
   private final MockWebServer mockWebServer = new MockWebServer();
 
   @BeforeEach
@@ -61,9 +61,9 @@ class Decovid19TrustListServiceTest {
   @Disabled("Only used for local testing and verification. MockWebServer is used instead, see Test shouldRetrieveCertificatesWithMockWebServer().")
   @Test
   void shouldRetrieveCertificates() {
-    ResponseEntity<String> certificates = decovid19TrustListService.getHcertCertificates(Endpoints.GERMAN_CERTS_API);
+    ResponseEntity<String> certificates = trustListService.getHcertCertificates(Endpoints.GERMAN_CERTS_API);
 
-    GermanCertificates germanCertificates = decovid19TrustListService.buildGermanHcertCertificates(
+    GermanCertificates germanCertificates = trustListService.buildGermanHcertCertificates(
         Objects.requireNonNull(certificates.getBody()));
     List<GermanCertificate> certificatesList = germanCertificates.getCertificates();
 
@@ -74,7 +74,7 @@ class Decovid19TrustListServiceTest {
   @Disabled("Only used for local testing and verification. MockWebServer is used instead, see Test shouldRetrievePublicKeyWithMockWebServer().")
   @Test
   void shouldRetrievePublicKey() {
-    ResponseEntity<String> publicKeyTest = decovid19TrustListService.getPublicKey(Endpoints.GERMAN_PUBLIC_KEY_API);
+    ResponseEntity<String> publicKeyTest = trustListService.getPublicKey(Endpoints.GERMAN_PUBLIC_KEY_API);
 
     assertEquals(HttpStatus.OK, publicKeyTest.getStatusCode());
     assertTrue(Objects.requireNonNull(publicKeyTest.getBody()).startsWith(PUBLIC_KEY_PREFIX));
@@ -89,9 +89,9 @@ class Decovid19TrustListServiceTest {
 
     HttpUrl baseUrl = mockWebServer.url("/decovid/certs/");
 
-    ResponseEntity<String> certificates = decovid19TrustListService.getHcertCertificates(String.valueOf(baseUrl));
+    ResponseEntity<String> certificates = trustListService.getHcertCertificates(String.valueOf(baseUrl));
 
-    GermanCertificates germanCertificates = decovid19TrustListService.buildGermanHcertCertificates(
+    GermanCertificates germanCertificates = trustListService.buildGermanHcertCertificates(
         Objects.requireNonNull(certificates.getBody()));
     List<GermanCertificate> certificatesList = germanCertificates.getCertificates();
     GermanCertificate germanCertificate = certificatesList.get(0);
@@ -114,7 +114,7 @@ class Decovid19TrustListServiceTest {
 
     HttpUrl baseUrl = mockWebServer.url("/decovid/pubKey/");
 
-    ResponseEntity<String> publicKey = decovid19TrustListService.getPublicKey(String.valueOf(baseUrl));
+    ResponseEntity<String> publicKey = trustListService.getPublicKey(String.valueOf(baseUrl));
 
     assertEquals(HttpStatus.OK, publicKey.getStatusCode());
     assertTrue(Objects.requireNonNull(publicKey.getBody()).startsWith(PUBLIC_KEY_PREFIX));
@@ -122,11 +122,11 @@ class Decovid19TrustListServiceTest {
 
   @Test
   void shouldReturnX509Certificate() {
-    X509Certificate swissX509Certificate = decovid19TrustListService.convertCertificateToX509(
+    X509Certificate swissX509Certificate = trustListService.convertCertificateToX509(
         SWISS_QR_CODE_CERTIFICATE);
-    X509Certificate germanX509Certificate = decovid19TrustListService.convertCertificateToX509(
+    X509Certificate germanX509Certificate = trustListService.convertCertificateToX509(
         GERMAN_QR_CODE_CERTIFICATE);
-    X509Certificate austrianX509Certificate = decovid19TrustListService.convertCertificateToX509(
+    X509Certificate austrianX509Certificate = trustListService.convertCertificateToX509(
         AUSTRIAN_QR_CODE_CERTIFICATE);
 
     String rsaAlgorithm = swissX509Certificate.getSigAlgName();
@@ -140,11 +140,11 @@ class Decovid19TrustListServiceTest {
 
   @Test
   void shouldReturnPublicKey() {
-    RSAPublicKey rsaPublicKey = (RSAPublicKey) decovid19TrustListService.readPublicKey(SWISS_QR_CODE_PUBLIC_KEY,
+    RSAPublicKey rsaPublicKey = (RSAPublicKey) trustListService.readPublicKey(SWISS_QR_CODE_PUBLIC_KEY,
         SIGNATURE_ALGO_RSA);
-    ECPublicKey ecPublicKey = (ECPublicKey) decovid19TrustListService.readPublicKey(GERMAN_QR_CODE_PUBLIC_KEY,
+    ECPublicKey ecPublicKey = (ECPublicKey) trustListService.readPublicKey(GERMAN_QR_CODE_PUBLIC_KEY,
         SIGNATURE_ALGO_ECDSA);
-    ECPublicKey ecDsaPublicKey = (ECPublicKey) decovid19TrustListService.readPublicKey(AUSTRIAN_QR_CODE_PUBLIC_KEY,
+    ECPublicKey ecDsaPublicKey = (ECPublicKey) trustListService.readPublicKey(AUSTRIAN_QR_CODE_PUBLIC_KEY,
         SIGNATURE_ALGO_ECDSA);
 
     String rsaAlgorithm = rsaPublicKey.getAlgorithm();
@@ -159,7 +159,7 @@ class Decovid19TrustListServiceTest {
   @Test
   void shouldThrowServerException() {
     Exception exception = assertThrows(ServerException.class, () -> {
-      decovid19TrustListService.convertCertificateToX509("foobar");
+      trustListService.convertCertificateToX509("foobar");
     });
 
     String actualMessage = exception.getMessage();

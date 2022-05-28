@@ -67,11 +67,10 @@ class Decovid19ServiceTest {
   private static final String EXPECTED_EXPIRATION_TIME = "2022-05-29";
   private static final String EXPECTED_ISSUED_AT_TIME = "2021-05-29";
 
-  private final Decovid19ValueSetService decovid19ValueSetService = new Decovid19ValueSetService();
-  private final Decovid19HcertService decovid19HcertService = new Decovid19HcertService();
-  private final Decovid19TrustListService decovid19TrustListService = new Decovid19TrustListService();
-  private final Decovid19Service decovid19Service = new Decovid19Service(decovid19ValueSetService,
-      decovid19HcertService, decovid19TrustListService);
+  private final ValueSetService valueSetService = new ValueSetService();
+  private final HcertService hcertService = new HcertService();
+  private final TrustListService trustListService = new TrustListService();
+  private final Decovid19Service decovid19Service = new Decovid19Service(valueSetService, hcertService, trustListService);
 
   @Test
   void shouldReturnVaccHealthCertificateResponseFromImageFile() throws IOException, ParseException {

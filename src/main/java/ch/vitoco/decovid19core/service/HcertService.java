@@ -32,7 +32,7 @@ import org.springframework.stereotype.Service;
  * Service class for the Health Certificate decoding process.
  */
 @Service
-public class Decovid19HcertService {
+public class HcertService {
 
   private static final int START_INDEX_OF_HCERT_CONTENT = 4;
   private static final int START_INDEX_OF_HEX_STRING = 2;

@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
  * Service class for the Health Certificate ValueSet mappings.
  */
 @Service
-public class Decovid19ValueSetService {
+public class ValueSetService {
 
   /**
    * Maps the value set codes of the Vaccination Health Certificate information to the display names.

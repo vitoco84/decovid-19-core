@@ -15,7 +15,7 @@ import java.security.cert.X509Certificate;
 import java.security.spec.X509EncodedKeySpec;
 import java.time.Duration;
 
-import ch.vitoco.decovid19core.certificates.GermanCertificates;
+import ch.vitoco.decovid19core.certificates.model.GermanCertificates;
 import ch.vitoco.decovid19core.exception.ServerException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,10 +31,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
 
 /**
- * Service class Decovid19TrustListService.
+ * Service class TrustListService.
  */
 @Service
-public class Decovid19TrustListService {
+public class TrustListService {
 
   private static final int MAX_IN_MEMORY_SIZE = 16 * 1024 * 1024;
   private static final int TIMEOUT_DURATION_IN_SECONDS = 20;
