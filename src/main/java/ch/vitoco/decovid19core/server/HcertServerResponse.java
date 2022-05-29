@@ -36,5 +36,9 @@ public class HcertServerResponse {
    * Health Certificate Time Stamp.
    */
   private HcertTimeStampDTO hcertTimeStamp;
+  /**
+   * Health Certificate Signature.
+   */
+  private String hcertSignature;
 
 }

@@ -112,6 +112,17 @@ public class HcertService {
   }
 
   /**
+   * Gets the Signature of the Health Certificate from the CBOR Message.
+   *
+   * @param cborMessage Health Certificate CBOR Message
+   * @return Signature Base64 encoded String
+   */
+  public String getSignature(CBORObject cborMessage) {
+    byte[] coseSignature = getCOSESignature(cborMessage);
+    return Base64.encodeBase64String(coseSignature);
+  }
+
+  /**
    * Gets the Issuer of the Health Certificate from the CBOR Message.
    *
    * @param cborMessage Health Certificate CBOR Message
@@ -217,7 +228,7 @@ public class HcertService {
    * Gets the Key Identifier of the Health Certificate from the CBOR Message.
    *
    * @param cborObject Health Certificate CBOR Message
-   * @return Key Identifier
+   * @return Key Identifier Base64 encoded String
    */
   public String getKID(CBORObject cborObject) {
     StringBuilder kid = new StringBuilder();

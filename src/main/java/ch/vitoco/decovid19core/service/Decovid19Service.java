@@ -136,6 +136,7 @@ public class Decovid19Service {
     hcertResponse.setHcertAlgo(hcertService.getAlgo(cborObject));
     hcertResponse.setHcertIssuer(hcertService.getIssuer(cborObject));
     hcertResponse.setHcertTimeStamp(hcertService.getHcertTimeStamp(cborObject));
+    hcertResponse.setHcertSignature(hcertService.getSignature(cborObject));
     return hcertResponse;
   }
 
@@ -147,8 +148,7 @@ public class Decovid19Service {
    */
   public ResponseEntity<PEMCertServerResponse> getX509Certificate(PEMCertServerRequest pemCertificate) {
     try {
-      X509Certificate x509Certificate = trustListService.convertCertificateToX509(
-          pemCertificate.getPemCertificate());
+      X509Certificate x509Certificate = trustListService.convertCertificateToX509(pemCertificate.getPemCertificate());
       PEMCertServerResponse pemCertServerResponse = buildPEMCertServerResponse(x509Certificate);
       LOGGER.info("PEM Certificate Content: {} ", pemCertServerResponse);
       return ResponseEntity.ok().body(pemCertServerResponse);
