@@ -43,5 +43,9 @@ public class PEMCertServerResponse {
    * Certificate Public Key Parameters.
    */
   private HcertPublicKeyDTO publicKeyParams;
+  /**
+   * Certificate Signature.
+   */
+  private String signature;
 
 }

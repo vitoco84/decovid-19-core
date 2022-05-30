@@ -8,7 +8,17 @@ import java.io.InputStream;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
-import java.util.Base64;
+
+import org.apache.commons.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.upokecenter.cbor.CBORObject;
 
 import ch.vitoco.decovid19core.exception.ServerException;
 import ch.vitoco.decovid19core.model.HcertContentDTO;
@@ -20,14 +30,6 @@ import ch.vitoco.decovid19core.server.PEMCertServerRequest;
 import ch.vitoco.decovid19core.server.PEMCertServerResponse;
 import ch.vitoco.decovid19core.utils.HcertFileUtils;
 import ch.vitoco.decovid19core.utils.HcertStringUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.upokecenter.cbor.CBORObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Service class Decovid19DecoderService.
@@ -159,7 +161,7 @@ public class Decovid19Service {
 
   private PEMCertServerResponse buildPEMCertServerResponse(X509Certificate x509Certificate) {
     PEMCertServerResponse pemCertServerResponse = new PEMCertServerResponse();
-    pemCertServerResponse.setPublicKey(Base64.getEncoder().encodeToString(x509Certificate.getPublicKey().getEncoded()));
+    pemCertServerResponse.setPublicKey(Base64.encodeBase64String(x509Certificate.getPublicKey().getEncoded()));
     pemCertServerResponse.setSubject(x509Certificate.getSubjectDN().getName());
     pemCertServerResponse.setSignatureAlgorithm(x509Certificate.getSigAlgName());
     pemCertServerResponse.setValidTo(x509Certificate.getNotAfter().toInstant().toString());
@@ -167,6 +169,7 @@ public class Decovid19Service {
     pemCertServerResponse.setSerialNumber(x509Certificate.getSerialNumber().toString(RADIX_HEX));
     pemCertServerResponse.setIssuer(x509Certificate.getIssuerDN().getName());
     pemCertServerResponse.setPublicKeyParams(buildPublicKeyResponse(x509Certificate));
+    pemCertServerResponse.setSignature(Base64.encodeBase64String(x509Certificate.getSignature()));
     return pemCertServerResponse;
   }
 
