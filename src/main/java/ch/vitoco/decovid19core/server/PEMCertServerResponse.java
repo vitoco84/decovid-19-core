@@ -47,5 +47,9 @@ public class PEMCertServerResponse {
    * Certificate Signature.
    */
   private String signature;
+  /**
+   * Certificate Validity.
+   */
+  private String isValid;
 
 }

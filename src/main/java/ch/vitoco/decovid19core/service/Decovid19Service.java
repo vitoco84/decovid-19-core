@@ -5,6 +5,8 @@ import static ch.vitoco.decovid19core.constants.Const.QR_CODE_CORRUPTED_EXCEPTIO
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
@@ -170,7 +172,17 @@ public class Decovid19Service {
     pemCertServerResponse.setIssuer(x509Certificate.getIssuerDN().getName());
     pemCertServerResponse.setPublicKeyParams(buildPublicKeyResponse(x509Certificate));
     pemCertServerResponse.setSignature(Base64.encodeBase64String(x509Certificate.getSignature()));
+    pemCertServerResponse.setIsValid(checkPEMCertValidity(x509Certificate));
     return pemCertServerResponse;
+  }
+
+  private String checkPEMCertValidity(X509Certificate x509Certificate) {
+    try {
+      x509Certificate.checkValidity();
+      return "true";
+    } catch (CertificateExpiredException | CertificateNotYetValidException e) {
+      return "false";
+    }
   }
 
   private HcertPublicKeyDTO buildPublicKeyResponse(X509Certificate x509Certificate) {
