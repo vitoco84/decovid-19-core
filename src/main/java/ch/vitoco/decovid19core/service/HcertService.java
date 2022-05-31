@@ -1,8 +1,9 @@
 package ch.vitoco.decovid19core.service;
 
-import static ch.vitoco.decovid19core.constants.Const.*;
+import static ch.vitoco.decovid19core.constants.Const.MESSAGE_DECODE_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.Const.MESSAGE_FORMAT_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.Const.QR_CODE_DECODE_EXCEPTION;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -11,22 +12,31 @@ import java.time.Instant;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
-import COSE.HeaderKeys;
-import ch.vitoco.decovid19core.enums.HcertAlgoKeys;
-import ch.vitoco.decovid19core.enums.HcertCBORKeys;
-import ch.vitoco.decovid19core.enums.HcertClaimKeys;
-import ch.vitoco.decovid19core.exception.ServerException;
-import ch.vitoco.decovid19core.model.HcertTimeStampDTO;
-import com.google.zxing.*;
-import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
-import com.google.zxing.common.HybridBinarizer;
-import com.upokecenter.cbor.CBORObject;
-import nl.minvws.encoding.Base45;
+import javax.imageio.ImageIO;
+
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.stereotype.Service;
+
+import com.google.zxing.BinaryBitmap;
+import com.google.zxing.LuminanceSource;
+import com.google.zxing.MultiFormatReader;
+import com.google.zxing.NotFoundException;
+import com.google.zxing.Result;
+import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
+import com.google.zxing.common.HybridBinarizer;
+import com.upokecenter.cbor.CBORObject;
+
+import ch.vitoco.decovid19core.enums.HcertAlgoKeys;
+import ch.vitoco.decovid19core.enums.HcertCBORKeys;
+import ch.vitoco.decovid19core.enums.HcertClaimKeys;
+import ch.vitoco.decovid19core.exception.ServerException;
+import ch.vitoco.decovid19core.model.HcertTimeStampDTO;
+
+import COSE.HeaderKeys;
+import nl.minvws.encoding.Base45;
 
 /**
  * Service class for the Health Certificate decoding process.
@@ -83,6 +93,10 @@ public class HcertService {
     }
   }
 
+  private boolean isCompressed(final byte[] hcert) {
+    return hcert[0] == 0x78;
+  }
+
   /**
    * Gets the CBOR Object representation from the Health Certificate content.
    *
@@ -91,8 +105,8 @@ public class HcertService {
    */
   public CBORObject getCBORObject(String hcert) {
     byte[] hcertBytes = decodeBase45HealthCertificate(hcert);
-    ByteArrayOutputStream coseMessageFromHcert = decompressCOSEMessage(hcertBytes);
-    return CBORObject.DecodeFromBytes(coseMessageFromHcert.toByteArray());
+    byte[] coseMessageHcert = isCompressed(hcertBytes) ? decompressCOSEMessage(hcertBytes).toByteArray() : hcertBytes;
+    return CBORObject.DecodeFromBytes(coseMessageHcert);
   }
 
   private CBORObject getProtectedHeader(CBORObject hcertCBORObject) {
