@@ -1,262 +1,205 @@
 package ch.vitoco.decovid19core.service;
 
-import static ch.vitoco.decovid19core.constants.Const.MESSAGE_DECODE_EXCEPTION;
-import static ch.vitoco.decovid19core.constants.Const.MESSAGE_FORMAT_EXCEPTION;
-import static ch.vitoco.decovid19core.constants.Const.QR_CODE_DECODE_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.ExceptionMessages.JSON_DESERIALIZE_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.ExceptionMessages.QR_CODE_CORRUPTED_EXCEPTION;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.Instant;
-import java.util.zip.DataFormatException;
-import java.util.zip.Inflater;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
+import java.security.cert.X509Certificate;
+import java.security.interfaces.ECPublicKey;
+import java.security.interfaces.RSAPublicKey;
 
-import javax.imageio.ImageIO;
-
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.tomcat.util.codec.binary.Base64;
-import org.springframework.stereotype.Service;
-
-import com.google.zxing.BinaryBitmap;
-import com.google.zxing.LuminanceSource;
-import com.google.zxing.MultiFormatReader;
-import com.google.zxing.NotFoundException;
-import com.google.zxing.Result;
-import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
-import com.google.zxing.common.HybridBinarizer;
-import com.upokecenter.cbor.CBORObject;
-
-import ch.vitoco.decovid19core.enums.HcertAlgoKeys;
-import ch.vitoco.decovid19core.enums.HcertCBORKeys;
-import ch.vitoco.decovid19core.enums.HcertClaimKeys;
 import ch.vitoco.decovid19core.exception.ServerException;
-import ch.vitoco.decovid19core.model.HcertTimeStampDTO;
-
-import COSE.HeaderKeys;
-import nl.minvws.encoding.Base45;
+import ch.vitoco.decovid19core.model.HcertContentDTO;
+import ch.vitoco.decovid19core.model.HcertDTO;
+import ch.vitoco.decovid19core.model.HcertPublicKeyDTO;
+import ch.vitoco.decovid19core.server.HcertServerRequest;
+import ch.vitoco.decovid19core.server.HcertServerResponse;
+import ch.vitoco.decovid19core.server.PEMCertServerRequest;
+import ch.vitoco.decovid19core.server.PEMCertServerResponse;
+import ch.vitoco.decovid19core.utils.HcertFileUtils;
+import ch.vitoco.decovid19core.utils.HcertStringUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.upokecenter.cbor.CBORObject;
+import org.apache.commons.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
- * Service class for the Health Certificate decoding process.
+ * Service class Decovid19DecoderService.
  */
 @Service
 public class HcertService {
 
-  private static final int START_INDEX_OF_HCERT_CONTENT = 4;
-  private static final int START_INDEX_OF_HEX_STRING = 2;
+  private static final Logger LOGGER = LoggerFactory.getLogger(HcertService.class);
+
+  private static final String HCERT_HEADER = "HC1:";
+  private static final int RADIX_HEX = 16;
+  private static final String SIGNATURE_ALGO_RSA = "RSA";
+  private static final String SIGNATURE_ALGO_ECDSA = "EC";
+
+  private final ValueSetService valueSetService;
+  private final HcertDecodingService hcertDecodingService;
+  private final TrustListService trustListService;
 
   /**
-   * Gets the content of the Health Certificate.
+   * Constructor.
    *
-   * @param imageFileInputStream the Health Certificate as InputStream
-   * @return Health Certificate content
+   * @param valueSetService  the ValueSetService
+   * @param hcertDecodingService     the HcertDecodingService
+   * @param trustListService the TrustListService
    */
-  public String getHealthCertificateContent(InputStream imageFileInputStream) {
-    try {
-      BufferedImage bufferedImage = ImageIO.read(imageFileInputStream);
-      LuminanceSource source = new BufferedImageLuminanceSource(bufferedImage);
-      BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
-      Result result = new MultiFormatReader().decode(bitmap);
-      return result.getText();
-    } catch (IOException | NotFoundException e) {
-      throw new ServerException(QR_CODE_DECODE_EXCEPTION, e);
-    }
+  public HcertService(ValueSetService valueSetService,
+      HcertDecodingService hcertDecodingService,
+      TrustListService trustListService) {
+    this.valueSetService = valueSetService;
+    this.hcertDecodingService = hcertDecodingService;
+    this.trustListService = trustListService;
   }
 
-  private byte[] decodeBase45HealthCertificate(String hcert) {
-    try {
-      String hcertWithoutPrefix = removeHcertHC1Prefix(hcert);
-      return Base45.getDecoder().decode(hcertWithoutPrefix);
-    } catch (IllegalArgumentException e) {
-      throw new ServerException(QR_CODE_DECODE_EXCEPTION, e);
-    }
-  }
-
-  private String removeHcertHC1Prefix(String hcert) {
-    return hcert.substring(START_INDEX_OF_HCERT_CONTENT);
-  }
-
-  private ByteArrayOutputStream decompressCOSEMessage(byte[] hcertBase45) {
-    Inflater inflater = new Inflater();
-    inflater.setInput(hcertBase45);
-    try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(hcertBase45.length)) {
-      byte[] buffer = new byte[2056];
-      while (!inflater.finished()) {
-        final int count = inflater.inflate(buffer);
-        outputStream.write(buffer, 0, count);
+  /**
+   * Gets the HcertServerResponse.
+   *
+   * @param imageFile the Health Certificate QR-Code image file
+   * @return HcertServerResponse
+   */
+  public ResponseEntity<HcertServerResponse> getHealthCertificateContent(MultipartFile imageFile) {
+    if (HcertFileUtils.isFileAllowed(imageFile)) {
+      try (InputStream imageFileInputStream = imageFile.getInputStream()) {
+        String hcertContent = hcertDecodingService.getHealthCertificateContent(imageFileInputStream);
+        return getHcertServerResponseResponseEntity(hcertContent);
+      } catch (IOException e) {
+        throw new ServerException(QR_CODE_CORRUPTED_EXCEPTION, e);
       }
-      return outputStream;
-    } catch (IOException | DataFormatException e) {
-      throw new ServerException(MESSAGE_FORMAT_EXCEPTION, e);
-    }
-  }
-
-  private boolean isCompressed(final byte[] hcert) {
-    return hcert[0] == 0x78;
-  }
-
-  /**
-   * Gets the CBOR Object representation from the Health Certificate content.
-   *
-   * @param hcert Health Certificate content as String
-   * @return CBORObject
-   */
-  public CBORObject getCBORObject(String hcert) {
-    byte[] hcertBytes = decodeBase45HealthCertificate(hcert);
-    byte[] coseMessageHcert = isCompressed(hcertBytes) ? decompressCOSEMessage(hcertBytes).toByteArray() : hcertBytes;
-    return CBORObject.DecodeFromBytes(coseMessageHcert);
-  }
-
-  private CBORObject getProtectedHeader(CBORObject hcertCBORObject) {
-    return hcertCBORObject.get(HcertCBORKeys.PROTECTED_HEADER.getCborKey());
-  }
-
-  private CBORObject getUnprotectedHeader(CBORObject hcertCBORObject) {
-    return hcertCBORObject.get(HcertCBORKeys.UNPROTECTED_HEADER.getCborKey());
-  }
-
-  private byte[] getMessageContent(CBORObject hcertCBORObject) {
-    return hcertCBORObject.get(HcertCBORKeys.MESSAGE_CONTENT.getCborKey()).GetByteString();
-  }
-
-  private byte[] getCOSESignature(CBORObject hcertCBORObject) {
-    return hcertCBORObject.get(HcertCBORKeys.SIGNATUR.getCborKey()).GetByteString();
-  }
-
-  /**
-   * Gets the Signature of the Health Certificate from the CBOR Message.
-   *
-   * @param cborMessage Health Certificate CBOR Message
-   * @return Signature Base64 encoded String
-   */
-  public String getSignature(CBORObject cborMessage) {
-    byte[] coseSignature = getCOSESignature(cborMessage);
-    return Base64.encodeBase64String(coseSignature);
-  }
-
-  /**
-   * Gets the Issuer of the Health Certificate from the CBOR Message.
-   *
-   * @param cborMessage Health Certificate CBOR Message
-   * @return Health Certificate Issuer
-   */
-  public String getIssuer(CBORObject cborMessage) {
-    byte[] messageContent = getMessageContent(cborMessage);
-    CBORObject cborObject = CBORObject.DecodeFromBytes(messageContent);
-    return cborObject.get(HcertClaimKeys.HCERT_ISSUER_CLAIM_KEY.getClaimKey()).AsString();
-  }
-
-  /**
-   * Gets the content of the Health Certificate from the CBOR Message.
-   *
-   * @param cborMessage Health Certificate CBOR Message
-   * @return Health Certificate content as String
-   */
-  public String getContent(CBORObject cborMessage) {
-    byte[] messageContent = getMessageContent(cborMessage);
-    CBORObject cborObject = CBORObject.DecodeFromBytes(messageContent);
-    CBORObject cborObjectContent = cborObject.get(HcertClaimKeys.HCERT_CLAIM_KEY.getClaimKey());
-    return cborObjectContent.get(HcertClaimKeys.HCERT_MESSAGE_TAG.getClaimKey()).ToJSONString();
-  }
-
-  private String getIssuedAt(CBORObject cborMessage) {
-    byte[] messageContent = getMessageContent(cborMessage);
-    CBORObject cborObject = CBORObject.DecodeFromBytes(messageContent);
-    return cborObject.get(HcertClaimKeys.HCERT_ISSUED_AT_CLAIM_KEY.getClaimKey()).ToJSONString();
-  }
-
-  private String getExpiration(CBORObject cborMessage) {
-    byte[] messageContent = getMessageContent(cborMessage);
-    CBORObject cborObject = CBORObject.DecodeFromBytes(messageContent);
-    return cborObject.get(HcertClaimKeys.HCERT_EXPIRATION_CLAIM_KEY.getClaimKey()).ToJSONString();
-  }
-
-  /**
-   * Gets the Time Stamp of the Health Certificate from the CBOR Message.
-   *
-   * @param cborMessage Health Certificate CBOR Message
-   * @return HcertTimeStampDTO
-   */
-  public HcertTimeStampDTO getHcertTimeStamp(CBORObject cborMessage) {
-    String issuedAt = getIssuedAt(cborMessage);
-    String expiration = getExpiration(cborMessage);
-    Long expirationTimeStamp = Long.parseLong(expiration);
-    Long issuedAtTimeStamp = Long.parseLong(issuedAt);
-    return buildHcertTimeStampResponse(expirationTimeStamp, issuedAtTimeStamp);
-  }
-
-  private HcertTimeStampDTO buildHcertTimeStampResponse(Long expirationTimeStamp, Long issuedAtTimeStamp) {
-    HcertTimeStampDTO hcertTimeStampDTO = new HcertTimeStampDTO();
-    hcertTimeStampDTO.setHcerExpirationTime(Instant.ofEpochSecond(expirationTimeStamp).toString());
-    hcertTimeStampDTO.setHcertIssuedAtTime(Instant.ofEpochSecond(issuedAtTimeStamp).toString());
-    return hcertTimeStampDTO;
-  }
-
-  private String getHeader(CBORObject cborObject, CBORObject cborHeaderKey) {
-    StringBuilder stringBuilder = new StringBuilder();
-    CBORObject protectedHeader = getProtectedHeader(cborObject);
-    CBORObject cborObjectProtectedHeader = CBORObject.DecodeFromBytes(protectedHeader.GetByteString());
-
-    if (cborObjectProtectedHeader.get(cborHeaderKey) == null) {
-      CBORObject unprotectedHeader = getUnprotectedHeader(cborObject);
-      CBORObject unprotectedHeaderContent = unprotectedHeader.get(cborHeaderKey);
-      stringBuilder.append(unprotectedHeaderContent.toString());
     } else {
-      stringBuilder.append(cborObjectProtectedHeader.get(cborHeaderKey));
+      String originalFilename = HcertStringUtils.sanitizeUserInputString(imageFile);
+      LOGGER.info("Bad Request for: {}", originalFilename);
+      return ResponseEntity.badRequest().build();
     }
-    return stringBuilder.toString();
-  }
-
-  private String getAlgoFromHeader(CBORObject cborObject) {
-    return getHeader(cborObject, HeaderKeys.Algorithm.AsCBOR());
   }
 
   /**
-   * Gets the Algorithm of the Health Certificate from the CBOR Message.
+   * Gets the HcertServerResponse.
    *
-   * @param cborObject Health Certificate CBOR Message
-   * @return Algorithm
+   * @param hcertPrefix the HcertServerRequest with the Health Certificate Prefix
+   * @return HcertServerResponse
    */
-  public String getAlgo(CBORObject cborObject) {
-    int algoId = Integer.parseInt(getAlgoFromHeader(cborObject));
-    StringBuilder algo = new StringBuilder();
-    for (HcertAlgoKeys hcertAlgoKeys : HcertAlgoKeys.values()) {
-      if (algoId == hcertAlgoKeys.getAlgoId()) {
-        algo.append(hcertAlgoKeys);
-      }
+  public ResponseEntity<HcertServerResponse> getHealthCertificateContent(HcertServerRequest hcertPrefix) {
+    if (!hcertPrefix.getHcertPrefix().isBlank() && hcertPrefix.getHcertPrefix().startsWith(HCERT_HEADER)) {
+      String hcertContent = hcertPrefix.getHcertPrefix();
+      return getHcertServerResponseResponseEntity(hcertContent);
+    } else {
+      LOGGER.info("Bad Request for: {}", hcertPrefix);
+      return ResponseEntity.badRequest().build();
     }
-    return algo.toString();
   }
 
-  private String getKIDFromHeader(CBORObject cborObject) {
-    return getHeader(cborObject, HeaderKeys.KID.AsCBOR());
+  private ResponseEntity<HcertServerResponse> getHcertServerResponseResponseEntity(String hcertContent) {
+    HcertServerResponse hcertResponse = buildHcertResponse(hcertDecodingService, hcertContent);
+    LOGGER.info("Health Certificate Content: {} ", hcertResponse);
+    return ResponseEntity.ok().body(hcertResponse);
   }
 
-  private String trimmKID(String kidHex) {
-    return kidHex.substring(START_INDEX_OF_HEX_STRING, kidHex.lastIndexOf("'"));
+  private HcertDTO getHcertdDTO(CBORObject cborObject) {
+    String jsonPayloadFromCBORMessage = hcertDecodingService.getContent(cborObject);
+    return buildHcertDTO(jsonPayloadFromCBORMessage);
   }
 
-  /**
-   * Gets the Key Identifier of the Health Certificate from the CBOR Message.
-   *
-   * @param cborObject Health Certificate CBOR Message
-   * @return Key Identifier Base64 encoded String
-   */
-  public String getKID(CBORObject cborObject) {
-    StringBuilder kid = new StringBuilder();
+  private HcertDTO buildHcertDTO(String jsonPayloadFromCBORMessage) {
     try {
-      String kidHex = getKIDFromHeader(cborObject);
-      if (!StringUtils.isBlank(kidHex)) {
-        String kidHexTrimmed = trimmKID(kidHex);
-        byte[] kidBytes = Hex.decodeHex(kidHexTrimmed.toCharArray());
-        kid.append(Base64.encodeBase64String(kidBytes));
-      }
-      return kid.toString();
-    } catch (DecoderException e) {
-      throw new ServerException(MESSAGE_DECODE_EXCEPTION, e);
+      ObjectMapper objectMapper = new ObjectMapper();
+      return buildHcertContentDTO(jsonPayloadFromCBORMessage, objectMapper);
+    } catch (JsonProcessingException e) {
+      throw new ServerException(JSON_DESERIALIZE_EXCEPTION, e);
     }
+  }
+
+  private HcertContentDTO buildHcertContentDTO(String jsonPayloadFromCBORMessage, ObjectMapper objectMapper)
+      throws JsonProcessingException {
+    HcertContentDTO hcertContentDTO = objectMapper.readValue(jsonPayloadFromCBORMessage, HcertContentDTO.class);
+    valueSetService.mappingVaccinationValueSet(hcertContentDTO.getV());
+    valueSetService.mappingTestValueSet(hcertContentDTO.getT());
+    valueSetService.mappingRecoveryValueSet(hcertContentDTO.getR());
+    return hcertContentDTO;
+  }
+
+  private HcertServerResponse buildHcertResponse(HcertDecodingService hcertDecodingService, String hcertContent) {
+    HcertServerResponse hcertResponse = new HcertServerResponse();
+    CBORObject cborObject = hcertDecodingService.getCBORObject(hcertContent);
+    hcertResponse.setHcertPrefix(hcertContent);
+    hcertResponse.setHcertContent(getHcertdDTO(cborObject));
+    hcertResponse.setHcertKID(hcertDecodingService.getKID(cborObject));
+    hcertResponse.setHcertAlgo(hcertDecodingService.getAlgo(cborObject));
+    hcertResponse.setHcertIssuer(hcertDecodingService.getIssuer(cborObject));
+    hcertResponse.setHcertTimeStamp(hcertDecodingService.getHcertTimeStamp(cborObject));
+    hcertResponse.setHcertSignature(hcertDecodingService.getSignature(cborObject));
+    return hcertResponse;
+  }
+
+  /**
+   * Gets the PEMCertServerResponse.
+   *
+   * @param pemCertificate the PEMCertServerRequest with the Certificate as String.
+   * @return PEMCertServerResponse
+   */
+  public ResponseEntity<PEMCertServerResponse> getX509Certificate(PEMCertServerRequest pemCertificate) {
+    try {
+      X509Certificate x509Certificate = trustListService.convertCertificateToX509(pemCertificate.getPemCertificate());
+      PEMCertServerResponse pemCertServerResponse = buildPEMCertServerResponse(x509Certificate);
+      LOGGER.info("PEM Certificate Content: {} ", pemCertServerResponse);
+      return ResponseEntity.ok().body(pemCertServerResponse);
+    } catch (ServerException e) {
+      return ResponseEntity.badRequest().build();
+    }
+  }
+
+  private PEMCertServerResponse buildPEMCertServerResponse(X509Certificate x509Certificate) {
+    PEMCertServerResponse pemCertServerResponse = new PEMCertServerResponse();
+    pemCertServerResponse.setPublicKey(Base64.encodeBase64String(x509Certificate.getPublicKey().getEncoded()));
+    pemCertServerResponse.setSubject(x509Certificate.getSubjectDN().getName());
+    pemCertServerResponse.setSignatureAlgorithm(x509Certificate.getSigAlgName());
+    pemCertServerResponse.setValidTo(x509Certificate.getNotAfter().toInstant().toString());
+    pemCertServerResponse.setValidFrom(x509Certificate.getNotBefore().toInstant().toString());
+    pemCertServerResponse.setSerialNumber(x509Certificate.getSerialNumber().toString(RADIX_HEX));
+    pemCertServerResponse.setIssuer(x509Certificate.getIssuerDN().getName());
+    pemCertServerResponse.setPublicKeyParams(buildPublicKeyResponse(x509Certificate));
+    pemCertServerResponse.setSignature(Base64.encodeBase64String(x509Certificate.getSignature()));
+    pemCertServerResponse.setIsValid(checkPEMCertValidity(x509Certificate));
+    return pemCertServerResponse;
+  }
+
+  private String checkPEMCertValidity(X509Certificate x509Certificate) {
+    try {
+      x509Certificate.checkValidity();
+      return "true";
+    } catch (CertificateExpiredException | CertificateNotYetValidException e) {
+      return "false";
+    }
+  }
+
+  private HcertPublicKeyDTO buildPublicKeyResponse(X509Certificate x509Certificate) {
+    HcertPublicKeyDTO hcertPublicKeyDTO = new HcertPublicKeyDTO();
+    if (x509Certificate.getPublicKey().getAlgorithm().equals(SIGNATURE_ALGO_RSA)) {
+      RSAPublicKey x509RSATemp = (RSAPublicKey) x509Certificate.getPublicKey();
+      hcertPublicKeyDTO.setPublicExponent(x509RSATemp.getPublicExponent().toString(RADIX_HEX));
+      hcertPublicKeyDTO.setModulus(x509RSATemp.getModulus().toString(RADIX_HEX));
+      hcertPublicKeyDTO.setBitLength(String.valueOf(x509RSATemp.getModulus().bitLength()));
+      hcertPublicKeyDTO.setAlgo(x509RSATemp.getAlgorithm());
+    }
+    if (x509Certificate.getPublicKey().getAlgorithm().equals(SIGNATURE_ALGO_ECDSA)) {
+      ECPublicKey x509ECDSATemp = (ECPublicKey) x509Certificate.getPublicKey();
+      hcertPublicKeyDTO.setPublicXCoord(x509ECDSATemp.getW().getAffineX().toString(RADIX_HEX));
+      hcertPublicKeyDTO.setPublicYCoord(x509ECDSATemp.getW().getAffineY().toString(RADIX_HEX));
+      hcertPublicKeyDTO.setBitLength(String.valueOf(x509ECDSATemp.getW().getAffineX().bitLength()));
+      hcertPublicKeyDTO.setAlgo(x509ECDSATemp.getAlgorithm());
+    }
+    return hcertPublicKeyDTO;
   }
 
 }

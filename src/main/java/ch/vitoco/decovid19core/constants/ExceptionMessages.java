@@ -3,7 +3,7 @@ package ch.vitoco.decovid19core.constants;
 /**
  * Representation class of messages for exceptions
  */
-public final class Const {
+public final class ExceptionMessages {
 
   /**
    * QR-Code decode exception message.
@@ -57,11 +57,15 @@ public final class Const {
    * COSE compress data exception.
    */
   public static final String COSE_COMPRESS_EXCEPTION = "The COSE Message could not be compressed.";
+  /**
+   * Signature not valid exception.
+   */
+  public static final String INVALID_SIGNATURE = "The Signature or the provided keyId is not valid.";
 
   /**
    * Constructor.
    */
-  private Const() {
+  private ExceptionMessages() {
     throw new IllegalStateException(UTILITY_CLASS_EXCEPTION);
   }
 

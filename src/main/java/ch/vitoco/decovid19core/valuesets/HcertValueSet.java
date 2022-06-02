@@ -1,7 +1,7 @@
 package ch.vitoco.decovid19core.valuesets;
 
-import static ch.vitoco.decovid19core.constants.Const.RESOURCES_READ_EXCEPTION;
-import static ch.vitoco.decovid19core.constants.Const.UTILITY_CLASS_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.ExceptionMessages.RESOURCES_READ_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.ExceptionMessages.UTILITY_CLASS_EXCEPTION;
 
 import java.io.IOException;
 import java.io.InputStream;

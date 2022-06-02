@@ -1,21 +1,24 @@
 package ch.vitoco.decovid19core.service;
 
-import static ch.vitoco.decovid19core.constants.Const.JSON_DESERIALIZE_EXCEPTION;
-import static ch.vitoco.decovid19core.constants.Const.KEY_SPEC_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.ExceptionMessages.JSON_DESERIALIZE_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.ExceptionMessages.KEY_SPEC_EXCEPTION;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
-import java.security.KeyFactory;
-import java.security.PublicKey;
+import java.math.BigInteger;
+import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.security.spec.X509EncodedKeySpec;
+import java.security.spec.*;
 import java.time.Duration;
 
 import ch.vitoco.decovid19core.certificates.model.GermanCertificates;
+import ch.vitoco.decovid19core.certificates.model.SwissActiveKeyIds;
+import ch.vitoco.decovid19core.certificates.model.SwissCertificates;
+import ch.vitoco.decovid19core.certificates.model.SwissRevokedCertificates;
 import ch.vitoco.decovid19core.exception.ServerException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,6 +41,12 @@ public class TrustListService {
 
   private static final int MAX_IN_MEMORY_SIZE = 16 * 1024 * 1024;
   private static final int TIMEOUT_DURATION_IN_SECONDS = 20;
+  private static final int RADIX_HEX = 16;
+
+  private static final String SIGNATURE_ALGO_RSA = "RSA";
+  private static final String SIGNATURE_ALGO_ECDSA = "EC";
+  private static final String EC_PROVIDER = "SunEC";
+  private static final String EC_DOMAIN_PARAM_NAME = "secp256r1";
 
   private static final String X509_CERT_TYPE = "X.509";
   private static final String PEM_PREFIX = "-----BEGIN CERTIFICATE-----";
@@ -88,10 +97,72 @@ public class TrustListService {
   }
 
   /**
-   * Helper method for mapping the content of the Health Certificate to Java Object.
+   * Gets the Health Certificates from the given endpoint.
+   *
+   * @param baseUrl the base URL for retrieving the Health Certificates
+   * @param token   the Bearer Token for Authentication
+   * @return Health Certificates
+   */
+  public ResponseEntity<String> getHcertCertificates(String baseUrl, String token) {
+    return getWebclient(baseUrl).get()
+        .headers(h -> h.setBearerAuth(token))
+        .accept(MediaType.APPLICATION_JSON)
+        .retrieve()
+        .toEntity(String.class)
+        .blockOptional(Duration.ofSeconds(TIMEOUT_DURATION_IN_SECONDS))
+        .orElseThrow();
+  }
+
+  /**
+   * Helper method for mapping the content of the Swiss Health Certificate to Java Object.
    *
    * @param certificates the Health Certificate content retrieved from the given endpoint
-   * @return HcertCertificates
+   * @return SwissCertificates
+   */
+  public SwissCertificates buildSwissHcertCertificates(String certificates) {
+    try {
+      ObjectMapper objectMapper = new ObjectMapper();
+      return objectMapper.readValue(certificates, SwissCertificates.class);
+    } catch (JsonProcessingException e) {
+      throw new ServerException(JSON_DESERIALIZE_EXCEPTION, e);
+    }
+  }
+
+  /**
+   * Helper method for mapping the content of the Swiss Health Certificate Active Key IDs to Java Object.
+   *
+   * @param activeKeys the Active Key IDs content retrieved from the given endpoint
+   * @return SwissActiveKeyIds
+   */
+  public SwissActiveKeyIds buildSwissHcertActiveKeyIds(String activeKeys) {
+    try {
+      ObjectMapper objectMapper = new ObjectMapper();
+      return objectMapper.readValue(activeKeys, SwissActiveKeyIds.class);
+    } catch (JsonProcessingException e) {
+      throw new ServerException(JSON_DESERIALIZE_EXCEPTION, e);
+    }
+  }
+
+  /**
+   * Helper method for mapping the content of the Revoked Swiss Health Certificate to Java Object.
+   *
+   * @param revokedHcert the Revoked Health Certificates content retrieved from the given endpoint
+   * @return SwissRevokedCertificates
+   */
+  public SwissRevokedCertificates buildSwissRevokedHcert(String revokedHcert) {
+    try {
+      ObjectMapper objectMapper = new ObjectMapper();
+      return objectMapper.readValue(revokedHcert, SwissRevokedCertificates.class);
+    } catch (JsonProcessingException e) {
+      throw new ServerException(JSON_DESERIALIZE_EXCEPTION, e);
+    }
+  }
+
+  /**
+   * Helper method for mapping the content of the German Health Certificate to Java Object.
+   *
+   * @param certificates the Health Certificate content retrieved from the given endpoint
+   * @return GermanCertificates
    */
   public GermanCertificates buildGermanHcertCertificates(String certificates) {
     try {
@@ -126,7 +197,7 @@ public class TrustListService {
    * @param algorithm Algorithm as String e.g. RSA or ECDSA
    * @return PublicKey
    */
-  public PublicKey readPublicKey(String publicKey, String algorithm) {
+  public PublicKey getPublicKey(String publicKey, String algorithm) {
     String publicKeyTmp = addPublicKeyPrefix(publicKey);
     try (StringReader keyReader = new StringReader(publicKeyTmp); PemReader pemReader = new PemReader(keyReader)) {
       PemObject pemObject = pemReader.readPemObject();
@@ -135,6 +206,47 @@ public class TrustListService {
       KeyFactory factory = KeyFactory.getInstance(algorithm, new BouncyCastleProvider());
       return factory.generatePublic(pubKeySpec);
     } catch (Exception e) {
+      throw new ServerException(KEY_SPEC_EXCEPTION, e);
+    }
+  }
+
+  /**
+   * Gets RSA Public Key from given params.
+   *
+   * @param modulus  RSA Public Key Modulus
+   * @param exponent RSA Public Key Public Exponent
+   * @return RSA PublicKey
+   */
+  public PublicKey getRSAPublicKey(String modulus, String exponent) {
+    try {
+      RSAPublicKeySpec spec = new RSAPublicKeySpec(new BigInteger(modulus, RADIX_HEX),
+          new BigInteger(exponent, RADIX_HEX));
+      KeyFactory factory = KeyFactory.getInstance(SIGNATURE_ALGO_RSA);
+      return factory.generatePublic(spec);
+    } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+      throw new ServerException(KEY_SPEC_EXCEPTION, e);
+    }
+  }
+
+  /**
+   * Gets EC Public Key from given params.
+   *
+   * @param publicXCoord EC Public Key Point X-Coordinate
+   * @param publicYCoord EC Public Key Point Y-Coordinate
+   * @return EC PublicKey
+   */
+  public PublicKey getECPublicKey(String publicXCoord, String publicYCoord) {
+    try {
+      ECPoint publicECPoint = new ECPoint(new BigInteger(publicXCoord, RADIX_HEX),
+          new BigInteger(publicYCoord, RADIX_HEX));
+      AlgorithmParameters parameters = AlgorithmParameters.getInstance(SIGNATURE_ALGO_ECDSA, EC_PROVIDER);
+      parameters.init(new ECGenParameterSpec(EC_DOMAIN_PARAM_NAME));
+      ECParameterSpec ecParameterSpec = parameters.getParameterSpec(ECParameterSpec.class);
+      ECPublicKeySpec publicSpec = new ECPublicKeySpec(publicECPoint, ecParameterSpec);
+      KeyFactory factory = KeyFactory.getInstance(SIGNATURE_ALGO_ECDSA);
+      return factory.generatePublic(publicSpec);
+    } catch (NoSuchAlgorithmException | InvalidKeySpecException | NoSuchProviderException |
+             InvalidParameterSpecException e) {
       throw new ServerException(KEY_SPEC_EXCEPTION, e);
     }
   }

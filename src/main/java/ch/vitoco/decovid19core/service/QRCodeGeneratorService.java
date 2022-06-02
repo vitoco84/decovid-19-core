@@ -1,6 +1,6 @@
 package ch.vitoco.decovid19core.service;
 
-import static ch.vitoco.decovid19core.constants.Const.*;
+import static ch.vitoco.decovid19core.constants.ExceptionMessages.*;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;

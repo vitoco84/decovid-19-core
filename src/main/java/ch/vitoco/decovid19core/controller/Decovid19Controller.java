@@ -4,7 +4,8 @@ import java.awt.image.BufferedImage;
 
 import ch.vitoco.decovid19core.model.HcertContentDTO;
 import ch.vitoco.decovid19core.server.*;
-import ch.vitoco.decovid19core.service.Decovid19Service;
+import ch.vitoco.decovid19core.service.HcertService;
+import ch.vitoco.decovid19core.service.HcertVerificationService;
 import ch.vitoco.decovid19core.service.QRCodeGeneratorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -20,13 +21,17 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/decovid19")
 public class Decovid19Controller {
 
-  private final Decovid19Service decovid19Service;
+  private final HcertService hcertService;
   private final QRCodeGeneratorService qrCodeGeneratorService;
+  private final HcertVerificationService hcertVerificationService;
 
 
-  public Decovid19Controller(Decovid19Service decovid19Service, QRCodeGeneratorService qrCodeGeneratorService) {
-    this.decovid19Service = decovid19Service;
+  public Decovid19Controller(HcertService hcertService,
+      QRCodeGeneratorService qrCodeGeneratorService,
+      HcertVerificationService hcertVerificationService) {
+    this.hcertService = hcertService;
     this.qrCodeGeneratorService = qrCodeGeneratorService;
+    this.hcertVerificationService = hcertVerificationService;
   }
 
   @Operation(summary = "Decode Covid-19 Health Certificate with QR-Code")
@@ -36,7 +41,7 @@ public class Decovid19Controller {
   @PostMapping(value = "/hcert/qrcode", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}, produces = {
       MediaType.APPLICATION_JSON_VALUE, "application/json"})
   public ResponseEntity<HcertServerResponse> getHealthCertificateContent(@RequestParam("imageFile") MultipartFile imageFile) {
-    return decovid19Service.getHealthCertificateContent(imageFile);
+    return hcertService.getHealthCertificateContent(imageFile);
   }
 
   @Operation(summary = "Decode Covid-19 Health Certificate with Prefix String 'HC1:'")
@@ -46,7 +51,7 @@ public class Decovid19Controller {
   @PostMapping(value = "/hcert/prefix", consumes = {MediaType.APPLICATION_JSON_VALUE, "application/json"}, produces = {
       MediaType.APPLICATION_JSON_VALUE, "application/json"})
   public ResponseEntity<HcertServerResponse> getHealthCertificateContent(@RequestBody HcertServerRequest hcert) {
-    return decovid19Service.getHealthCertificateContent(hcert);
+    return hcertService.getHealthCertificateContent(hcert);
   }
 
   @Operation(summary = "URL QR-Code Generator")
@@ -74,7 +79,18 @@ public class Decovid19Controller {
   @PostMapping(value = "/hcert/qrcode/pem", consumes = {MediaType.APPLICATION_JSON_VALUE,
       "application/json"}, produces = {MediaType.APPLICATION_JSON_VALUE, "application/json"})
   public ResponseEntity<PEMCertServerResponse> getX509Certificate(@RequestBody PEMCertServerRequest pemCertificate) {
-    return decovid19Service.getX509Certificate(pemCertificate);
+    return hcertService.getX509Certificate(pemCertificate);
+  }
+
+  @Operation(summary = "Verification of the Swiss Health Certificate")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Verification of the Swiss Health Certificate", content = {
+          @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))}),
+      @ApiResponse(responseCode = "400", description = "Invalid PEM data supplied", content = @Content)})
+  @PostMapping(value = "/hcert/verify", consumes = {MediaType.APPLICATION_JSON_VALUE, "application/json"}, produces = {
+      MediaType.APPLICATION_JSON_VALUE, "application/json"})
+  public ResponseEntity<String> getSwissHealthCertificateVerification(@RequestBody SwissHcertVerificationRequest swissHcertVerificationRequest) {
+    return hcertVerificationService.verifyHealthCertificate(swissHcertVerificationRequest);
   }
 
 }

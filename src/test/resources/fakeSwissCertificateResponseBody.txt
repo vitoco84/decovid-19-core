@@ -1,0 +1,1 @@
+{"certs": [{"keyId": "keyId","use": "sig","alg": "ES256","n": null,"e": null,"subjectPublicKeyInfo": null,"crv": "P-256","x": "x","y": "y"},{"keyId": "keyId","use": "sig","alg": "RS256","n": "n","e": "e","subjectPublicKeyInfo": null,"crv": null,"x": null,"y": null}]}

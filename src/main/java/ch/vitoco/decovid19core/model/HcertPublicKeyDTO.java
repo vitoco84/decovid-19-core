@@ -11,27 +11,27 @@ import lombok.Data;
 public class HcertPublicKeyDTO {
 
   /**
-   * Public Key Modulus.
+   * RSA Public Key Modulus.
    */
   private String modulus;
   /**
-   * Public Key Public Exponent.
+   * RSA Public Key Public Exponent.
    */
   private String publicExponent;
   /**
-   * Public Key Generator Point X-Coordinate.
+   * EC Public Key Point X-Coordinate.
    */
-  private String xCoord;
+  private String publicXCoord;
   /**
-   * Public Key Generator Point Y-Coordinate.
+   * EC Public Key Point Y-Coordinate.
    */
-  private String yCoord;
+  private String publicYCoord;
   /**
    * The Digital Signature Algorithm.
    */
   private String algo;
   /**
-   * Lenght of the Public Key.
+   * Length of the Public Key.
    */
   private String bitLength;
 

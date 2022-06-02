@@ -1,6 +1,6 @@
 package ch.vitoco.decovid19core.valuesets;
 
-import static ch.vitoco.decovid19core.constants.Const.RESOURCES_READ_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.ExceptionMessages.RESOURCES_READ_EXCEPTION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 

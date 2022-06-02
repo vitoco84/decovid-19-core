@@ -1,11 +1,11 @@
 package ch.vitoco.decovid19core.constants;
 
-import static ch.vitoco.decovid19core.constants.Const.UTILITY_CLASS_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.ExceptionMessages.UTILITY_CLASS_EXCEPTION;
 
 /**
- * Representation class of Document Signing Certificates Endpoints.
+ * Representation class of Document Signing Certificates HcertEndpointsApi.
  */
-public final class Endpoints {
+public final class HcertEndpointsApi {
 
   /**
    * Health Certificates Trust List Certificates Endpoint used by German API.
@@ -32,16 +32,9 @@ public final class Endpoints {
   public static final String SWISS_REVOCATION_LIST_API = "https://www.cc.bit.admin.ch/trust/v2/revocationList";
 
   /**
-   * Health Certificates Public Keys used by the Netherlands API.
-   *
-   * The Response contains a payload which can be Base64 decoded to a JSON Object with European Public Keys.
-   */
-  public static final String NETHERLANDS_PUBLIC_KEY = "https://verifier-api.coronacheck.nl/v4/verifier/public_keys";
-
-  /**
    * Constructor.
    */
-  private Endpoints() {
+  private HcertEndpointsApi() {
     throw new IllegalStateException(UTILITY_CLASS_EXCEPTION);
   }
 
