@@ -1,9 +1,15 @@
 package ch.vitoco.decovid19core.service;
 
 import static ch.vitoco.decovid19core.constants.ExceptionMessages.KEY_SPEC_EXCEPTION;
-import static org.junit.jupiter.api.Assertions.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -14,17 +20,24 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.List;
 import java.util.Objects;
 
-import ch.vitoco.decovid19core.certificates.model.*;
-import ch.vitoco.decovid19core.constants.HcertEndpointsApi;
-import ch.vitoco.decovid19core.exception.ServerException;
-import okhttp3.HttpUrl;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
 import org.apache.commons.codec.binary.Base64;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import ch.vitoco.decovid19core.certificates.model.GermanCertificate;
+import ch.vitoco.decovid19core.certificates.model.GermanCertificates;
+import ch.vitoco.decovid19core.certificates.model.SwissActiveKeyIds;
+import ch.vitoco.decovid19core.certificates.model.SwissCertificate;
+import ch.vitoco.decovid19core.certificates.model.SwissCertificates;
+import ch.vitoco.decovid19core.certificates.model.SwissRevokedCertificates;
+import ch.vitoco.decovid19core.constants.HcertEndpointsApi;
+import ch.vitoco.decovid19core.exception.ServerException;
+
+import okhttp3.HttpUrl;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
 
 class TrustListServiceTest {
 
@@ -67,6 +80,8 @@ class TrustListServiceTest {
 
   private static final String BEARER_TOKEN = "token";
   private static final String TARGET_REPLACE_TXT = "\r\n";
+
+  private static final int RADIX_HEX = 16;
 
   private final TrustListService trustListService = new TrustListService();
 
@@ -173,8 +188,8 @@ class TrustListServiceTest {
   @Disabled("Only used for local testing and verification. MockWebServer is used instead, see Test shouldRetrieveSwissRevokedCertificatesWithMockWebServer().")
   @Test
   void shouldRetrieveSwissRevokedCertificates() {
-    ResponseEntity<String> certificates = trustListService.getHcertCertificates(HcertEndpointsApi.SWISS_REVOCATION_LIST_API,
-        BEARER_TOKEN);
+    ResponseEntity<String> certificates = trustListService.getHcertCertificates(
+        HcertEndpointsApi.SWISS_REVOCATION_LIST_API, BEARER_TOKEN);
 
     SwissRevokedCertificates swissRevokedCertificates = trustListService.buildSwissRevokedHcert(
         Objects.requireNonNull(certificates.getBody()));
@@ -313,8 +328,9 @@ class TrustListServiceTest {
 
   @Test
   void shouldGetRSAPublicKey() {
-    PublicKey rsaPublicKey = trustListService.getRSAPublicKey(SWISS_PUBLIC_KEY_PARAMS_MODULUS,
-        SWISS_PUBLIC_KEY_PARAMS_EXPONENT);
+    BigInteger modulus = new BigInteger(SWISS_PUBLIC_KEY_PARAMS_MODULUS, RADIX_HEX);
+    BigInteger exponent = new BigInteger(SWISS_PUBLIC_KEY_PARAMS_EXPONENT, RADIX_HEX);
+    PublicKey rsaPublicKey = trustListService.getRSAPublicKey(modulus, exponent);
     String encodedPubKey = Base64.encodeBase64String(rsaPublicKey.getEncoded());
 
     assertEquals(SWISS_QR_CODE_PUBLIC_KEY, encodedPubKey);

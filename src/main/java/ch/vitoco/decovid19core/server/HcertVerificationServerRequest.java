@@ -5,15 +5,14 @@ import javax.validation.constraints.NotBlank;
 import lombok.Data;
 
 /**
- * Representation class of the Swiss Health Certificate Verification Server Request.
+ * Representation class of the Health Certificate Verification Server Request.
  */
 @Data
-public class SwissHcertVerificationRequest {
+public class HcertVerificationServerRequest {
 
   /**
    * Bearer Token provided by BIT.
    */
-  @NotBlank
   private String bearerToken;
   /**
    * Health Certificate Key Identifier.

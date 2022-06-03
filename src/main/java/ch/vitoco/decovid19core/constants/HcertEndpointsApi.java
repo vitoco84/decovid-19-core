@@ -15,6 +15,10 @@ public final class HcertEndpointsApi {
    */
   public static final String GERMAN_CERTS_API = "https://de.dscg.ubirch.com/trustList/DSC/";
   /**
+   * Health Test Certificates Trust List Certificates Endpoint used by German API.
+   */
+  public static final String GERMAN_TEST_CERTS_API = "https://de.test.dscg.ubirch.com/trustList/DSC/";
+  /**
    * Health Certificates Public Key Endpoint used by German API.
    */
   public static final String GERMAN_PUBLIC_KEY_API = "https://github.com/Digitaler-Impfnachweis/covpass-ios/raw/main/Certificates/PROD_RKI/CA/pubkey.pem";
