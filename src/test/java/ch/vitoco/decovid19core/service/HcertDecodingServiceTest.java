@@ -43,6 +43,11 @@ class HcertDecodingServiceTest {
   private static final Path FREE_TEST_IMAGE = Paths.get("src/test/resources/freeTestImageFromUnsplash.jpg");
   private static final String SWISS_QR_CODE_VACC_KID = "mmrfzpMU6xc=";
 
+  private static final String SIGNATURE_ALGO_SHA256_WITH_RSA = "SHA256withRSA/PSS";
+  private static final String SIGNATURE_ALGO_SHA256_WITH_ECDSA = "SHA256withECDSA";
+  private static final String ES_256_ALGO_NAME = "ES256";
+  private static final String PS_256_ALGO_NAME = "PS256";
+
   private final HcertDecodingService hcertDecodingService = new HcertDecodingService();
 
   @Test
@@ -246,7 +251,16 @@ class HcertDecodingServiceTest {
     CBORObject cborObject = hcertDecodingService.getCBORObject(hcert);
     String actualAlgo = hcertDecodingService.getAlgo(cborObject);
 
-    assertEquals(HcertAlgoKeys.RSA_PSS_256.toString(), actualAlgo);
+    assertEquals(HcertAlgoKeys.PS256.toString(), actualAlgo);
+  }
+
+  @Test
+  void shouldReturnCorrectJcaAlgo() {
+    String es256 = hcertDecodingService.getJcaAlgo(ES_256_ALGO_NAME);
+    String ps256 = hcertDecodingService.getJcaAlgo(PS_256_ALGO_NAME);
+
+    assertEquals(SIGNATURE_ALGO_SHA256_WITH_ECDSA, es256);
+    assertEquals(SIGNATURE_ALGO_SHA256_WITH_RSA, ps256);
   }
 
   @Test

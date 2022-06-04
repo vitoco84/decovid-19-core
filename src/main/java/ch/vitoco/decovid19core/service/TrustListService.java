@@ -8,24 +8,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.math.BigInteger;
-import java.security.AlgorithmParameters;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.PublicKey;
+import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.security.spec.ECGenParameterSpec;
-import java.security.spec.ECParameterSpec;
-import java.security.spec.ECPoint;
-import java.security.spec.ECPublicKeySpec;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.InvalidParameterSpecException;
-import java.security.spec.RSAPublicKeySpec;
-import java.security.spec.X509EncodedKeySpec;
+import java.security.spec.*;
 import java.time.Duration;
 
+import ch.vitoco.decovid19core.certificates.model.GermanCertificates;
+import ch.vitoco.decovid19core.certificates.model.SwissActiveKeyIds;
+import ch.vitoco.decovid19core.certificates.model.SwissCertificates;
+import ch.vitoco.decovid19core.certificates.model.SwissRevokedCertificates;
+import ch.vitoco.decovid19core.exception.ServerException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
@@ -35,16 +31,6 @@ import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import ch.vitoco.decovid19core.certificates.model.GermanCertificates;
-import ch.vitoco.decovid19core.certificates.model.SwissActiveKeyIds;
-import ch.vitoco.decovid19core.certificates.model.SwissCertificates;
-import ch.vitoco.decovid19core.certificates.model.SwissRevokedCertificates;
-import ch.vitoco.decovid19core.exception.ServerException;
-
 import reactor.netty.http.client.HttpClient;
 
 /**
@@ -55,7 +41,6 @@ public class TrustListService {
 
   private static final int MAX_IN_MEMORY_SIZE = 16 * 1024 * 1024;
   private static final int TIMEOUT_DURATION_IN_SECONDS = 20;
-  private static final int RADIX_HEX = 16;
 
   private static final String SIGNATURE_ALGO_RSA = "RSA";
   private static final String SIGNATURE_ALGO_ECDSA = "EC";
@@ -248,10 +233,9 @@ public class TrustListService {
    * @param publicYCoord EC Public Key Point Y-Coordinate
    * @return EC PublicKey
    */
-  public PublicKey getECPublicKey(String publicXCoord, String publicYCoord) {
+  public PublicKey getECPublicKey(BigInteger publicXCoord, BigInteger publicYCoord) {
     try {
-      ECPoint publicECPoint = new ECPoint(new BigInteger(publicXCoord, RADIX_HEX),
-          new BigInteger(publicYCoord, RADIX_HEX));
+      ECPoint publicECPoint = new ECPoint(publicXCoord, publicYCoord);
       AlgorithmParameters parameters = AlgorithmParameters.getInstance(SIGNATURE_ALGO_ECDSA, EC_PROVIDER);
       parameters.init(new ECGenParameterSpec(EC_DOMAIN_PARAM_NAME));
       ECParameterSpec ecParameterSpec = parameters.getParameterSpec(ECParameterSpec.class);

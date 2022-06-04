@@ -70,8 +70,7 @@ class HcertServiceTest {
   private final ValueSetService valueSetService = new ValueSetService();
   private final HcertDecodingService hcertDecodingService = new HcertDecodingService();
   private final TrustListService trustListService = new TrustListService();
-  private final HcertService hcertService = new HcertService(valueSetService, hcertDecodingService,
-      trustListService);
+  private final HcertService hcertService = new HcertService(valueSetService, hcertDecodingService, trustListService);
 
   @Test
   void shouldReturnVaccHealthCertificateResponseFromImageFile() throws IOException, ParseException {
@@ -101,7 +100,7 @@ class HcertServiceTest {
     assertEquals(HttpStatus.OK, statusCode);
     assertEquals(expectedHcertPrefix, hcertPrefix);
     assertEquals(SWISS_QR_CODE_VACC_KID, hcertKID);
-    assertEquals(HcertAlgoKeys.RSA_PSS_256.toString(), hcertAlgo);
+    assertEquals(HcertAlgoKeys.PS256.toString(), hcertAlgo);
     assertEquals(expectedVersion, hcertContent.getVer());
     assertEquals(expectedDateOfBirth, hcertContent.getDob());
     assertFalse(hcertContent.getV().isEmpty());
@@ -138,7 +137,7 @@ class HcertServiceTest {
     assertEquals(HttpStatus.OK, statusCode);
     assertEquals(expectedHcertPrefix, hcertPrefix);
     assertEquals(SWISS_QR_CODE_VACC_KID, hcertKID);
-    assertEquals(HcertAlgoKeys.RSA_PSS_256.toString(), hcertAlgo);
+    assertEquals(HcertAlgoKeys.PS256.toString(), hcertAlgo);
     assertEquals(expectedVersion, hcertContent.getVer());
     assertEquals(expectedDateOfBirth, hcertContent.getDob());
     assertFalse(hcertContent.getT().isEmpty());
@@ -175,7 +174,7 @@ class HcertServiceTest {
     assertEquals(HttpStatus.OK, statusCode);
     assertEquals(expectedHcertPrefix, hcertPrefix);
     assertEquals(SWISS_QR_CODE_VACC_KID, hcertKID);
-    assertEquals(HcertAlgoKeys.RSA_PSS_256.toString(), hcertAlgo);
+    assertEquals(HcertAlgoKeys.PS256.toString(), hcertAlgo);
     assertEquals(expectedVersion, hcertContent.getVer());
     assertEquals(expectedDateOfBirth, hcertContent.getDob());
     assertFalse(hcertContent.getR().isEmpty());

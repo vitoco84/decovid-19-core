@@ -1,12 +1,7 @@
 package ch.vitoco.decovid19core.service;
 
 import static ch.vitoco.decovid19core.constants.ExceptionMessages.KEY_SPEC_EXCEPTION;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -20,24 +15,17 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.List;
 import java.util.Objects;
 
+import ch.vitoco.decovid19core.certificates.model.*;
+import ch.vitoco.decovid19core.constants.HcertEndpointsApi;
+import ch.vitoco.decovid19core.exception.ServerException;
+import okhttp3.HttpUrl;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
 import org.apache.commons.codec.binary.Base64;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
-import ch.vitoco.decovid19core.certificates.model.GermanCertificate;
-import ch.vitoco.decovid19core.certificates.model.GermanCertificates;
-import ch.vitoco.decovid19core.certificates.model.SwissActiveKeyIds;
-import ch.vitoco.decovid19core.certificates.model.SwissCertificate;
-import ch.vitoco.decovid19core.certificates.model.SwissCertificates;
-import ch.vitoco.decovid19core.certificates.model.SwissRevokedCertificates;
-import ch.vitoco.decovid19core.constants.HcertEndpointsApi;
-import ch.vitoco.decovid19core.exception.ServerException;
-
-import okhttp3.HttpUrl;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
 
 class TrustListServiceTest {
 
@@ -338,10 +326,13 @@ class TrustListServiceTest {
 
   @Test
   void shouldGetECPublicKey() {
-    PublicKey austrianECPublicKey = trustListService.getECPublicKey(AUSTRIAN_PUBLIC_KEY_PARAMS_X_COORD,
-        AUSTRIAN_PUBLIC_KEY_PARAMS_Y_COORD);
-    PublicKey germanECPublicKey = trustListService.getECPublicKey(GERMAN_PUBLIC_KEY_PARAMS_X_COORD,
-        GERMAN_PUBLIC_KEY_PARAMS_Y_COORD);
+    BigInteger austrianXCoord = new BigInteger(AUSTRIAN_PUBLIC_KEY_PARAMS_X_COORD, RADIX_HEX);
+    BigInteger austrianYCoord = new BigInteger(AUSTRIAN_PUBLIC_KEY_PARAMS_Y_COORD, RADIX_HEX);
+    PublicKey austrianECPublicKey = trustListService.getECPublicKey(austrianXCoord, austrianYCoord);
+
+    BigInteger germanXCoord = new BigInteger(GERMAN_PUBLIC_KEY_PARAMS_X_COORD, RADIX_HEX);
+    BigInteger germanYCoord = new BigInteger(GERMAN_PUBLIC_KEY_PARAMS_Y_COORD, RADIX_HEX);
+    PublicKey germanECPublicKey = trustListService.getECPublicKey(germanXCoord, germanYCoord);
 
     String austrianEncodedPubKey = Base64.encodeBase64String(austrianECPublicKey.getEncoded());
     String germanEncodedECPubKey = Base64.encodeBase64String(germanECPublicKey.getEncoded());

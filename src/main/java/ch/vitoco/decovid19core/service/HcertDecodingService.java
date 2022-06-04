@@ -1,9 +1,8 @@
 package ch.vitoco.decovid19core.service;
 
-import static ch.vitoco.decovid19core.constants.ExceptionMessages.MESSAGE_DECODE_EXCEPTION;
-import static ch.vitoco.decovid19core.constants.ExceptionMessages.MESSAGE_FORMAT_EXCEPTION;
-import static ch.vitoco.decovid19core.constants.ExceptionMessages.QR_CODE_DECODE_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.ExceptionMessages.*;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -12,31 +11,22 @@ import java.time.Instant;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
-import javax.imageio.ImageIO;
-
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.tomcat.util.codec.binary.Base64;
-import org.springframework.stereotype.Service;
-
-import com.google.zxing.BinaryBitmap;
-import com.google.zxing.LuminanceSource;
-import com.google.zxing.MultiFormatReader;
-import com.google.zxing.NotFoundException;
-import com.google.zxing.Result;
-import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
-import com.google.zxing.common.HybridBinarizer;
-import com.upokecenter.cbor.CBORObject;
-
+import COSE.HeaderKeys;
 import ch.vitoco.decovid19core.enums.HcertAlgoKeys;
 import ch.vitoco.decovid19core.enums.HcertCBORKeys;
 import ch.vitoco.decovid19core.enums.HcertClaimKeys;
 import ch.vitoco.decovid19core.exception.ServerException;
 import ch.vitoco.decovid19core.model.HcertTimeStampDTO;
-
-import COSE.HeaderKeys;
+import com.google.zxing.*;
+import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
+import com.google.zxing.common.HybridBinarizer;
+import com.upokecenter.cbor.CBORObject;
 import nl.minvws.encoding.Base45;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.tomcat.util.codec.binary.Base64;
+import org.springframework.stereotype.Service;
 
 /**
  * Service class for the Health Certificate decoding process.
@@ -122,7 +112,7 @@ public class HcertDecodingService {
   }
 
   private byte[] getCOSESignature(CBORObject hcertCBORObject) {
-    return hcertCBORObject.get(HcertCBORKeys.SIGNATUR.getCborKey()).GetByteString();
+    return hcertCBORObject.get(HcertCBORKeys.SIGNATURE.getCborKey()).GetByteString();
   }
 
   /**
@@ -225,6 +215,22 @@ public class HcertDecodingService {
     for (HcertAlgoKeys hcertAlgoKeys : HcertAlgoKeys.values()) {
       if (algoId == hcertAlgoKeys.getAlgoId()) {
         algo.append(hcertAlgoKeys);
+      }
+    }
+    return algo.toString();
+  }
+
+  /**
+   * Gets the JCA Algorithm name.
+   *
+   * @param algoName the algorithm name
+   * @return JCA Algorithm name
+   */
+  public String getJcaAlgo(String algoName) {
+    StringBuilder algo = new StringBuilder();
+    for (HcertAlgoKeys hcertAlgoKeys : HcertAlgoKeys.values()) {
+      if (algoName.equals(hcertAlgoKeys.getName())) {
+        algo.append(hcertAlgoKeys.getJcaAlgoName());
       }
     }
     return algo.toString();

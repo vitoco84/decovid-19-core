@@ -51,9 +51,9 @@ public class HcertService {
   /**
    * Constructor.
    *
-   * @param valueSetService  the ValueSetService
-   * @param hcertDecodingService     the HcertDecodingService
-   * @param trustListService the TrustListService
+   * @param valueSetService      the ValueSetService
+   * @param hcertDecodingService the HcertDecodingService
+   * @param trustListService     the TrustListService
    */
   public HcertService(ValueSetService valueSetService,
       HcertDecodingService hcertDecodingService,

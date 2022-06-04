@@ -7,40 +7,52 @@ public enum HcertAlgoKeys {
   /**
    * ECDSA with SHA-256.
    */
-  ECDSA_256(-7),
+  ES256(-7, "ES256", "SHA256withECDSA"),
   /**
    * ECDSA with SHA-384.
    */
-  ECDSA_384(-35),
+  ES384(-35, "ES384", "SHA384withECDSA"),
   /**
    * ECDSA with SHA-512.
    */
-  ECDSA_512(-36),
+  ES512(-36, "ES512", "SHA512withECDSA"),
   /**
    * RSASSA-PSS with SHA-256.
    */
-  RSA_PSS_256(-37),
+  PS256(-37, "PS256", "SHA256withRSA/PSS"),
   /**
    * RSASSA-PSS with SHA-384.
    */
-  RSA_PSS_384(-38),
+  PS384(-38, "PS384", "SHA384withRSA/PSS"),
   /**
    * RSASSA-PSS with SHA-512.
    */
-  RSA_PSS_512(-39);
+  PS512(-39, "PS512", "SHA512withRSA/PSS");
 
   /**
    * The algorithm id.
    */
   private final int algoId;
+  /**
+   * The algorithm name.
+   */
+  private final String name;
+  /**
+   * The JCA algorithm name.
+   */
+  private final String jcaAlgoName;
 
   /**
    * Constructor.
    *
-   * @param algoId the value of the algorithm id as int
+   * @param algoId      the value of the algorithm id as int
+   * @param name        the name of the algorithm
+   * @param jcaAlgoName the Java Cryptography Architecture (JCA) algorithm name
    */
-  HcertAlgoKeys(int algoId) {
+  HcertAlgoKeys(int algoId, String name, String jcaAlgoName) {
     this.algoId = algoId;
+    this.name = name;
+    this.jcaAlgoName = jcaAlgoName;
   }
 
   /**
@@ -52,4 +64,21 @@ public enum HcertAlgoKeys {
     return this.algoId;
   }
 
+  /**
+   * Gets the algorithm name.
+   *
+   * @return algorithm name
+   */
+  public String getName() {
+    return name;
+  }
+
+  /**
+   * Gets the JCA algorithm name.
+   *
+   * @return the JCA algorithm name
+   */
+  public String getJcaAlgoName() {
+    return jcaAlgoName;
+  }
 }
