@@ -6,15 +6,15 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 /**
- * Representation class for the German Health Certificates Trust List.
+ * Representation class for the EU Health Certificates Trust List.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
-public class GermanCertificates {
+public class EUCertificates {
 
   /**
    * List of Health Certificates.
    */
-  private List<GermanCertificate> certificates;
+  private List<EUCertificate> certificates;
 
 }

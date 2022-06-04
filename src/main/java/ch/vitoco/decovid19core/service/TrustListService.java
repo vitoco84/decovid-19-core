@@ -15,7 +15,7 @@ import java.security.cert.X509Certificate;
 import java.security.spec.*;
 import java.time.Duration;
 
-import ch.vitoco.decovid19core.certificates.model.GermanCertificates;
+import ch.vitoco.decovid19core.certificates.model.EUCertificates;
 import ch.vitoco.decovid19core.certificates.model.SwissActiveKeyIds;
 import ch.vitoco.decovid19core.certificates.model.SwissCertificates;
 import ch.vitoco.decovid19core.certificates.model.SwissRevokedCertificates;
@@ -158,16 +158,16 @@ public class TrustListService {
   }
 
   /**
-   * Helper method for mapping the content of the German Health Certificate to Java Object.
+   * Helper method for mapping the content of the EU Health Certificate to Java Object.
    *
    * @param certificates the Health Certificate content retrieved from the given endpoint
-   * @return GermanCertificates
+   * @return EUCertificates
    */
-  public GermanCertificates buildGermanHcertCertificates(String certificates) {
+  public EUCertificates buildEUHcertCertificates(String certificates) {
     try {
       String substring = certificates.substring(certificates.indexOf("{"));
       ObjectMapper objectMapper = new ObjectMapper();
-      return objectMapper.readValue(substring, GermanCertificates.class);
+      return objectMapper.readValue(substring, EUCertificates.class);
     } catch (JsonProcessingException e) {
       throw new ServerException(JSON_DESERIALIZE_EXCEPTION, e);
     }

@@ -17,8 +17,8 @@ import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Objects;
 
-import ch.vitoco.decovid19core.certificates.model.GermanCertificate;
-import ch.vitoco.decovid19core.certificates.model.GermanCertificates;
+import ch.vitoco.decovid19core.certificates.model.EUCertificate;
+import ch.vitoco.decovid19core.certificates.model.EUCertificates;
 import ch.vitoco.decovid19core.certificates.model.SwissCertificate;
 import ch.vitoco.decovid19core.certificates.model.SwissCertificates;
 import ch.vitoco.decovid19core.exception.ServerException;
@@ -51,18 +51,18 @@ class HcertVerificationServiceTest {
   void shouldVerifyGermanTheHealthCertificate() {
     HcertVerificationServerRequest hcertVerificationServerRequest = buildHcertVerificationServerRequest(
         GERMAN_QR_CODE_VACC_KEY_ID, GERMAN_QR_CODE_VACC_HC1_PREFIX, "");
-    GermanCertificates germanCertificates = new GermanCertificates();
-    GermanCertificate germanCertificate = buildGermanCertificate();
-    germanCertificates.setCertificates(List.of(germanCertificate));
+    EUCertificates euCertificates = new EUCertificates();
+    EUCertificate euCertificate = buildGermanCertificate();
+    euCertificates.setCertificates(List.of(euCertificate));
 
     ResponseEntity<String> mockResponseEntity = new ResponseEntity<>("Mock", HttpStatus.OK);
 
     when(trustListService.getHcertCertificates(anyString())).thenReturn(mockResponseEntity);
-    when(trustListService.buildGermanHcertCertificates(any())).thenReturn(germanCertificates);
+    when(trustListService.buildEUHcertCertificates(any())).thenReturn(euCertificates);
     when(trustListService.getHcertCertificates(anyString())).thenReturn(mockResponseEntity);
-    when(trustListService.buildGermanHcertCertificates(any())).thenReturn(germanCertificates);
+    when(trustListService.buildEUHcertCertificates(any())).thenReturn(euCertificates);
     when(trustListService.convertCertificateToX509(anyString())).thenReturn(
-        convertCertificateToX509(germanCertificate));
+        convertCertificateToX509(euCertificate));
 
     ResponseEntity<HcertVerificationServerResponse> hcertVerificationServerResponseResponseEntity = hcertVerificationService.verifyHealthCertificate(
         hcertVerificationServerRequest);
@@ -103,8 +103,8 @@ class HcertVerificationServiceTest {
     assertEquals("Not verified", actualIsVerified);
   }
 
-  private X509Certificate convertCertificateToX509(GermanCertificate germanCertificate) {
-    String pemTmp = PEM_PREFIX + "\n" + germanCertificate.getRawData() + "\n" + PEM_POSTFIX;
+  private X509Certificate convertCertificateToX509(EUCertificate euCertificate) {
+    String pemTmp = PEM_PREFIX + "\n" + euCertificate.getRawData() + "\n" + PEM_POSTFIX;
     try (InputStream inputStream = new ByteArrayInputStream(pemTmp.getBytes())) {
       CertificateFactory certFactory = CertificateFactory.getInstance(X509_CERT_TYPE);
       return (X509Certificate) certFactory.generateCertificate(inputStream);
@@ -132,18 +132,18 @@ class HcertVerificationServiceTest {
     return Base64.encodeBase64String(value.getBytes());
   }
 
-  private GermanCertificate buildGermanCertificate() {
-    GermanCertificate germanCertificate = new GermanCertificate();
-    germanCertificate.setCertificateType("DSC");
-    germanCertificate.setCountry("DE");
-    germanCertificate.setKid("DEsVUSvpFAE=");
-    germanCertificate.setRawData(
+  private EUCertificate buildGermanCertificate() {
+    EUCertificate euCertificate = new EUCertificate();
+    euCertificate.setCertificateType("DSC");
+    euCertificate.setCountry("DE");
+    euCertificate.setKid("DEsVUSvpFAE=");
+    euCertificate.setRawData(
         "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");
-    germanCertificate.setSignature(
+    euCertificate.setSignature(
         "MIAGCSqGSIb3DQEHAqCAMIACAQExDTALBglghkgBZQMEAgEwgAYJKoZIhvcNAQcBAACggDCCAjAwggHXoAMCAQICFAMlvpT4fsWVOn2ZKLAukBwPx947MAoGCCqGSM49BAMCMG4xHDAaBgNVBAMME1Rlc3QgVGVhbSB1cGxvYWQgREUxCzAJBgNVBAYTAkRFMSUwIwYDVQQKDBxULVN5c3RlbXMgSW50ZXJuYXRpb25hbCBHbWJIMRowGAYDVQQLDBFEaWdpdGFsIFNvbHV0aW9uczAeFw0yMjAzMTYxMTU1MzJaFw0yNDAzMTYxMTU1MzJaMG4xHDAaBgNVBAMME1Rlc3QgVGVhbSB1cGxvYWQgREUxCzAJBgNVBAYTAkRFMSUwIwYDVQQKDBxULVN5c3RlbXMgSW50ZXJuYXRpb25hbCBHbWJIMRowGAYDVQQLDBFEaWdpdGFsIFNvbHV0aW9uczBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABKjHCrep3igNs9vvgaUo/S1JywILo1I7az3DWSGvu025RFWBGPVfpLYfvXIoBYheeD7FImRy0sreoJDTDGizjIGjUzBRMB0GA1UdDgQWBBTmkMcTG4Vp0YJwillQuSmqm3F/PTAfBgNVHSMEGDAWgBTmkMcTG4Vp0YJwillQuSmqm3F/PTAPBgNVHRMBAf8EBTADAQH/MAoGCCqGSM49BAMCA0cAMEQCIACEivAG3njblNcBBZZtoxVQg/9Zbp79fnSMMp4pznojAiAZhsdcUOCMIYG4hB9PA6+C23KM2QcxDWQOhMD4avl22QAAMYIB3DCCAdgCAQEwgYYwbjEcMBoGA1UEAwwTVGVzdCBUZWFtIHVwbG9hZCBERTELMAkGA1UEBhMCREUxJTAjBgNVBAoMHFQtU3lzdGVtcyBJbnRlcm5hdGlvbmFsIEdtYkgxGjAYBgNVBAsMEURpZ2l0YWwgU29sdXRpb25zAhQDJb6U+H7FlTp9mSiwLpAcD8feOzANBglghkgBZQMEAgEFAKCB5DAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0yMjA0MDgxMTMyMjZaMC8GCSqGSIb3DQEJBDEiBCAMSxVRK+kUAW7qI9peroZcY7u5BG3Ur0CeIwICxqV0dzB5BgkqhkiG9w0BCQ8xbDBqMAsGCWCGSAFlAwQBKjALBglghkgBZQMEARYwCwYJYIZIAWUDBAECMAoGCCqGSIb3DQMHMA4GCCqGSIb3DQMCAgIAgDANBggqhkiG9w0DAgIBQDAHBgUrDgMCBzANBggqhkiG9w0DAgIBKDAKBggqhkjOPQQDAgRIMEYCIQDZ6M9s/Fb+0Ztoq2KCbBj3twr0vB+sidp4633p/BUGswIhAI60ydNL2/+UbFFlJdAM+dbFm64PwZHKsonhEDGBIlFaAAAAAAAA");
-    germanCertificate.setThumbprint("0c4b15512be914016eea23da5eae865c63bbb9046dd4af409e230202c6a57477");
-    germanCertificate.setTimestamp("2021-06-05T11:43:55+02:00");
-    return germanCertificate;
+    euCertificate.setThumbprint("0c4b15512be914016eea23da5eae865c63bbb9046dd4af409e230202c6a57477");
+    euCertificate.setTimestamp("2021-06-05T11:43:55+02:00");
+    return euCertificate;
   }
 
   private HcertVerificationServerRequest buildHcertVerificationServerRequest(String keyId,

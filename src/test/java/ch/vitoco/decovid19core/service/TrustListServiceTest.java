@@ -79,9 +79,9 @@ class TrustListServiceTest {
   void shouldRetrieveGermanCertificates() {
     ResponseEntity<String> certificates = trustListService.getHcertCertificates(HcertEndpointsApi.GERMAN_CERTS_API);
 
-    GermanCertificates germanCertificates = trustListService.buildGermanHcertCertificates(
+    EUCertificates euCertificates = trustListService.buildEUHcertCertificates(
         Objects.requireNonNull(certificates.getBody()));
-    List<GermanCertificate> certificatesList = germanCertificates.getCertificates();
+    List<EUCertificate> certificatesList = euCertificates.getCertificates();
 
     assertEquals("DSC", certificatesList.get(0).getCertificateType());
     assertFalse(certificatesList.isEmpty());
@@ -109,18 +109,18 @@ class TrustListServiceTest {
 
       ResponseEntity<String> certificates = trustListService.getHcertCertificates(String.valueOf(baseUrl));
 
-      GermanCertificates germanCertificates = trustListService.buildGermanHcertCertificates(
+      EUCertificates euCertificates = trustListService.buildEUHcertCertificates(
           Objects.requireNonNull(certificates.getBody()));
-      List<GermanCertificate> certificatesList = germanCertificates.getCertificates();
-      GermanCertificate germanCertificate = certificatesList.get(0);
+      List<EUCertificate> certificatesList = euCertificates.getCertificates();
+      EUCertificate euCertificate = certificatesList.get(0);
 
-      assertEquals("DSC", germanCertificate.getCertificateType());
-      assertEquals("DE", germanCertificate.getCountry());
-      assertEquals("kid", germanCertificate.getKid());
-      assertEquals("rawData", germanCertificate.getRawData());
-      assertEquals("signature", germanCertificate.getSignature());
-      assertEquals("thumbprint", germanCertificate.getThumbprint());
-      assertEquals("timestamp", germanCertificate.getTimestamp());
+      assertEquals("DSC", euCertificate.getCertificateType());
+      assertEquals("DE", euCertificate.getCountry());
+      assertEquals("kid", euCertificate.getKid());
+      assertEquals("rawData", euCertificate.getRawData());
+      assertEquals("signature", euCertificate.getSignature());
+      assertEquals("thumbprint", euCertificate.getThumbprint());
+      assertEquals("timestamp", euCertificate.getTimestamp());
       assertEquals(3, certificatesList.size());
 
       mockWebServer.shutdown();

@@ -9,8 +9,8 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import ch.vitoco.decovid19core.certificates.model.GermanCertificate;
-import ch.vitoco.decovid19core.certificates.model.GermanCertificates;
+import ch.vitoco.decovid19core.certificates.model.EUCertificate;
+import ch.vitoco.decovid19core.certificates.model.EUCertificates;
 import ch.vitoco.decovid19core.certificates.model.SwissCertificate;
 import ch.vitoco.decovid19core.certificates.model.SwissCertificates;
 import ch.vitoco.decovid19core.constants.HcertEndpointsApi;
@@ -89,10 +89,10 @@ public class HcertVerificationService {
               .anyMatch(cert -> cert.getKeyId().equals(hcertVerificationServerRequest.getKeyId()));
         } else if (region.equals(EU_REGION)) {
           ResponseEntity<String> certificates = trustListService.getHcertCertificates(
-              HcertEndpointsApi.GERMAN_TEST_CERTS_API);
-          GermanCertificates germanCertificates = trustListService.buildGermanHcertCertificates(
+              HcertEndpointsApi.GERMAN_CERTS_API);
+          EUCertificates euCertificates = trustListService.buildEUHcertCertificates(
               Objects.requireNonNull(certificates.getBody()));
-          return germanCertificates.getCertificates()
+          return euCertificates.getCertificates()
               .stream()
               .anyMatch(cert -> cert.getKid().equals(hcertVerificationServerRequest.getKeyId()));
         } else {
@@ -148,18 +148,18 @@ public class HcertVerificationService {
 
   private PublicKey getEUPublicKey(HcertVerificationServerRequest hcertVerificationServerRequest) {
     ResponseEntity<String> certificates = trustListService.getHcertCertificates(
-        HcertEndpointsApi.GERMAN_TEST_CERTS_API);
+        HcertEndpointsApi.GERMAN_CERTS_API);
 
-    GermanCertificates germanCertificates = trustListService.buildGermanHcertCertificates(
+    EUCertificates euCertificates = trustListService.buildEUHcertCertificates(
         Objects.requireNonNull(certificates.getBody()));
 
-    GermanCertificate germanCertificate = germanCertificates.getCertificates()
+    EUCertificate euCertificate = euCertificates.getCertificates()
         .stream()
         .filter(cert -> cert.getKid().equals(hcertVerificationServerRequest.getKeyId()))
         .collect(Collectors.toList())
         .get(0);
 
-    X509Certificate x509Certificate = trustListService.convertCertificateToX509(germanCertificate.getRawData());
+    X509Certificate x509Certificate = trustListService.convertCertificateToX509(euCertificate.getRawData());
     return x509Certificate.getPublicKey();
   }
 
