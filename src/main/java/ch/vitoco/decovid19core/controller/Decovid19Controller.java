@@ -82,9 +82,9 @@ public class Decovid19Controller {
     return hcertService.getX509Certificate(pemCertificate);
   }
 
-  @Operation(summary = "Verification of the Swiss Health Certificate")
+  @Operation(summary = "Verification of the Health Certificate")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Verification of the Swiss Health Certificate", content = {
+      @ApiResponse(responseCode = "200", description = "Verification of the Health Certificate", content = {
           @Content(mediaType = "application/json", schema = @Schema(implementation = HcertVerificationServerResponse.class))}),
       @ApiResponse(responseCode = "400", description = "Invalid PEM data supplied", content = @Content)})
   @PostMapping(value = "/hcert/verify", consumes = {MediaType.APPLICATION_JSON_VALUE, "application/json"}, produces = {
