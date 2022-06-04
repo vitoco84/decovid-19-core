@@ -5,9 +5,8 @@
 ![CI decovid-19-core](https://github.com/vitoco84/decovid-19-core/actions/workflows/ci-decovid-19-core.yml/badge.svg)
 
 # Decovid-19-Core
-> * API that can decode QR-Codes for EU Digital Covid-10 Health Certificate.
+> * API that can decode and verify QR-Codes for EU Digital Covid-19 Health Certificate.
 > * No personal or sensitive data is stored in any way.
-> * Signature validation of the Health Certificate is still a WIP.
 
 # Install Prerequisites
 > JDK 11
