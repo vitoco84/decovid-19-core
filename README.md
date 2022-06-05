@@ -119,7 +119,9 @@
 > ## Example QRCodeServerResponse
 > ![Google URL](src/main/resources/images/QRCodeServerResponse.png)
 > 
-> ## Example Generate Fake Covid-19 Health Certificate Request
+> ## Example Generate Fake Covid-19 Test Health Certificate Request
+> This is only used for test purposes. No real digital signature is present in it.
+> 
 > POST [http://localhost:8082/decovid19/hcert/qrcode/hcert](http://localhost:8082/decovid19/hcert/qrcode/hcert)
 > ```yaml
 > {
@@ -150,7 +152,9 @@
 > ![Fake QR-Code Test](src/main/resources/images/FakeQRCodeTestServerResponse.png)
 > 
 > ## Example HcertVerificationServerRequest
-> Leave Bearer Token empty for verifying EU Certificates. For the Swiss Certificates provide the Token given by the BIT.
+> Leave Bearer Token empty for verifying EU Certificates.
+> 
+> For the Swiss Certificates provide the Token given by the BIT (Bundesamt für Informatik und Telekommunikation). For a Token get in contact with: [Swiss Admin GitHub](https://github.com/admin-ch).
 > 
 > POST [http://localhost:8082/decovid19/hcert/verify](http://localhost:8082/decovid19/hcert/verify)
 > ```yaml
