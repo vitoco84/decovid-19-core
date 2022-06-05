@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 import ch.vitoco.decovid19core.enums.HcertAlgoKeys;
 import ch.vitoco.decovid19core.exception.ServerException;
@@ -90,7 +91,7 @@ class HcertServiceTest {
         mockMultipartFile);
 
     HttpStatus statusCode = healthCertificateContent.getStatusCode();
-    String hcertPrefix = healthCertificateContent.getBody().getHcertPrefix();
+    String hcertPrefix = Objects.requireNonNull(healthCertificateContent.getBody()).getHcertPrefix();
     String hcertKID = healthCertificateContent.getBody().getHcertKID();
     String hcertAlgo = healthCertificateContent.getBody().getHcertAlgo();
     HcertContentDTO hcertContent = (HcertContentDTO) healthCertificateContent.getBody().getHcertContent();
@@ -127,7 +128,7 @@ class HcertServiceTest {
         mockMultipartFile);
 
     HttpStatus statusCode = healthCertificateContent.getStatusCode();
-    String hcertPrefix = healthCertificateContent.getBody().getHcertPrefix();
+    String hcertPrefix = Objects.requireNonNull(healthCertificateContent.getBody()).getHcertPrefix();
     String hcertKID = healthCertificateContent.getBody().getHcertKID();
     String hcertAlgo = healthCertificateContent.getBody().getHcertAlgo();
     HcertContentDTO hcertContent = (HcertContentDTO) healthCertificateContent.getBody().getHcertContent();
@@ -164,7 +165,7 @@ class HcertServiceTest {
         mockMultipartFile);
 
     HttpStatus statusCode = healthCertificateContent.getStatusCode();
-    String hcertPrefix = healthCertificateContent.getBody().getHcertPrefix();
+    String hcertPrefix = Objects.requireNonNull(healthCertificateContent.getBody()).getHcertPrefix();
     String hcertKID = healthCertificateContent.getBody().getHcertKID();
     String hcertAlgo = healthCertificateContent.getBody().getHcertAlgo();
     HcertContentDTO hcertContent = (HcertContentDTO) healthCertificateContent.getBody().getHcertContent();

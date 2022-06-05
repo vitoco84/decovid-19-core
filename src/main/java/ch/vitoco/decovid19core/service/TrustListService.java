@@ -15,11 +15,12 @@ import java.security.cert.X509Certificate;
 import java.security.spec.*;
 import java.time.Duration;
 
+import ch.vitoco.decovid19core.enums.HcertSignatureAlgoKeys;
+import ch.vitoco.decovid19core.exception.ServerException;
 import ch.vitoco.decovid19core.model.certificates.EUCertificates;
 import ch.vitoco.decovid19core.model.certificates.SwissActiveKeyIds;
 import ch.vitoco.decovid19core.model.certificates.SwissCertificates;
 import ch.vitoco.decovid19core.model.certificates.SwissRevokedCertificates;
-import ch.vitoco.decovid19core.exception.ServerException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -42,8 +43,6 @@ public class TrustListService {
   private static final int MAX_IN_MEMORY_SIZE = 16 * 1024 * 1024;
   private static final int TIMEOUT_DURATION_IN_SECONDS = 20;
 
-  private static final String SIGNATURE_ALGO_RSA = "RSA";
-  private static final String SIGNATURE_ALGO_ECDSA = "EC";
   private static final String EC_PROVIDER = "SunEC";
   private static final String EC_DOMAIN_PARAM_NAME = "secp256r1";
 
@@ -219,7 +218,7 @@ public class TrustListService {
   public PublicKey getRSAPublicKey(BigInteger modulus, BigInteger exponent) {
     try {
       RSAPublicKeySpec spec = new RSAPublicKeySpec(modulus, exponent);
-      KeyFactory factory = KeyFactory.getInstance(SIGNATURE_ALGO_RSA);
+      KeyFactory factory = KeyFactory.getInstance(HcertSignatureAlgoKeys.RSA.getName());
       return factory.generatePublic(spec);
     } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
       throw new ServerException(KEY_SPEC_EXCEPTION, e);
@@ -236,11 +235,12 @@ public class TrustListService {
   public PublicKey getECPublicKey(BigInteger publicXCoord, BigInteger publicYCoord) {
     try {
       ECPoint publicECPoint = new ECPoint(publicXCoord, publicYCoord);
-      AlgorithmParameters parameters = AlgorithmParameters.getInstance(SIGNATURE_ALGO_ECDSA, EC_PROVIDER);
+      AlgorithmParameters parameters = AlgorithmParameters.getInstance(HcertSignatureAlgoKeys.EC.getName(),
+          EC_PROVIDER);
       parameters.init(new ECGenParameterSpec(EC_DOMAIN_PARAM_NAME));
       ECParameterSpec ecParameterSpec = parameters.getParameterSpec(ECParameterSpec.class);
       ECPublicKeySpec publicSpec = new ECPublicKeySpec(publicECPoint, ecParameterSpec);
-      KeyFactory factory = KeyFactory.getInstance(SIGNATURE_ALGO_ECDSA);
+      KeyFactory factory = KeyFactory.getInstance(HcertSignatureAlgoKeys.EC.getName());
       return factory.generatePublic(publicSpec);
     } catch (NoSuchAlgorithmException | InvalidKeySpecException | NoSuchProviderException |
              InvalidParameterSpecException e) {

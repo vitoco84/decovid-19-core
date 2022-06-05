@@ -11,6 +11,7 @@ import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
 
+import ch.vitoco.decovid19core.enums.HcertSignatureAlgoKeys;
 import ch.vitoco.decovid19core.exception.ServerException;
 import ch.vitoco.decovid19core.model.hcert.HcertContentDTO;
 import ch.vitoco.decovid19core.model.hcert.HcertDTO;
@@ -41,8 +42,6 @@ public class HcertService {
 
   private static final String HCERT_HEADER = "HC1:";
   private static final int RADIX_HEX = 16;
-  private static final String SIGNATURE_ALGO_RSA = "RSA";
-  private static final String SIGNATURE_ALGO_ECDSA = "EC";
 
   private final ValueSetService valueSetService;
   private final HcertDecodingService hcertDecodingService;
@@ -185,14 +184,14 @@ public class HcertService {
 
   private HcertPublicKeyDTO buildPublicKeyResponse(X509Certificate x509Certificate) {
     HcertPublicKeyDTO hcertPublicKeyDTO = new HcertPublicKeyDTO();
-    if (x509Certificate.getPublicKey().getAlgorithm().equals(SIGNATURE_ALGO_RSA)) {
+    if (x509Certificate.getPublicKey().getAlgorithm().equals(HcertSignatureAlgoKeys.RSA.getName())) {
       RSAPublicKey x509RSATemp = (RSAPublicKey) x509Certificate.getPublicKey();
       hcertPublicKeyDTO.setPublicExponent(x509RSATemp.getPublicExponent().toString(RADIX_HEX));
       hcertPublicKeyDTO.setModulus(x509RSATemp.getModulus().toString(RADIX_HEX));
       hcertPublicKeyDTO.setBitLength(String.valueOf(x509RSATemp.getModulus().bitLength()));
       hcertPublicKeyDTO.setAlgo(x509RSATemp.getAlgorithm());
     }
-    if (x509Certificate.getPublicKey().getAlgorithm().equals(SIGNATURE_ALGO_ECDSA)) {
+    if (x509Certificate.getPublicKey().getAlgorithm().equals(HcertSignatureAlgoKeys.EC.getName())) {
       ECPublicKey x509ECDSATemp = (ECPublicKey) x509Certificate.getPublicKey();
       hcertPublicKeyDTO.setPublicXCoord(x509ECDSATemp.getW().getAffineX().toString(RADIX_HEX));
       hcertPublicKeyDTO.setPublicYCoord(x509ECDSATemp.getW().getAffineY().toString(RADIX_HEX));

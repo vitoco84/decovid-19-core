@@ -42,11 +42,9 @@ class HcertDecodingServiceTest {
 
   private static final Path FREE_TEST_IMAGE = Paths.get("src/test/resources/freeTestImageFromUnsplash.jpg");
   private static final String SWISS_QR_CODE_VACC_KID = "mmrfzpMU6xc=";
-
   private static final String SIGNATURE_ALGO_SHA256_WITH_RSA = "SHA256withRSA/PSS";
   private static final String SIGNATURE_ALGO_SHA256_WITH_ECDSA = "SHA256withECDSA";
-  private static final String ES_256_ALGO_NAME = "ES256";
-  private static final String PS_256_ALGO_NAME = "PS256";
+
 
   private final HcertDecodingService hcertDecodingService = new HcertDecodingService();
 
@@ -229,7 +227,7 @@ class HcertDecodingServiceTest {
   }
 
   @Test
-  void shouldThrowImageDecodeException() throws IOException {
+  void shouldServerExceptionException() throws IOException {
     InputStream testImageInputStream = Files.newInputStream(FREE_TEST_IMAGE);
 
     Exception exception = assertThrows(ServerException.class, () -> {
@@ -256,8 +254,8 @@ class HcertDecodingServiceTest {
 
   @Test
   void shouldReturnCorrectJcaAlgo() {
-    String es256 = hcertDecodingService.getJcaAlgo(ES_256_ALGO_NAME);
-    String ps256 = hcertDecodingService.getJcaAlgo(PS_256_ALGO_NAME);
+    String es256 = hcertDecodingService.getJcaAlgo(HcertAlgoKeys.ES256.getName());
+    String ps256 = hcertDecodingService.getJcaAlgo(HcertAlgoKeys.PS256.getName());
 
     assertEquals(SIGNATURE_ALGO_SHA256_WITH_ECDSA, es256);
     assertEquals(SIGNATURE_ALGO_SHA256_WITH_RSA, ps256);

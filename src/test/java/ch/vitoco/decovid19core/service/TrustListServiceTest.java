@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Objects;
 
 import ch.vitoco.decovid19core.constants.HcertEndpointsApi;
+import ch.vitoco.decovid19core.enums.HcertSignatureAlgoKeys;
 import ch.vitoco.decovid19core.exception.ServerException;
 import ch.vitoco.decovid19core.model.certificates.*;
 import okhttp3.HttpUrl;
@@ -57,9 +58,7 @@ class TrustListServiceTest {
 
   private static final String EC_CURVE = "P-256";
   private static final String SIGNATURE = "sig";
-  private static final String ALGO_RSA = "RSA";
-  private static final String ALGO_ECDSA = "ECDSA";
-  private static final String SIGNATURE_ALGO_RSA_SSA_PSS = "RSASSA-PSS";
+
   private static final String SIGNATURE_ALGO_SHA256_WITH_RSA = "SHA256withRSA";
   private static final String SIGNATURE_ALGO_SHA256_WITH_ECDSA = "SHA256withECDSA";
 
@@ -295,23 +294,26 @@ class TrustListServiceTest {
     String ecdsaAlgorithm = austrianX509Certificate.getSigAlgName();
 
     assertEquals(SIGNATURE_ALGO_SHA256_WITH_RSA, rsaAlgorithm);
-    assertEquals(SIGNATURE_ALGO_RSA_SSA_PSS, ecAlgorithm);
+    assertEquals(HcertSignatureAlgoKeys.RSASSA_PSS.getName(), ecAlgorithm);
     assertEquals(SIGNATURE_ALGO_SHA256_WITH_ECDSA, ecdsaAlgorithm);
   }
 
   @Test
   void shouldReturnPublicKey() {
-    RSAPublicKey rsaPublicKey = (RSAPublicKey) trustListService.getPublicKey(SWISS_QR_CODE_PUBLIC_KEY, ALGO_RSA);
-    ECPublicKey ecPublicKey = (ECPublicKey) trustListService.getPublicKey(GERMAN_QR_CODE_PUBLIC_KEY, ALGO_ECDSA);
-    ECPublicKey ecDsaPublicKey = (ECPublicKey) trustListService.getPublicKey(AUSTRIAN_QR_CODE_PUBLIC_KEY, ALGO_ECDSA);
+    RSAPublicKey rsaPublicKey = (RSAPublicKey) trustListService.getPublicKey(SWISS_QR_CODE_PUBLIC_KEY,
+        HcertSignatureAlgoKeys.RSA.getName());
+    ECPublicKey ecPublicKey = (ECPublicKey) trustListService.getPublicKey(GERMAN_QR_CODE_PUBLIC_KEY,
+        HcertSignatureAlgoKeys.ECDSA.getName());
+    ECPublicKey ecDsaPublicKey = (ECPublicKey) trustListService.getPublicKey(AUSTRIAN_QR_CODE_PUBLIC_KEY,
+        HcertSignatureAlgoKeys.ECDSA.getName());
 
     String rsaAlgorithm = rsaPublicKey.getAlgorithm();
     String ecAlgorithm = ecPublicKey.getAlgorithm();
     String ecDsaAlgorithm = ecDsaPublicKey.getAlgorithm();
 
-    assertEquals(ALGO_RSA, rsaAlgorithm);
-    assertEquals(ALGO_ECDSA, ecAlgorithm);
-    assertEquals(ALGO_ECDSA, ecDsaAlgorithm);
+    assertEquals(HcertSignatureAlgoKeys.RSA.getName(), rsaAlgorithm);
+    assertEquals(HcertSignatureAlgoKeys.ECDSA.getName(), ecAlgorithm);
+    assertEquals(HcertSignatureAlgoKeys.ECDSA.getName(), ecDsaAlgorithm);
   }
 
   @Test
