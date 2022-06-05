@@ -30,13 +30,22 @@
 > A collection of REST API endpoints can be found here: [EU DCC Gateway REST API](https://eu-digital-green-certificates.github.io/dgc-gateway/)
 
 # Swagger UI
-
 > API endpoints documentation served under [http://localhost:8082/v3/api-docs](http://localhost:8082/v3/api-docs)
 > 
 > Swagger documentation served under [http://localhost:8082/swagger-ui/index.html](http://localhost:8082/swagger-ui/index.html)
 >
 > **All values in these examples are taken from public available test data (see [Link](#test-data) above).**
-> 
+
+# Postman
+> Postman collection for testing purposes is available under `resources/Decovid-19-Core.postman_collection.json`
+
+# Digital Covid Certificate Schema and Value Sets
+> Schema and Value Sets taken from [eu-dcc-schema](https://github.com/ehn-dcc-development/eu-dcc-schema) and [eu-dcc-valuesets](https://github.com/ehn-dcc-development/eu-dcc-valuesets)
+
+# Gradle Version Catalog
+> [Documentation](https://docs.gradle.org/current/userguide/platforms.html)
+
+# Examples for API Resources
 > ## Example HcertServerRequest
 > POST [http://localhost:8082/decovid19/hcert/prefix](http://localhost:8082/decovid19/hcert/prefix)
 > ```yaml
@@ -170,12 +179,3 @@
 >   "verified": true
 > }
 > ```
-
-# Postman
-> Postman collection for testing purposes is available under `resources/Decovid-19-Core.postman_collection.json`
-
-# Digital Covid Certificate Schema and Value Sets
-> Schema and Value Sets taken from [eu-dcc-schema](https://github.com/ehn-dcc-development/eu-dcc-schema)
-
-# Gradle Version Catalog
-> [Documentation](https://docs.gradle.org/current/userguide/platforms.html)
