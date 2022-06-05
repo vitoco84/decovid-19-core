@@ -16,15 +16,19 @@ public enum HcertClaimKeys {
   /**
    * Health Certificate issuer claim key.
    */
-  ISSUER_CLAIM_KEY(1),
+  HCERT_ISSUER_CLAIM_KEY(1),
   /**
    * Health Certificate expiration time claim key.
    */
-  EXPIRATION_CLAIM_KEY(4),
+  HCERT_EXPIRATION_CLAIM_KEY(4),
   /**
    * Health Certificate issued at time claim key.
    */
-  ISSUED_AT_CLAIM_KEY(6);
+  HCERT_ISSUED_AT_CLAIM_KEY(6),
+  /**
+   * Health Certificate version claim key.
+   */
+  HCERT_VERSION_CLAIM_KEY(1);
 
   /**
    * The Health Certificate claim key.

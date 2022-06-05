@@ -1,6 +1,6 @@
 package ch.vitoco.decovid19core.utils;
 
-import static ch.vitoco.decovid19core.constants.Const.UTILITY_CLASS_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.ExceptionMessages.UTILITY_CLASS_EXCEPTION;
 
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;

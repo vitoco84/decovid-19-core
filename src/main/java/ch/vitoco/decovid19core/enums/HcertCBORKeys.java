@@ -20,7 +20,7 @@ public enum HcertCBORKeys {
   /**
    * CBOR signature content key.
    */
-  SIGNATUR(3);
+  SIGNATURE(3);
 
   /**
    * The cbor content key.
