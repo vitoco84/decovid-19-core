@@ -1,7 +1,7 @@
 package ch.vitoco.decovid19core.service;
 
 import static ch.vitoco.decovid19core.constants.ExceptionMessages.KEY_SPEC_EXCEPTION;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -17,11 +17,11 @@ import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Objects;
 
-import ch.vitoco.decovid19core.certificates.model.EUCertificate;
-import ch.vitoco.decovid19core.certificates.model.EUCertificates;
-import ch.vitoco.decovid19core.certificates.model.SwissCertificate;
-import ch.vitoco.decovid19core.certificates.model.SwissCertificates;
 import ch.vitoco.decovid19core.exception.ServerException;
+import ch.vitoco.decovid19core.model.certificates.EUCertificate;
+import ch.vitoco.decovid19core.model.certificates.EUCertificates;
+import ch.vitoco.decovid19core.model.certificates.SwissCertificate;
+import ch.vitoco.decovid19core.model.certificates.SwissCertificates;
 import ch.vitoco.decovid19core.server.HcertVerificationServerRequest;
 import ch.vitoco.decovid19core.server.HcertVerificationServerResponse;
 import org.apache.commons.codec.binary.Base64;
@@ -61,18 +61,16 @@ class HcertVerificationServiceTest {
     when(trustListService.buildEUHcertCertificates(any())).thenReturn(euCertificates);
     when(trustListService.getHcertCertificates(anyString())).thenReturn(mockResponseEntity);
     when(trustListService.buildEUHcertCertificates(any())).thenReturn(euCertificates);
-    when(trustListService.convertCertificateToX509(anyString())).thenReturn(
-        convertCertificateToX509(euCertificate));
+    when(trustListService.convertCertificateToX509(anyString())).thenReturn(convertCertificateToX509(euCertificate));
 
     ResponseEntity<HcertVerificationServerResponse> hcertVerificationServerResponseResponseEntity = hcertVerificationService.verifyHealthCertificate(
         hcertVerificationServerRequest);
 
     HttpStatus actualStatusCode = hcertVerificationServerResponseResponseEntity.getStatusCode();
-    String actualIsVerified = Objects.requireNonNull(hcertVerificationServerResponseResponseEntity.getBody())
-        .getIsVerified();
+    boolean isVerified = Objects.requireNonNull(hcertVerificationServerResponseResponseEntity.getBody()).isVerified();
 
     assertEquals(HttpStatus.OK, actualStatusCode);
-    assertEquals("Verified", actualIsVerified);
+    assertTrue(isVerified);
   }
 
   @Test
@@ -96,11 +94,10 @@ class HcertVerificationServiceTest {
         hcertVerificationServerRequest);
 
     HttpStatus actualStatusCode = hcertVerificationServerResponseResponseEntity.getStatusCode();
-    String actualIsVerified = Objects.requireNonNull(hcertVerificationServerResponseResponseEntity.getBody())
-        .getIsVerified();
+    boolean isVerified = Objects.requireNonNull(hcertVerificationServerResponseResponseEntity.getBody()).isVerified();
 
     assertEquals(HttpStatus.OK, actualStatusCode);
-    assertEquals("Not verified", actualIsVerified);
+    assertFalse(isVerified);
   }
 
   private X509Certificate convertCertificateToX509(EUCertificate euCertificate) {

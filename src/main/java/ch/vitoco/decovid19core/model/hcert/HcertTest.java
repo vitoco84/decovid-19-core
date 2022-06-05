@@ -1,4 +1,4 @@
-package ch.vitoco.decovid19core.model;
+package ch.vitoco.decovid19core.model.hcert;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;

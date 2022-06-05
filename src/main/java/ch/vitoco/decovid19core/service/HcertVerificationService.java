@@ -9,14 +9,14 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import ch.vitoco.decovid19core.certificates.model.EUCertificate;
-import ch.vitoco.decovid19core.certificates.model.EUCertificates;
-import ch.vitoco.decovid19core.certificates.model.SwissCertificate;
-import ch.vitoco.decovid19core.certificates.model.SwissCertificates;
 import ch.vitoco.decovid19core.constants.HcertEndpointsApi;
 import ch.vitoco.decovid19core.enums.HcertAlgoKeys;
 import ch.vitoco.decovid19core.enums.HcertCBORKeys;
 import ch.vitoco.decovid19core.exception.ServerException;
+import ch.vitoco.decovid19core.model.certificates.EUCertificate;
+import ch.vitoco.decovid19core.model.certificates.EUCertificates;
+import ch.vitoco.decovid19core.model.certificates.SwissCertificate;
+import ch.vitoco.decovid19core.model.certificates.SwissCertificates;
 import ch.vitoco.decovid19core.server.HcertVerificationServerRequest;
 import ch.vitoco.decovid19core.server.HcertVerificationServerResponse;
 import com.nimbusds.jose.JOSEException;
@@ -35,13 +35,8 @@ public class HcertVerificationService {
 
   private static final String CONTEXT_STRING = "Signature1";
   private static final byte[] EXTERNAL_DATA = new byte[0];
-
   private static final String SWISS_REGION = "SWISS";
   private static final String EU_REGION = "EU";
-
-  private static final String VERIFIED = "Verified";
-  private static final String NOT_VERIFIED = "Not verified";
-
   private static final int SIG_NUM = 1;
 
   private final TrustListService trustListService;
@@ -62,13 +57,13 @@ public class HcertVerificationService {
     HcertVerificationServerResponse hcertVerificationServerResponse = new HcertVerificationServerResponse();
     if (!hcertVerificationServerRequest.getBearerToken().isBlank()) {
       if (isKeyIdActive(hcertVerificationServerRequest, SWISS_REGION)) {
-        String swissVerified = isVerified(hcertVerificationServerRequest, SWISS_REGION);
-        hcertVerificationServerResponse.setIsVerified(swissVerified);
+        boolean swissVerified = isVerified(hcertVerificationServerRequest, SWISS_REGION);
+        hcertVerificationServerResponse.setVerified(swissVerified);
       }
     } else {
       if (isKeyIdActive(hcertVerificationServerRequest, EU_REGION)) {
-        String euVerified = isVerified(hcertVerificationServerRequest, EU_REGION);
-        hcertVerificationServerResponse.setIsVerified(euVerified);
+        boolean euVerified = isVerified(hcertVerificationServerRequest, EU_REGION);
+        hcertVerificationServerResponse.setVerified(euVerified);
       }
     }
     return ResponseEntity.ok().body(hcertVerificationServerResponse);
@@ -104,7 +99,7 @@ public class HcertVerificationService {
     }
   }
 
-  private String isVerified(HcertVerificationServerRequest hcertVerificationServerRequest, String region) {
+  private boolean isVerified(HcertVerificationServerRequest hcertVerificationServerRequest, String region) {
     CBORObject cborObject = hcertDecodingService.getCBORObject(hcertVerificationServerRequest.getHcertPrefix());
     String algo = hcertDecodingService.getAlgo(cborObject);
     byte[] content = cborObject.get(HcertCBORKeys.MESSAGE_CONTENT.getCborKey()).GetByteString();
@@ -113,7 +108,6 @@ public class HcertVerificationService {
     byte[] signedData = getValidationData(protectedHeader, content);
 
     PublicKey publicKey = null;
-
     if (region.equals(SWISS_REGION)) {
       publicKey = getSwissPublicKey(hcertVerificationServerRequest, algo);
 
@@ -121,7 +115,6 @@ public class HcertVerificationService {
     if (region.equals(EU_REGION)) {
       publicKey = getEUPublicKey(hcertVerificationServerRequest);
     }
-
     try {
       if (isECAlgorithm(algo)) {
         coseSignature = ECDSA.transcodeSignatureToDER(coseSignature);
@@ -131,24 +124,14 @@ public class HcertVerificationService {
       signature.initVerify(publicKey);
       signature.update(signedData);
 
-      if (signature.verify(coseSignature)) {
-        return VERIFIED;
-      } else {
-        return NOT_VERIFIED;
-      }
+      return signature.verify(coseSignature);
     } catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException | JOSEException e) {
-      return NOT_VERIFIED;
+      return false;
     }
   }
 
-  private boolean isECAlgorithm(String algoName) {
-    return algoName.equals(HcertAlgoKeys.ES256.getName()) || algoName.equals(HcertAlgoKeys.ES384.getName()) ||
-        algoName.equals(HcertAlgoKeys.ES512.getName());
-  }
-
   private PublicKey getEUPublicKey(HcertVerificationServerRequest hcertVerificationServerRequest) {
-    ResponseEntity<String> certificates = trustListService.getHcertCertificates(
-        HcertEndpointsApi.GERMAN_CERTS_API);
+    ResponseEntity<String> certificates = trustListService.getHcertCertificates(HcertEndpointsApi.GERMAN_CERTS_API);
 
     EUCertificates euCertificates = trustListService.buildEUHcertCertificates(
         Objects.requireNonNull(certificates.getBody()));
@@ -185,6 +168,11 @@ public class HcertVerificationService {
       publicKey = trustListService.getRSAPublicKey(modulus, exponent);
     }
     return publicKey;
+  }
+
+  private boolean isECAlgorithm(String algoName) {
+    return algoName.equals(HcertAlgoKeys.ES256.getName()) || algoName.equals(HcertAlgoKeys.ES384.getName()) ||
+        algoName.equals(HcertAlgoKeys.ES512.getName());
   }
 
   private byte[] getValidationData(byte[] protectedHeader, byte[] content) {

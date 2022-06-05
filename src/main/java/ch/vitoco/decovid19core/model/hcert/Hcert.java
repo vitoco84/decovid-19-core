@@ -1,4 +1,4 @@
-package ch.vitoco.decovid19core.model;
+package ch.vitoco.decovid19core.model.hcert;
 
 import lombok.Data;
 

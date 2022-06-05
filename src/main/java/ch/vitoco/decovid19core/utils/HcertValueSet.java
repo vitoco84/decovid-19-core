@@ -1,4 +1,4 @@
-package ch.vitoco.decovid19core.valuesets;
+package ch.vitoco.decovid19core.utils;
 
 import static ch.vitoco.decovid19core.constants.ExceptionMessages.RESOURCES_READ_EXCEPTION;
 import static ch.vitoco.decovid19core.constants.ExceptionMessages.UTILITY_CLASS_EXCEPTION;
@@ -10,7 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import ch.vitoco.decovid19core.exception.ServerException;
-import ch.vitoco.decovid19core.valuesets.model.ValueSet;
+import ch.vitoco.decovid19core.model.valueset.ValueSet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**

@@ -13,6 +13,6 @@ public class HcertVerificationServerResponse {
   /**
    * Certificate Verified.
    */
-  private String isVerified;
+  private boolean isVerified;
 
 }

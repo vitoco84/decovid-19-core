@@ -12,9 +12,9 @@ import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
 
 import ch.vitoco.decovid19core.exception.ServerException;
-import ch.vitoco.decovid19core.model.HcertContentDTO;
-import ch.vitoco.decovid19core.model.HcertDTO;
-import ch.vitoco.decovid19core.model.HcertPublicKeyDTO;
+import ch.vitoco.decovid19core.model.hcert.HcertContentDTO;
+import ch.vitoco.decovid19core.model.hcert.HcertDTO;
+import ch.vitoco.decovid19core.model.hcert.HcertPublicKeyDTO;
 import ch.vitoco.decovid19core.server.HcertServerRequest;
 import ch.vitoco.decovid19core.server.HcertServerResponse;
 import ch.vitoco.decovid19core.server.PEMCertServerRequest;
@@ -106,7 +106,20 @@ public class HcertService {
     return ResponseEntity.ok().body(hcertResponse);
   }
 
-  private HcertDTO getHcertdDTO(CBORObject cborObject) {
+  private HcertServerResponse buildHcertResponse(HcertDecodingService hcertDecodingService, String hcertContent) {
+    HcertServerResponse hcertResponse = new HcertServerResponse();
+    CBORObject cborObject = hcertDecodingService.getCBORObject(hcertContent);
+    hcertResponse.setHcertPrefix(hcertContent);
+    hcertResponse.setHcertContent(getHcertDTO(cborObject));
+    hcertResponse.setHcertKID(hcertDecodingService.getKID(cborObject));
+    hcertResponse.setHcertAlgo(hcertDecodingService.getAlgo(cborObject));
+    hcertResponse.setHcertIssuer(hcertDecodingService.getIssuer(cborObject));
+    hcertResponse.setHcertTimeStamp(hcertDecodingService.getHcertTimeStamp(cborObject));
+    hcertResponse.setHcertSignature(hcertDecodingService.getSignature(cborObject));
+    return hcertResponse;
+  }
+
+  private HcertDTO getHcertDTO(CBORObject cborObject) {
     String jsonPayloadFromCBORMessage = hcertDecodingService.getContent(cborObject);
     return buildHcertDTO(jsonPayloadFromCBORMessage);
   }
@@ -127,19 +140,6 @@ public class HcertService {
     valueSetService.mappingTestValueSet(hcertContentDTO.getT());
     valueSetService.mappingRecoveryValueSet(hcertContentDTO.getR());
     return hcertContentDTO;
-  }
-
-  private HcertServerResponse buildHcertResponse(HcertDecodingService hcertDecodingService, String hcertContent) {
-    HcertServerResponse hcertResponse = new HcertServerResponse();
-    CBORObject cborObject = hcertDecodingService.getCBORObject(hcertContent);
-    hcertResponse.setHcertPrefix(hcertContent);
-    hcertResponse.setHcertContent(getHcertdDTO(cborObject));
-    hcertResponse.setHcertKID(hcertDecodingService.getKID(cborObject));
-    hcertResponse.setHcertAlgo(hcertDecodingService.getAlgo(cborObject));
-    hcertResponse.setHcertIssuer(hcertDecodingService.getIssuer(cborObject));
-    hcertResponse.setHcertTimeStamp(hcertDecodingService.getHcertTimeStamp(cborObject));
-    hcertResponse.setHcertSignature(hcertDecodingService.getSignature(cborObject));
-    return hcertResponse;
   }
 
   /**
@@ -170,16 +170,16 @@ public class HcertService {
     pemCertServerResponse.setIssuer(x509Certificate.getIssuerDN().getName());
     pemCertServerResponse.setPublicKeyParams(buildPublicKeyResponse(x509Certificate));
     pemCertServerResponse.setSignature(Base64.encodeBase64String(x509Certificate.getSignature()));
-    pemCertServerResponse.setIsValid(checkPEMCertValidity(x509Certificate));
+    pemCertServerResponse.setValid(checkPEMCertValidity(x509Certificate));
     return pemCertServerResponse;
   }
 
-  private String checkPEMCertValidity(X509Certificate x509Certificate) {
+  private boolean checkPEMCertValidity(X509Certificate x509Certificate) {
     try {
       x509Certificate.checkValidity();
-      return "true";
+      return true;
     } catch (CertificateExpiredException | CertificateNotYetValidException e) {
-      return "false";
+      return false;
     }
   }
 

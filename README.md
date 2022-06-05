@@ -5,7 +5,7 @@
 ![CI decovid-19-core](https://github.com/vitoco84/decovid-19-core/actions/workflows/ci-decovid-19-core.yml/badge.svg)
 
 # Decovid-19-Core
-> * API that can decode and verify QR-Codes for EU Digital Covid-19 Health Certificate.
+> * API that can decode and verify QR-Codes for EU Digital Covid-19 Health Certificates.
 > * No personal or sensitive data is stored in any way.
 
 # Install Prerequisites
@@ -35,7 +35,7 @@
 > 
 > Swagger documentation served under [http://localhost:8082/swagger-ui/index.html](http://localhost:8082/swagger-ui/index.html)
 >
-> **All value taken in these examples are taken from public available test data (see [Link](#test-data) above).**
+> **All values in these examples are taken from public available test data (see [Link](#test-data) above).**
 > 
 > ## Example HcertServerRequest
 > POST [http://localhost:8082/decovid19/hcert/prefix](http://localhost:8082/decovid19/hcert/prefix)
@@ -73,7 +73,7 @@
 >         ]
 >     },
 >     "hcertKID": "mmrfzpMU6xc=",
->     "hcertAlgo": "RSA_PSS_256",
+>     "hcertAlgo": "PS256",
 >     "hcertIssuer": "CH BAG",
 >     "hcertTimeStamp": {
 >         "hcerExpirationTime": "2022-05-29T07:55:08Z",
@@ -106,7 +106,7 @@
 >        "bitLength": "2048"
 >    },
 >    "signature": "SP2AYJVGV5WWHpCXvHf3/ctob7pX1fZHXfwkos5XfX5dArVjqNM4oaiTlB0Fk5KxUCmIhi7lIa92soy564JShPkIhM3jtQygKC/XItTP4UbR/SfjNO4teL5HSD5QddyqHdaJUX/OE1sAhOxIEnFPqOa0DFFOTAEUYWJauRvSJ8MB2KlsUILpkxMx03KfB8bxkFTDdUIPoREVLSWAGKwxKS0OE6ZnmwoLdhvu7HxQO9msx9ci5Q58fb6ApXn6xk9uCMTQr5HiJA4VCZ7oRaH+uk/BqDfb/1lcgLv6cYh0R/6oD5IpT/SpVu1spOGxKR/U6BnAysiiFkFkqbFsf/ZoVDR/hBC0omQtpps6P64LNKq0rv3ZdU918XT42Fdn2hH2+ajJzhix6VjTYKAh+VK+dYyB/qx22XfMP+41Gt5TYz65AauWV9tOWpFKtuXtBWkziV9JYsnokoLGaaZNIojQZx7bJ6KdUnwqMbPUTOkbM++expO+YqFSmundq16TpUuzHBKOe70Lgwytv/WFlveeFR9mJcWfzgiZitNrbQ6teluAK89uy/kR+sqeO5EyIJgsTNp4yAYBb5399ppI2qk0Mea+629wvuEXSaoXQzhiOjx1aXd7Ib2sHj11c16NwQi83D6YcuI/wkcOOemBJPr65aRXFKX6EnwG/Bm6/rMzGTc=",
->    "isValid": "true"
+>    "valid": true
 > }
 > ```
 > ## Example QRCodeServerRequest
@@ -163,7 +163,7 @@
 > ## Example HcertVerificationServerResponse
 > ```yaml
 > {
->   "isVerified": "Verified"
+>   "verified": true
 > }
 > ```
 

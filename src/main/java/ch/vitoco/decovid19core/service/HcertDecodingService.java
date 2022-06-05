@@ -16,7 +16,7 @@ import ch.vitoco.decovid19core.enums.HcertAlgoKeys;
 import ch.vitoco.decovid19core.enums.HcertCBORKeys;
 import ch.vitoco.decovid19core.enums.HcertClaimKeys;
 import ch.vitoco.decovid19core.exception.ServerException;
-import ch.vitoco.decovid19core.model.HcertTimeStampDTO;
+import ch.vitoco.decovid19core.model.hcert.HcertTimeStampDTO;
 import com.google.zxing.*;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;

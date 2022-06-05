@@ -1,4 +1,4 @@
-package ch.vitoco.decovid19core.certificates.model;
+package ch.vitoco.decovid19core.model.certificates;
 
 import java.util.List;
 

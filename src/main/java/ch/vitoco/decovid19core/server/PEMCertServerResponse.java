@@ -1,6 +1,6 @@
 package ch.vitoco.decovid19core.server;
 
-import ch.vitoco.decovid19core.model.HcertPublicKeyDTO;
+import ch.vitoco.decovid19core.model.hcert.HcertPublicKeyDTO;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
@@ -50,6 +50,6 @@ public class PEMCertServerResponse {
   /**
    * Certificate Validity.
    */
-  private String isValid;
+  private boolean isValid;
 
 }

@@ -3,12 +3,12 @@ package ch.vitoco.decovid19core.service;
 import java.util.List;
 import java.util.Map;
 
-import ch.vitoco.decovid19core.model.Hcert;
-import ch.vitoco.decovid19core.model.HcertRecovery;
-import ch.vitoco.decovid19core.model.HcertTest;
-import ch.vitoco.decovid19core.model.HcertVaccination;
-import ch.vitoco.decovid19core.valuesets.HcertValueSet;
-import ch.vitoco.decovid19core.valuesets.model.ValueSetValues;
+import ch.vitoco.decovid19core.model.hcert.Hcert;
+import ch.vitoco.decovid19core.model.hcert.HcertRecovery;
+import ch.vitoco.decovid19core.model.hcert.HcertTest;
+import ch.vitoco.decovid19core.model.hcert.HcertVaccination;
+import ch.vitoco.decovid19core.utils.HcertValueSet;
+import ch.vitoco.decovid19core.model.valueset.ValueSetValues;
 import org.springframework.stereotype.Service;
 
 /**

@@ -11,10 +11,10 @@ import java.nio.file.Paths;
 
 import ch.vitoco.decovid19core.enums.HcertAlgoKeys;
 import ch.vitoco.decovid19core.exception.ServerException;
-import ch.vitoco.decovid19core.model.HcertContentDTO;
-import ch.vitoco.decovid19core.model.HcertRecovery;
-import ch.vitoco.decovid19core.model.HcertTest;
-import ch.vitoco.decovid19core.model.HcertVaccination;
+import ch.vitoco.decovid19core.model.hcert.HcertContentDTO;
+import ch.vitoco.decovid19core.model.hcert.HcertRecovery;
+import ch.vitoco.decovid19core.model.hcert.HcertTest;
+import ch.vitoco.decovid19core.model.hcert.HcertVaccination;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.upokecenter.cbor.CBORObject;
 import org.json.simple.JSONArray;

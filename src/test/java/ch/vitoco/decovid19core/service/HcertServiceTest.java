@@ -12,9 +12,9 @@ import java.nio.file.Paths;
 
 import ch.vitoco.decovid19core.enums.HcertAlgoKeys;
 import ch.vitoco.decovid19core.exception.ServerException;
-import ch.vitoco.decovid19core.model.HcertContentDTO;
-import ch.vitoco.decovid19core.model.HcertPublicKeyDTO;
-import ch.vitoco.decovid19core.model.HcertTimeStampDTO;
+import ch.vitoco.decovid19core.model.hcert.HcertContentDTO;
+import ch.vitoco.decovid19core.model.hcert.HcertPublicKeyDTO;
+import ch.vitoco.decovid19core.model.hcert.HcertTimeStampDTO;
 import ch.vitoco.decovid19core.server.HcertServerRequest;
 import ch.vitoco.decovid19core.server.HcertServerResponse;
 import ch.vitoco.decovid19core.server.PEMCertServerRequest;

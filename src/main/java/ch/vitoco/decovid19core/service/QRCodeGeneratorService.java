@@ -16,7 +16,7 @@ import java.util.UUID;
 import COSE.*;
 import ch.vitoco.decovid19core.enums.HcertClaimKeys;
 import ch.vitoco.decovid19core.exception.ServerException;
-import ch.vitoco.decovid19core.model.HcertContentDTO;
+import ch.vitoco.decovid19core.model.hcert.HcertContentDTO;
 import ch.vitoco.decovid19core.server.QRCodeServerRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

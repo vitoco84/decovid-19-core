@@ -1,4 +1,4 @@
-package ch.vitoco.decovid19core.valuesets.model;
+package ch.vitoco.decovid19core.model.valueset;
 
 import java.util.Map;
 

@@ -15,9 +15,9 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.List;
 import java.util.Objects;
 
-import ch.vitoco.decovid19core.certificates.model.*;
 import ch.vitoco.decovid19core.constants.HcertEndpointsApi;
 import ch.vitoco.decovid19core.exception.ServerException;
+import ch.vitoco.decovid19core.model.certificates.*;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;

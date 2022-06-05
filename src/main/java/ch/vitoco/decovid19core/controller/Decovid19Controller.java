@@ -2,7 +2,7 @@ package ch.vitoco.decovid19core.controller;
 
 import java.awt.image.BufferedImage;
 
-import ch.vitoco.decovid19core.model.HcertContentDTO;
+import ch.vitoco.decovid19core.model.hcert.HcertContentDTO;
 import ch.vitoco.decovid19core.server.*;
 import ch.vitoco.decovid19core.service.HcertService;
 import ch.vitoco.decovid19core.service.HcertVerificationService;

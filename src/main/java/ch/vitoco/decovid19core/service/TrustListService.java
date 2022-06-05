@@ -15,10 +15,10 @@ import java.security.cert.X509Certificate;
 import java.security.spec.*;
 import java.time.Duration;
 
-import ch.vitoco.decovid19core.certificates.model.EUCertificates;
-import ch.vitoco.decovid19core.certificates.model.SwissActiveKeyIds;
-import ch.vitoco.decovid19core.certificates.model.SwissCertificates;
-import ch.vitoco.decovid19core.certificates.model.SwissRevokedCertificates;
+import ch.vitoco.decovid19core.model.certificates.EUCertificates;
+import ch.vitoco.decovid19core.model.certificates.SwissActiveKeyIds;
+import ch.vitoco.decovid19core.model.certificates.SwissCertificates;
+import ch.vitoco.decovid19core.model.certificates.SwissRevokedCertificates;
 import ch.vitoco.decovid19core.exception.ServerException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -5,9 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
-import ch.vitoco.decovid19core.model.HcertContentDTO;
-import ch.vitoco.decovid19core.model.HcertHolder;
-import ch.vitoco.decovid19core.model.HcertTest;
+import ch.vitoco.decovid19core.model.hcert.HcertContentDTO;
+import ch.vitoco.decovid19core.model.hcert.HcertHolder;
+import ch.vitoco.decovid19core.model.hcert.HcertTest;
 import ch.vitoco.decovid19core.server.QRCodeServerRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;

@@ -1,4 +1,4 @@
-package ch.vitoco.decovid19core.valuesets;
+package ch.vitoco.decovid19core.utils;
 
 import static ch.vitoco.decovid19core.constants.ExceptionMessages.RESOURCES_READ_EXCEPTION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -9,8 +9,9 @@ import java.nio.file.Paths;
 import java.util.Map;
 
 import ch.vitoco.decovid19core.exception.ServerException;
-import ch.vitoco.decovid19core.valuesets.model.ValueSet;
-import ch.vitoco.decovid19core.valuesets.model.ValueSetValues;
+import ch.vitoco.decovid19core.model.valueset.ValueSet;
+import ch.vitoco.decovid19core.model.valueset.ValueSetValues;
+import ch.vitoco.decovid19core.utils.HcertValueSet;
 import org.junit.jupiter.api.Test;
 
 class HcertValueSetTest {
