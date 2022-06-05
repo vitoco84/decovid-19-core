@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 /**
- * Representation class for the EU Health Certificate Trust List content from: <a href="https://eu-digital-green-certificates.github.io/dgc-gateway/#/Trust%20Lists/downloadTrustList">eu-dcc-gateway-rest-api</a>.
+ * Representation class for the EU Health Certificate Trust List Content.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
