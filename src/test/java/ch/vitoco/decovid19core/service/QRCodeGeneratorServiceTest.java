@@ -26,7 +26,7 @@ class QRCodeGeneratorServiceTest {
     QRCodeServerRequest qrCodeServerRequest = new QRCodeServerRequest();
     qrCodeServerRequest.setUrl(URL_VALID);
 
-    ResponseEntity<BufferedImage> bufferedImageResponseEntity = qrCodeGeneratorService.getURLQRCode(
+    ResponseEntity<BufferedImage> bufferedImageResponseEntity = qrCodeGeneratorService.createURLQRCode(
         qrCodeServerRequest);
     HttpStatus statusCode = bufferedImageResponseEntity.getStatusCode();
     BufferedImage bufferedImage = bufferedImageResponseEntity.getBody();
@@ -41,7 +41,7 @@ class QRCodeGeneratorServiceTest {
     QRCodeServerRequest qrCodeServerRequest = new QRCodeServerRequest();
     qrCodeServerRequest.setUrl(URL_INVALID);
 
-    ResponseEntity<BufferedImage> bufferedImageResponseEntity = qrCodeGeneratorService.getURLQRCode(
+    ResponseEntity<BufferedImage> bufferedImageResponseEntity = qrCodeGeneratorService.createURLQRCode(
         qrCodeServerRequest);
     HttpStatus statusCode = bufferedImageResponseEntity.getStatusCode();
 
@@ -73,7 +73,7 @@ class QRCodeGeneratorServiceTest {
     hcertContentDTO.setNam(hcertHolder);
     hcertContentDTO.setT(List.of(hcertTest));
 
-    ResponseEntity<BufferedImage> bufferedImageResponseEntity = qrCodeGeneratorService.getTestCovidQRCode(
+    ResponseEntity<BufferedImage> bufferedImageResponseEntity = qrCodeGeneratorService.createTestCovidQRCode(
         hcertContentDTO);
 
     assertEquals(HttpStatus.OK, bufferedImageResponseEntity.getStatusCode());

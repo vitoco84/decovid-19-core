@@ -54,7 +54,7 @@ public class QRCodeGeneratorService {
    * @param url the QRCodeServerRequest
    * @return BufferedImage
    */
-  public ResponseEntity<BufferedImage> getURLQRCode(QRCodeServerRequest url) {
+  public ResponseEntity<BufferedImage> createURLQRCode(QRCodeServerRequest url) {
     if (isValidURL(url.getUrl())) {
       try {
         BitMatrix bitMatrix = new MultiFormatWriter().encode(
@@ -84,7 +84,7 @@ public class QRCodeGeneratorService {
    * @param hcertContentDTO the HcertContentDTO
    * @return BufferedImage
    */
-  public ResponseEntity<BufferedImage> getTestCovidQRCode(HcertContentDTO hcertContentDTO) {
+  public ResponseEntity<BufferedImage> createTestCovidQRCode(HcertContentDTO hcertContentDTO) {
     if (hcertContentDTO.getR() == null && hcertContentDTO.getV() == null) {
       byte[] cbor = getCBORBytes(hcertContentDTO);
       byte[] cose = getCOSESignatureBytes(cbor);

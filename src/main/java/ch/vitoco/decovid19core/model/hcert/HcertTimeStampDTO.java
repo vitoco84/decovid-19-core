@@ -13,7 +13,7 @@ public class HcertTimeStampDTO {
   /**
    * The expiration time of the Health Certificate.
    */
-  private String hcerExpirationTime;
+  private String hcertExpirationTime;
   /**
    * The issued time of the Health Certificate.
    */

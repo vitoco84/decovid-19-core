@@ -68,7 +68,7 @@ public class HcertService {
    * @param imageFile the Health Certificate QR-Code image file
    * @return HcertServerResponse
    */
-  public ResponseEntity<HcertServerResponse> getHealthCertificateContent(MultipartFile imageFile) {
+  public ResponseEntity<HcertServerResponse> decodeHealthCertificateContent(MultipartFile imageFile) {
     if (HcertFileUtils.isFileAllowed(imageFile)) {
       try (InputStream imageFileInputStream = imageFile.getInputStream()) {
         String hcertContent = hcertDecodingService.getHealthCertificateContent(imageFileInputStream);
@@ -89,7 +89,7 @@ public class HcertService {
    * @param hcertPrefix the HcertServerRequest with the Health Certificate Prefix
    * @return HcertServerResponse
    */
-  public ResponseEntity<HcertServerResponse> getHealthCertificateContent(HcertServerRequest hcertPrefix) {
+  public ResponseEntity<HcertServerResponse> decodeHealthCertificateContent(HcertServerRequest hcertPrefix) {
     if (!hcertPrefix.getHcertPrefix().isBlank() && hcertPrefix.getHcertPrefix().startsWith(HCERT_HEADER)) {
       String hcertContent = hcertPrefix.getHcertPrefix();
       return getHcertServerResponseResponseEntity(hcertContent);
@@ -147,7 +147,7 @@ public class HcertService {
    * @param pemCertificate the PEMCertServerRequest with the Certificate as String.
    * @return PEMCertServerResponse
    */
-  public ResponseEntity<PEMCertServerResponse> getX509Certificate(PEMCertServerRequest pemCertificate) {
+  public ResponseEntity<PEMCertServerResponse> decodeX509Certificate(PEMCertServerRequest pemCertificate) {
     try {
       X509Certificate x509Certificate = trustListService.convertCertificateToX509(pemCertificate.getPemCertificate());
       PEMCertServerResponse pemCertServerResponse = buildPEMCertServerResponse(x509Certificate);

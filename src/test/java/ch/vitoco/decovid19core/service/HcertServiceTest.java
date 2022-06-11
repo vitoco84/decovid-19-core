@@ -87,7 +87,7 @@ class HcertServiceTest {
     String expectedVersion = (String) jsonHcertPaylod.get(VER);
     String expectedDateOfBirth = (String) jsonHcertPaylod.get(DOB);
 
-    ResponseEntity<HcertServerResponse> healthCertificateContent = hcertService.getHealthCertificateContent(
+    ResponseEntity<HcertServerResponse> healthCertificateContent = hcertService.decodeHealthCertificateContent(
         mockMultipartFile);
 
     HttpStatus statusCode = healthCertificateContent.getStatusCode();
@@ -106,7 +106,7 @@ class HcertServiceTest {
     assertEquals(expectedDateOfBirth, hcertContent.getDob());
     assertFalse(hcertContent.getV().isEmpty());
     assertEquals(SWISS_QR_CODE_ISSUER, hcertIssuer);
-    assertTrue(hcertTimeStamp.getHcerExpirationTime().contains(EXPECTED_EXPIRATION_TIME));
+    assertTrue(hcertTimeStamp.getHcertExpirationTime().contains(EXPECTED_EXPIRATION_TIME));
     assertTrue(hcertTimeStamp.getHcertIssuedAtTime().contains(EXPECTED_ISSUED_AT_TIME));
   }
 
@@ -124,7 +124,7 @@ class HcertServiceTest {
     String expectedVersion = (String) jsonHcertPaylod.get(VER);
     String expectedDateOfBirth = (String) jsonHcertPaylod.get(DOB);
 
-    ResponseEntity<HcertServerResponse> healthCertificateContent = hcertService.getHealthCertificateContent(
+    ResponseEntity<HcertServerResponse> healthCertificateContent = hcertService.decodeHealthCertificateContent(
         mockMultipartFile);
 
     HttpStatus statusCode = healthCertificateContent.getStatusCode();
@@ -143,7 +143,7 @@ class HcertServiceTest {
     assertEquals(expectedDateOfBirth, hcertContent.getDob());
     assertFalse(hcertContent.getT().isEmpty());
     assertEquals(SWISS_QR_CODE_ISSUER, hcertIssuer);
-    assertTrue(hcertTimeStamp.getHcerExpirationTime().contains(EXPECTED_EXPIRATION_TIME));
+    assertTrue(hcertTimeStamp.getHcertExpirationTime().contains(EXPECTED_EXPIRATION_TIME));
     assertTrue(hcertTimeStamp.getHcertIssuedAtTime().contains(EXPECTED_ISSUED_AT_TIME));
   }
 
@@ -161,7 +161,7 @@ class HcertServiceTest {
     String expectedVersion = (String) jsonHcertPaylod.get(VER);
     String expectedDateOfBirth = (String) jsonHcertPaylod.get(DOB);
 
-    ResponseEntity<HcertServerResponse> healthCertificateContent = hcertService.getHealthCertificateContent(
+    ResponseEntity<HcertServerResponse> healthCertificateContent = hcertService.decodeHealthCertificateContent(
         mockMultipartFile);
 
     HttpStatus statusCode = healthCertificateContent.getStatusCode();
@@ -180,7 +180,7 @@ class HcertServiceTest {
     assertEquals(expectedDateOfBirth, hcertContent.getDob());
     assertFalse(hcertContent.getR().isEmpty());
     assertEquals(SWISS_QR_CODE_ISSUER, hcertIssuer);
-    assertTrue(hcertTimeStamp.getHcerExpirationTime().contains(EXPECTED_EXPIRATION_TIME));
+    assertTrue(hcertTimeStamp.getHcertExpirationTime().contains(EXPECTED_EXPIRATION_TIME));
     assertTrue(hcertTimeStamp.getHcertIssuedAtTime().contains(EXPECTED_ISSUED_AT_TIME));
   }
 
@@ -188,7 +188,7 @@ class HcertServiceTest {
   void shouldReturnHealthCertificateResponseFromHC1Prefix() {
     HcertServerRequest hcertServerRequest = new HcertServerRequest();
     hcertServerRequest.setHcertPrefix(SWISS_QR_CODE_VACC_HC1_PREFIX);
-    ResponseEntity<HcertServerResponse> healthCertificateContent = hcertService.getHealthCertificateContent(
+    ResponseEntity<HcertServerResponse> healthCertificateContent = hcertService.decodeHealthCertificateContent(
         hcertServerRequest);
 
     HttpStatus statusCode = healthCertificateContent.getStatusCode();
@@ -203,7 +203,7 @@ class HcertServiceTest {
         MediaType.MULTIPART_FORM_DATA_VALUE, testVaccImageInputStream);
     testVaccImageInputStream.close();
 
-    ResponseEntity<HcertServerResponse> healthCertificateContent = hcertService.getHealthCertificateContent(
+    ResponseEntity<HcertServerResponse> healthCertificateContent = hcertService.decodeHealthCertificateContent(
         mockMultipartFile);
 
     HttpStatus statusCode = healthCertificateContent.getStatusCode();
@@ -215,7 +215,7 @@ class HcertServiceTest {
   void shouldReturnBadRequestIfWrongHC1Prefix() {
     HcertServerRequest hcertServerRequest = new HcertServerRequest();
     hcertServerRequest.setHcertPrefix(SWISS_QR_CODE_VACC_HC1_PREFIX_WRONG);
-    ResponseEntity<HcertServerResponse> healthCertificateContent = hcertService.getHealthCertificateContent(
+    ResponseEntity<HcertServerResponse> healthCertificateContent = hcertService.decodeHealthCertificateContent(
         hcertServerRequest);
 
     HttpStatus statusCode = healthCertificateContent.getStatusCode();
@@ -231,7 +231,7 @@ class HcertServiceTest {
     testVaccImageInputStream.close();
 
     Exception exception = assertThrows(ServerException.class, () -> {
-      hcertService.getHealthCertificateContent(customMockMultipartFile);
+      hcertService.decodeHealthCertificateContent(customMockMultipartFile);
     });
 
     String actualMessage = exception.getMessage();
@@ -243,7 +243,7 @@ class HcertServiceTest {
   void shouldReturnPEMCertServerResponseForRSA() {
     PEMCertServerRequest pemCertServerRequest = new PEMCertServerRequest();
     pemCertServerRequest.setPemCertificate(SWISS_QR_CODE_CERTIFICATE);
-    ResponseEntity<PEMCertServerResponse> x509Certificate = hcertService.getX509Certificate(pemCertServerRequest);
+    ResponseEntity<PEMCertServerResponse> x509Certificate = hcertService.decodeX509Certificate(pemCertServerRequest);
 
     PEMCertServerResponse pemCertServerResponse = x509Certificate.getBody();
     HcertPublicKeyDTO hcertPublicKey = pemCertServerResponse.getPublicKeyParams();
@@ -272,7 +272,7 @@ class HcertServiceTest {
   void shouldReturnPEMCertServerResponseForECDSA() {
     PEMCertServerRequest pemCertServerRequest = new PEMCertServerRequest();
     pemCertServerRequest.setPemCertificate(GERMAN_QR_CODE_CERTIFICATE);
-    ResponseEntity<PEMCertServerResponse> x509Certificate = hcertService.getX509Certificate(pemCertServerRequest);
+    ResponseEntity<PEMCertServerResponse> x509Certificate = hcertService.decodeX509Certificate(pemCertServerRequest);
 
     PEMCertServerResponse pemCertServerResponse = x509Certificate.getBody();
     HcertPublicKeyDTO hcertPublicKey = pemCertServerResponse.getPublicKeyParams();

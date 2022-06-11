@@ -179,7 +179,7 @@ public class HcertDecodingService {
 
   private HcertTimeStampDTO buildHcertTimeStampResponse(Long expirationTimeStamp, Long issuedAtTimeStamp) {
     HcertTimeStampDTO hcertTimeStampDTO = new HcertTimeStampDTO();
-    hcertTimeStampDTO.setHcerExpirationTime(Instant.ofEpochSecond(expirationTimeStamp).toString());
+    hcertTimeStampDTO.setHcertExpirationTime(Instant.ofEpochSecond(expirationTimeStamp).toString());
     hcertTimeStampDTO.setHcertIssuedAtTime(Instant.ofEpochSecond(issuedAtTimeStamp).toString());
     return hcertTimeStampDTO;
   }

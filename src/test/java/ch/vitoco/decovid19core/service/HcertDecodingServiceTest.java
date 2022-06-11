@@ -5,18 +5,25 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.UUID;
 
+import COSE.*;
 import ch.vitoco.decovid19core.enums.HcertAlgoKeys;
+import ch.vitoco.decovid19core.enums.HcertCBORKeys;
+import ch.vitoco.decovid19core.enums.HcertClaimKeys;
 import ch.vitoco.decovid19core.exception.ServerException;
-import ch.vitoco.decovid19core.model.hcert.HcertContentDTO;
-import ch.vitoco.decovid19core.model.hcert.HcertRecovery;
-import ch.vitoco.decovid19core.model.hcert.HcertTest;
-import ch.vitoco.decovid19core.model.hcert.HcertVaccination;
+import ch.vitoco.decovid19core.model.hcert.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.upokecenter.cbor.CBORObject;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -253,6 +260,28 @@ class HcertDecodingServiceTest {
   }
 
   @Test
+  void shoutReturnKIDFromUnprotectedHeader() throws CoseException, JsonProcessingException, DecoderException {
+    String json = generateHcertContentDTO();
+    CBORObject cborObject = generateCBORObject(json);
+    Sign1Message sign1Message = generateCOSESignature(cborObject);
+
+    CBORObject map = CBORObject.NewMap();
+    map.set(CBORObject.FromObject(4), CBORObject.FromObject(sign1Message.getProtectedAttributes().EncodeToBytes()));
+
+    CBORObject cborObjectUnprotected = CBORObject.NewArray();
+    cborObjectUnprotected.Add(sign1Message.getUnprotectedAttributes().EncodeToBytes());
+    cborObjectUnprotected.Add(map);
+    cborObjectUnprotected.Add(new byte[0]);
+    cborObjectUnprotected.Add(new byte[0]);
+
+    CBORObject unprotectedHeader = cborObjectUnprotected.get(HcertCBORKeys.UNPROTECTED_HEADER.getCborKey());
+    String expectedKID = getActualKID(unprotectedHeader);
+    String actualKID = hcertDecodingService.getKID(cborObjectUnprotected);
+
+    assertEquals(expectedKID, actualKID);
+  }
+
+  @Test
   void shouldReturnCorrectJcaAlgo() {
     String es256 = hcertDecodingService.getJcaAlgo(HcertAlgoKeys.ES256.getName());
     String ps256 = hcertDecodingService.getJcaAlgo(HcertAlgoKeys.PS256.getName());
@@ -277,6 +306,62 @@ class HcertDecodingServiceTest {
     JSONParser jsonParser = new JSONParser();
     Object object = jsonParser.parse(Files.readString(path));
     return (JSONObject) object;
+  }
+
+  private Sign1Message generateCOSESignature(CBORObject cbor) throws CoseException {
+    OneKey privateKey = OneKey.generateKey(AlgorithmID.ECDSA_256);
+    byte[] kid = UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8);
+    Sign1Message signature = new Sign1Message();
+    signature.addAttribute(HeaderKeys.Algorithm, privateKey.get(KeyKeys.Algorithm), Attribute.UNPROTECTED);
+    signature.addAttribute(HeaderKeys.KID, CBORObject.FromObject(kid), Attribute.PROTECTED);
+    signature.SetContent(cbor.EncodeToBytes());
+    signature.sign(privateKey);
+    return signature;
+  }
+
+  private CBORObject generateCBORObject(String json) {
+    CBORObject cborObject = CBORObject.NewMap();
+    CBORObject hcertVersion = CBORObject.NewMap();
+    CBORObject hcert = CBORObject.FromJSONString(json);
+    hcertVersion.set(CBORObject.FromObject(HcertClaimKeys.HCERT_VERSION_CLAIM_KEY.getClaimKey()), hcert);
+    cborObject.set(CBORObject.FromObject(HcertClaimKeys.HCERT_CLAIM_KEY.getClaimKey()), hcertVersion);
+    return cborObject;
+  }
+
+  private String getActualKID(CBORObject cborObject) throws DecoderException {
+    StringBuilder kid = new StringBuilder();
+    String kidHexTrimmed = cborObject.toString().substring(6, cborObject.toString().lastIndexOf("'"));
+    byte[] kidBytes = Hex.decodeHex(kidHexTrimmed.toCharArray());
+    kid.append(Base64.encodeBase64String(kidBytes));
+    return kid.toString();
+  }
+
+  private String generateHcertContentDTO() throws JsonProcessingException {
+    HcertHolder hcertHolder = new HcertHolder();
+    hcertHolder.setFn("Uncle");
+    hcertHolder.setGn("Bob");
+    hcertHolder.setFnt("UNCLE");
+    hcertHolder.setGnt("BOB");
+
+    HcertTest hcertTest = new HcertTest();
+    hcertTest.setTg("COVID-19");
+    hcertTest.setTt("Test");
+    hcertTest.setNm("Test Name");
+    hcertTest.setMa("Test Identifier");
+    hcertTest.setSc("2021-04-30");
+    hcertTest.setTr("Not Detected");
+    hcertTest.setTc("Testing Centre");
+    hcertTest.setCo("Switzerland");
+    hcertTest.setIs("BAG");
+
+    HcertContentDTO hcertContentDTO = new HcertContentDTO();
+    hcertContentDTO.setDob("1943-02-01");
+    hcertContentDTO.setVer("1.0.0");
+    hcertContentDTO.setNam(hcertHolder);
+    hcertContentDTO.setT(List.of(hcertTest));
+
+    ObjectMapper mapper = new ObjectMapper();
+    return mapper.writeValueAsString(hcertContentDTO);
   }
 
 }
