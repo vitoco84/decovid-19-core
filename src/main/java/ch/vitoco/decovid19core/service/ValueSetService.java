@@ -57,8 +57,8 @@ public class ValueSetService {
 
     if (hcertTestList != null) {
       for (HcertTest hcertTest : hcertTestList) {
-        if (testDeviceValueMap.containsKey(hcertTest.getManufacturer())) {
-          hcertTest.setManufacturer(testDeviceValueMap.get(hcertTest.getManufacturer()).getDisplay());
+        if (testDeviceValueMap.containsKey(hcertTest.getTestDeviceManufacturer())) {
+          hcertTest.setTestDeviceManufacturer(testDeviceValueMap.get(hcertTest.getTestDeviceManufacturer()).getDisplay());
         }
         if (testTypeValueMap.containsKey(hcertTest.getTypeOfTest())) {
           hcertTest.setTypeOfTest(testTypeValueMap.get(hcertTest.getTypeOfTest()).getDisplay());

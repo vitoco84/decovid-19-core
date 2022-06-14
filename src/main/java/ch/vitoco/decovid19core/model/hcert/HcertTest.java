@@ -33,7 +33,7 @@ public class HcertTest extends Hcert {
    * Rapid antigen test (RAT) device identifier.
    */
   @JsonProperty("ma")
-  private String manufacturer;
+  private String testDeviceManufacturer;
   /**
    * Date and time of the test sample collection.
    */

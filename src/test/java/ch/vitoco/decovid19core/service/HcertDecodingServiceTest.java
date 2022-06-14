@@ -173,7 +173,7 @@ class HcertDecodingServiceTest {
     assertEquals(expectedDiseaseTarget, hcertTest.getTarget());
     assertEquals(expectedTypeOfTest, hcertTest.getTypeOfTest());
     assertEquals(expectedTestName, hcertTest.getNucleicAcidAmplName());
-    assertEquals(expectedTestDeviceIdentifier, hcertTest.getManufacturer());
+    assertEquals(expectedTestDeviceIdentifier, hcertTest.getTestDeviceManufacturer());
     assertEquals(expectedDateAndTimeOfTest, hcertTest.getSampleCollectionDate());
     assertEquals(expectedResultOfTest, hcertTest.getTestResult());
     assertEquals(expectedTestingCenter, hcertTest.getTestingCentre());
@@ -347,7 +347,7 @@ class HcertDecodingServiceTest {
     hcertTest.setTarget("COVID-19");
     hcertTest.setTypeOfTest("Test");
     hcertTest.setNucleicAcidAmplName("Test Name");
-    hcertTest.setManufacturer("Test Identifier");
+    hcertTest.setTestDeviceManufacturer("Test Identifier");
     hcertTest.setSampleCollectionDate("2021-04-30");
     hcertTest.setTestResult("Not Detected");
     hcertTest.setTestingCentre("Testing Centre");

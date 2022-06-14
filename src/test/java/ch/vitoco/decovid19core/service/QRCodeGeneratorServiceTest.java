@@ -60,7 +60,7 @@ class QRCodeGeneratorServiceTest {
     hcertTest.setTarget("COVID-19");
     hcertTest.setTypeOfTest("Test");
     hcertTest.setNucleicAcidAmplName("Test Name");
-    hcertTest.setManufacturer("Test Identifier");
+    hcertTest.setTestDeviceManufacturer("Test Identifier");
     hcertTest.setSampleCollectionDate("2021-04-30");
     hcertTest.setTestResult("Not Detected");
     hcertTest.setTestingCentre("Testing Centre");
