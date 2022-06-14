@@ -31,14 +31,14 @@ public class ValueSetService {
 
     if (hcertVaccinationList != null) {
       for (HcertVaccination hcertVacc : hcertVaccinationList) {
-        if (vaccineMarketingAuthValueMap.containsKey(hcertVacc.getMa())) {
-          hcertVacc.setMa(vaccineMarketingAuthValueMap.get(hcertVacc.getMa()).getDisplay());
+        if (vaccineMarketingAuthValueMap.containsKey(hcertVacc.getManufacturer())) {
+          hcertVacc.setManufacturer(vaccineMarketingAuthValueMap.get(hcertVacc.getManufacturer()).getDisplay());
         }
-        if (vaccineMedicinalProdValueMap.containsKey(hcertVacc.getMp())) {
-          hcertVacc.setMp(vaccineMedicinalProdValueMap.get(hcertVacc.getMp()).getDisplay());
+        if (vaccineMedicinalProdValueMap.containsKey(hcertVacc.getVaccineProduct())) {
+          hcertVacc.setVaccineProduct(vaccineMedicinalProdValueMap.get(hcertVacc.getVaccineProduct()).getDisplay());
         }
-        if (vaccineProphylaxisValueMap.containsKey(hcertVacc.getVp())) {
-          hcertVacc.setVp(vaccineProphylaxisValueMap.get(hcertVacc.getVp()).getDisplay());
+        if (vaccineProphylaxisValueMap.containsKey(hcertVacc.getVaccineProphylaxis())) {
+          hcertVacc.setVaccineProphylaxis(vaccineProphylaxisValueMap.get(hcertVacc.getVaccineProphylaxis()).getDisplay());
         }
       }
     }
@@ -57,14 +57,14 @@ public class ValueSetService {
 
     if (hcertTestList != null) {
       for (HcertTest hcertTest : hcertTestList) {
-        if (testDeviceValueMap.containsKey(hcertTest.getMa())) {
-          hcertTest.setMa(testDeviceValueMap.get(hcertTest.getMa()).getDisplay());
+        if (testDeviceValueMap.containsKey(hcertTest.getManufacturer())) {
+          hcertTest.setManufacturer(testDeviceValueMap.get(hcertTest.getManufacturer()).getDisplay());
         }
-        if (testTypeValueMap.containsKey(hcertTest.getTt())) {
-          hcertTest.setTt(testTypeValueMap.get(hcertTest.getTt()).getDisplay());
+        if (testTypeValueMap.containsKey(hcertTest.getTypeOfTest())) {
+          hcertTest.setTypeOfTest(testTypeValueMap.get(hcertTest.getTypeOfTest()).getDisplay());
         }
-        if (testResultValueMap.containsKey(hcertTest.getTr())) {
-          hcertTest.setTr(testResultValueMap.get(hcertTest.getTr()).getDisplay());
+        if (testResultValueMap.containsKey(hcertTest.getTestResult())) {
+          hcertTest.setTestResult(testResultValueMap.get(hcertTest.getTestResult()).getDisplay());
         }
       }
     }
@@ -86,11 +86,11 @@ public class ValueSetService {
 
     if (list != null) {
       for (T entry : list) {
-        if (countryCodesValueMap.containsKey(entry.getCo())) {
-          entry.setCo(countryCodesValueMap.get(entry.getCo()).getDisplay());
+        if (countryCodesValueMap.containsKey(entry.getCountry())) {
+          entry.setCountry(countryCodesValueMap.get(entry.getCountry()).getDisplay());
         }
-        if (diseaseAgentValueMap.containsKey(entry.getTg())) {
-          entry.setTg(diseaseAgentValueMap.get(entry.getTg()).getDisplay());
+        if (diseaseAgentValueMap.containsKey(entry.getTarget())) {
+          entry.setTarget(diseaseAgentValueMap.get(entry.getTarget()).getDisplay());
         }
       }
     }

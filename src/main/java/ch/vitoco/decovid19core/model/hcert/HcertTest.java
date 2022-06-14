@@ -2,6 +2,8 @@ package ch.vitoco.decovid19core.model.hcert;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Data;
 
 /**
@@ -15,42 +17,52 @@ public class HcertTest extends Hcert {
   /**
    * Disease or agent targeted.
    */
-  private String tg;
+  @JsonProperty("tg")
+  private String target;
   /**
    * The type of test.
    */
-  private String tt;
+  @JsonProperty("tt")
+  private String typeOfTest;
   /**
    * Test name of the nucleic acid amplification test (NAAT).
    */
-  private String nm;
+  @JsonProperty("nm")
+  private String nucleicAcidAmplName;
   /**
    * Rapid antigen test (RAT) device identifier.
    */
-  private String ma;
+  @JsonProperty("ma")
+  private String manufacturer;
   /**
    * Date and time of the test sample collection.
    */
-  private String sc;
+  @JsonProperty("sc")
+  private String sampleCollectionDate;
   /**
    * Result of the test.
    */
-  private String tr;
+  @JsonProperty("tr")
+  private String testResult;
   /**
    * Testing centre or facility.
    */
-  private String tc;
+  @JsonProperty("tc")
+  private String testingCentre;
   /**
    * Member state or third country in which the test was carried out.
    */
-  private String co;
+  @JsonProperty("co")
+  private String country;
   /**
    * Certificate issuer.
    */
-  private String is;
+  @JsonProperty("is")
+  private String issuer;
   /**
    * Unique certificate identifier.
    */
-  private String ci;
+  @JsonProperty("ci")
+  private String certIdentifier;
 
 }

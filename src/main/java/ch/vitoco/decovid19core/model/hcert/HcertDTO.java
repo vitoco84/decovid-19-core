@@ -1,6 +1,8 @@
 package ch.vitoco.decovid19core.model.hcert;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Data;
 
 /**
@@ -13,14 +15,17 @@ public class HcertDTO {
   /**
    * Holder name information.
    */
-  private HcertHolder nam;
+  @JsonProperty("nam")
+  private HcertHolder name;
   /**
    * Holder date of birth.
    */
-  private String dob;
+  @JsonProperty("dob")
+  private String dateOfBirth;
   /**
    * Health Certificate version information.
    */
-  private String ver;
+  @JsonProperty("ver")
+  private String version;
 
 }

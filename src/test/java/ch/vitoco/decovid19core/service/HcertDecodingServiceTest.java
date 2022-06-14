@@ -105,24 +105,24 @@ class HcertDecodingServiceTest {
 
     ObjectMapper objectMapper = new ObjectMapper();
     HcertContentDTO hcertContentDTO = objectMapper.readValue(cborPayload, HcertContentDTO.class);
-    HcertVaccination hcertVaccination = hcertContentDTO.getV().get(0);
+    HcertVaccination hcertVaccination = hcertContentDTO.getVaccination().get(0);
 
-    assertEquals(expectedLastName, hcertContentDTO.getNam().getFn());
-    assertEquals(expectedFirstName, hcertContentDTO.getNam().getGn());
-    assertEquals(expectedStandardLastName, hcertContentDTO.getNam().getFnt());
-    assertEquals(expectedStandardFirstName, hcertContentDTO.getNam().getGnt());
-    assertEquals(expectedVersion, hcertContentDTO.getVer());
-    assertEquals(expectedDateOfBirth, hcertContentDTO.getDob());
-    assertEquals(expectedDiseaseTarget, hcertVaccination.getTg());
-    assertEquals(expectedVaccineType, hcertVaccination.getVp());
-    assertEquals(expectedMedicinalProduct, hcertVaccination.getMp());
-    assertEquals(expectedAuthorizationHolder, hcertVaccination.getMa());
-    assertEquals(expectedSequenceNumberOfDoses, hcertVaccination.getDn());
-    assertEquals(expectedTotalNumberOfDoses, hcertVaccination.getSd());
-    assertEquals(expectedDateOfVaccination, hcertVaccination.getDt());
-    assertEquals(expectedCountryOfOrigin, hcertVaccination.getCo());
-    assertEquals(expectedIssuer, hcertVaccination.getIs());
-    assertEquals(expectedUniqueVaccCertificateIdentifier, hcertVaccination.getCi());
+    assertEquals(expectedLastName, hcertContentDTO.getName().getSurname());
+    assertEquals(expectedFirstName, hcertContentDTO.getName().getForename());
+    assertEquals(expectedStandardLastName, hcertContentDTO.getName().getStandardSurname());
+    assertEquals(expectedStandardFirstName, hcertContentDTO.getName().getStandardForename());
+    assertEquals(expectedVersion, hcertContentDTO.getVersion());
+    assertEquals(expectedDateOfBirth, hcertContentDTO.getDateOfBirth());
+    assertEquals(expectedDiseaseTarget, hcertVaccination.getTarget());
+    assertEquals(expectedVaccineType, hcertVaccination.getVaccineProphylaxis());
+    assertEquals(expectedMedicinalProduct, hcertVaccination.getVaccineProduct());
+    assertEquals(expectedAuthorizationHolder, hcertVaccination.getManufacturer());
+    assertEquals(expectedSequenceNumberOfDoses, hcertVaccination.getNumberOfDoses());
+    assertEquals(expectedTotalNumberOfDoses, hcertVaccination.getOverallNumberOfDoses());
+    assertEquals(expectedDateOfVaccination, hcertVaccination.getVaccinationDate());
+    assertEquals(expectedCountryOfOrigin, hcertVaccination.getCountry());
+    assertEquals(expectedIssuer, hcertVaccination.getIssuer());
+    assertEquals(expectedUniqueVaccCertificateIdentifier, hcertVaccination.getCertIdentifier());
   }
 
   @Test
@@ -162,24 +162,24 @@ class HcertDecodingServiceTest {
 
     ObjectMapper objectMapper = new ObjectMapper();
     HcertContentDTO hcertContentDTO = objectMapper.readValue(cborPayload, HcertContentDTO.class);
-    HcertTest hcertTest = hcertContentDTO.getT().get(0);
+    HcertTest hcertTest = hcertContentDTO.getTest().get(0);
 
-    assertEquals(expectedLastName, hcertContentDTO.getNam().getFn());
-    assertEquals(expectedFirstName, hcertContentDTO.getNam().getGn());
-    assertEquals(expectedStandardLastName, hcertContentDTO.getNam().getFnt());
-    assertEquals(expectedStandardFirstName, hcertContentDTO.getNam().getGnt());
-    assertEquals(expectedVersion, hcertContentDTO.getVer());
-    assertEquals(expectedDateOfBirth, hcertContentDTO.getDob());
-    assertEquals(expectedDiseaseTarget, hcertTest.getTg());
-    assertEquals(expectedTypeOfTest, hcertTest.getTt());
-    assertEquals(expectedTestName, hcertTest.getNm());
-    assertEquals(expectedTestDeviceIdentifier, hcertTest.getMa());
-    assertEquals(expectedDateAndTimeOfTest, hcertTest.getSc());
-    assertEquals(expectedResultOfTest, hcertTest.getTr());
-    assertEquals(expectedTestingCenter, hcertTest.getTc());
-    assertEquals(expectedCountryOfOrigin, hcertTest.getCo());
-    assertEquals(expectedIssuer, hcertTest.getIs());
-    assertEquals(expectedUniqueVaccCertificateIdentifier, hcertTest.getCi());
+    assertEquals(expectedLastName, hcertContentDTO.getName().getSurname());
+    assertEquals(expectedFirstName, hcertContentDTO.getName().getForename());
+    assertEquals(expectedStandardLastName, hcertContentDTO.getName().getStandardSurname());
+    assertEquals(expectedStandardFirstName, hcertContentDTO.getName().getStandardForename());
+    assertEquals(expectedVersion, hcertContentDTO.getVersion());
+    assertEquals(expectedDateOfBirth, hcertContentDTO.getDateOfBirth());
+    assertEquals(expectedDiseaseTarget, hcertTest.getTarget());
+    assertEquals(expectedTypeOfTest, hcertTest.getTypeOfTest());
+    assertEquals(expectedTestName, hcertTest.getNucleicAcidAmplName());
+    assertEquals(expectedTestDeviceIdentifier, hcertTest.getManufacturer());
+    assertEquals(expectedDateAndTimeOfTest, hcertTest.getSampleCollectionDate());
+    assertEquals(expectedResultOfTest, hcertTest.getTestResult());
+    assertEquals(expectedTestingCenter, hcertTest.getTestingCentre());
+    assertEquals(expectedCountryOfOrigin, hcertTest.getCountry());
+    assertEquals(expectedIssuer, hcertTest.getIssuer());
+    assertEquals(expectedUniqueVaccCertificateIdentifier, hcertTest.getCertIdentifier());
   }
 
   @Test
@@ -216,21 +216,21 @@ class HcertDecodingServiceTest {
 
     ObjectMapper objectMapper = new ObjectMapper();
     HcertContentDTO hcertContentDTO = objectMapper.readValue(cborPayload, HcertContentDTO.class);
-    HcertRecovery hcertRecovery = hcertContentDTO.getR().get(0);
+    HcertRecovery hcertRecovery = hcertContentDTO.getRecovery().get(0);
 
-    assertEquals(expectedLastName, hcertContentDTO.getNam().getFn());
-    assertEquals(expectedFirstName, hcertContentDTO.getNam().getGn());
-    assertEquals(expectedStandardLastName, hcertContentDTO.getNam().getFnt());
-    assertEquals(expectedStandardFirstName, hcertContentDTO.getNam().getGnt());
-    assertEquals(expectedVersion, hcertContentDTO.getVer());
-    assertEquals(expectedDateOfBirth, hcertContentDTO.getDob());
-    assertEquals(expectedDiseaseTarget, hcertRecovery.getTg());
-    assertEquals(expectedDateOfFirstPositiveTest, hcertRecovery.getFr());
-    assertEquals(expectedCountryOfOrigin, hcertRecovery.getCo());
-    assertEquals(expectedCertificateValideFrom, hcertRecovery.getDf());
-    assertEquals(expectedCertificateValideUntil, hcertRecovery.getDu());
-    assertEquals(expectedIssuer, hcertRecovery.getIs());
-    assertEquals(expectedUniqueVaccCertificateIdentifier, hcertRecovery.getCi());
+    assertEquals(expectedLastName, hcertContentDTO.getName().getSurname());
+    assertEquals(expectedFirstName, hcertContentDTO.getName().getForename());
+    assertEquals(expectedStandardLastName, hcertContentDTO.getName().getStandardSurname());
+    assertEquals(expectedStandardFirstName, hcertContentDTO.getName().getStandardForename());
+    assertEquals(expectedVersion, hcertContentDTO.getVersion());
+    assertEquals(expectedDateOfBirth, hcertContentDTO.getDateOfBirth());
+    assertEquals(expectedDiseaseTarget, hcertRecovery.getTarget());
+    assertEquals(expectedDateOfFirstPositiveTest, hcertRecovery.getFirstPositiveDateResult());
+    assertEquals(expectedCountryOfOrigin, hcertRecovery.getCountry());
+    assertEquals(expectedCertificateValideFrom, hcertRecovery.getValidFrom());
+    assertEquals(expectedCertificateValideUntil, hcertRecovery.getValidTo());
+    assertEquals(expectedIssuer, hcertRecovery.getIssuer());
+    assertEquals(expectedUniqueVaccCertificateIdentifier, hcertRecovery.getCertIdentifier());
   }
 
   @Test
@@ -338,27 +338,27 @@ class HcertDecodingServiceTest {
 
   private String generateHcertContentDTO() throws JsonProcessingException {
     HcertHolder hcertHolder = new HcertHolder();
-    hcertHolder.setFn("Uncle");
-    hcertHolder.setGn("Bob");
-    hcertHolder.setFnt("UNCLE");
-    hcertHolder.setGnt("BOB");
+    hcertHolder.setSurname("Uncle");
+    hcertHolder.setForename("Bob");
+    hcertHolder.setStandardSurname("UNCLE");
+    hcertHolder.setStandardForename("BOB");
 
     HcertTest hcertTest = new HcertTest();
-    hcertTest.setTg("COVID-19");
-    hcertTest.setTt("Test");
-    hcertTest.setNm("Test Name");
-    hcertTest.setMa("Test Identifier");
-    hcertTest.setSc("2021-04-30");
-    hcertTest.setTr("Not Detected");
-    hcertTest.setTc("Testing Centre");
-    hcertTest.setCo("Switzerland");
-    hcertTest.setIs("BAG");
+    hcertTest.setTarget("COVID-19");
+    hcertTest.setTypeOfTest("Test");
+    hcertTest.setNucleicAcidAmplName("Test Name");
+    hcertTest.setManufacturer("Test Identifier");
+    hcertTest.setSampleCollectionDate("2021-04-30");
+    hcertTest.setTestResult("Not Detected");
+    hcertTest.setTestingCentre("Testing Centre");
+    hcertTest.setCountry("Switzerland");
+    hcertTest.setIssuer("BAG");
 
     HcertContentDTO hcertContentDTO = new HcertContentDTO();
-    hcertContentDTO.setDob("1943-02-01");
-    hcertContentDTO.setVer("1.0.0");
-    hcertContentDTO.setNam(hcertHolder);
-    hcertContentDTO.setT(List.of(hcertTest));
+    hcertContentDTO.setDateOfBirth("1943-02-01");
+    hcertContentDTO.setVersion("1.0.0");
+    hcertContentDTO.setName(hcertHolder);
+    hcertContentDTO.setTest(List.of(hcertTest));
 
     ObjectMapper mapper = new ObjectMapper();
     return mapper.writeValueAsString(hcertContentDTO);

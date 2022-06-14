@@ -51,27 +51,27 @@ class QRCodeGeneratorServiceTest {
   @Test
   void shouldGenerateFakeQRCodeCovid() {
     HcertHolder hcertHolder = new HcertHolder();
-    hcertHolder.setFn("Uncle");
-    hcertHolder.setGn("Bob");
-    hcertHolder.setFnt("UNCLE");
-    hcertHolder.setGnt("BOB");
+    hcertHolder.setSurname("Uncle");
+    hcertHolder.setForename("Bob");
+    hcertHolder.setStandardSurname("UNCLE");
+    hcertHolder.setStandardForename("BOB");
 
     HcertTest hcertTest = new HcertTest();
-    hcertTest.setTg("COVID-19");
-    hcertTest.setTt("Test");
-    hcertTest.setNm("Test Name");
-    hcertTest.setMa("Test Identifier");
-    hcertTest.setSc("2021-04-30");
-    hcertTest.setTr("Not Detected");
-    hcertTest.setTc("Testing Centre");
-    hcertTest.setCo("Switzerland");
-    hcertTest.setIs("BAG");
+    hcertTest.setTarget("COVID-19");
+    hcertTest.setTypeOfTest("Test");
+    hcertTest.setNucleicAcidAmplName("Test Name");
+    hcertTest.setManufacturer("Test Identifier");
+    hcertTest.setSampleCollectionDate("2021-04-30");
+    hcertTest.setTestResult("Not Detected");
+    hcertTest.setTestingCentre("Testing Centre");
+    hcertTest.setCountry("Switzerland");
+    hcertTest.setIssuer("BAG");
 
     HcertContentDTO hcertContentDTO = new HcertContentDTO();
-    hcertContentDTO.setDob("1943-02-01");
-    hcertContentDTO.setVer("1.0.0");
-    hcertContentDTO.setNam(hcertHolder);
-    hcertContentDTO.setT(List.of(hcertTest));
+    hcertContentDTO.setDateOfBirth("1943-02-01");
+    hcertContentDTO.setVersion("1.0.0");
+    hcertContentDTO.setName(hcertHolder);
+    hcertContentDTO.setTest(List.of(hcertTest));
 
     ResponseEntity<BufferedImage> bufferedImageResponseEntity = qrCodeGeneratorService.createTestCovidQRCode(
         hcertContentDTO);

@@ -135,9 +135,9 @@ public class HcertService {
   private HcertContentDTO buildHcertContentDTO(String jsonPayloadFromCBORMessage, ObjectMapper objectMapper)
       throws JsonProcessingException {
     HcertContentDTO hcertContentDTO = objectMapper.readValue(jsonPayloadFromCBORMessage, HcertContentDTO.class);
-    valueSetService.mappingVaccinationValueSet(hcertContentDTO.getV());
-    valueSetService.mappingTestValueSet(hcertContentDTO.getT());
-    valueSetService.mappingRecoveryValueSet(hcertContentDTO.getR());
+    valueSetService.mappingVaccinationValueSet(hcertContentDTO.getVaccination());
+    valueSetService.mappingTestValueSet(hcertContentDTO.getTest());
+    valueSetService.mappingRecoveryValueSet(hcertContentDTO.getRecovery());
     return hcertContentDTO;
   }
 

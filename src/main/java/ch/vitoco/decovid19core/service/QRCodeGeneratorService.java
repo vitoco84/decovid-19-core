@@ -85,7 +85,7 @@ public class QRCodeGeneratorService {
    * @return BufferedImage
    */
   public ResponseEntity<BufferedImage> createTestCovidQRCode(HcertContentDTO hcertContentDTO) {
-    if (hcertContentDTO.getR() == null && hcertContentDTO.getV() == null) {
+    if (hcertContentDTO.getRecovery() == null && hcertContentDTO.getVaccination() == null) {
       byte[] cbor = getCBORBytes(hcertContentDTO);
       byte[] cose = getCOSESignatureBytes(cbor);
       byte[] zip = getCOSECompressedBytes(cose);
@@ -105,7 +105,7 @@ public class QRCodeGeneratorService {
   private byte[] getCBORBytes(HcertContentDTO hcertContentDTO) {
     try {
       ObjectMapper mapper = new ObjectMapper();
-      hcertContentDTO.getT().get(FIRST_ENTRY_HCERT_TEST_LIST).setCi(UNIQUE_ID_HEADER + UUID.randomUUID());
+      hcertContentDTO.getTest().get(FIRST_ENTRY_HCERT_TEST_LIST).setCertIdentifier(UNIQUE_ID_HEADER + UUID.randomUUID());
       String json = mapper.writeValueAsString(hcertContentDTO);
       CBORObject map = CBORObject.NewMap();
       map.set(CBORObject.FromObject(HcertClaimKeys.HCERT_MESSAGE_TAG.getClaimKey()), CBORObject.FromObject(ISSUER));

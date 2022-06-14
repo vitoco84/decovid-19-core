@@ -1,6 +1,8 @@
 package ch.vitoco.decovid19core.model.hcert;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Data;
 
 /**
@@ -13,18 +15,22 @@ public class HcertHolder {
   /**
    * Holder surname.
    */
-  private String fn;
+  @JsonProperty("fn")
+  private String surname;
   /**
    * Holder standardised surname.
    */
-  private String fnt;
+  @JsonProperty("fnt")
+  private String standardSurname;
   /**
    * Holder forename.
    */
-  private String gn;
+  @JsonProperty("gn")
+  private String forename;
   /**
    * Holder standardised forename.
    */
-  private String gnt;
+  @JsonProperty("gnt")
+  private String standardForename;
 
 }

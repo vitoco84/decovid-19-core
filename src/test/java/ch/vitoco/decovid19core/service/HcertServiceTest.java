@@ -102,9 +102,9 @@ class HcertServiceTest {
     assertEquals(expectedHcertPrefix, hcertPrefix);
     assertEquals(SWISS_QR_CODE_VACC_KID, hcertKID);
     assertEquals(HcertAlgoKeys.PS256.toString(), hcertAlgo);
-    assertEquals(expectedVersion, hcertContent.getVer());
-    assertEquals(expectedDateOfBirth, hcertContent.getDob());
-    assertFalse(hcertContent.getV().isEmpty());
+    assertEquals(expectedVersion, hcertContent.getVersion());
+    assertEquals(expectedDateOfBirth, hcertContent.getDateOfBirth());
+    assertFalse(hcertContent.getVaccination().isEmpty());
     assertEquals(SWISS_QR_CODE_ISSUER, hcertIssuer);
     assertTrue(hcertTimeStamp.getHcertExpirationTime().contains(EXPECTED_EXPIRATION_TIME));
     assertTrue(hcertTimeStamp.getHcertIssuedAtTime().contains(EXPECTED_ISSUED_AT_TIME));
@@ -139,9 +139,9 @@ class HcertServiceTest {
     assertEquals(expectedHcertPrefix, hcertPrefix);
     assertEquals(SWISS_QR_CODE_VACC_KID, hcertKID);
     assertEquals(HcertAlgoKeys.PS256.toString(), hcertAlgo);
-    assertEquals(expectedVersion, hcertContent.getVer());
-    assertEquals(expectedDateOfBirth, hcertContent.getDob());
-    assertFalse(hcertContent.getT().isEmpty());
+    assertEquals(expectedVersion, hcertContent.getVersion());
+    assertEquals(expectedDateOfBirth, hcertContent.getDateOfBirth());
+    assertFalse(hcertContent.getTest().isEmpty());
     assertEquals(SWISS_QR_CODE_ISSUER, hcertIssuer);
     assertTrue(hcertTimeStamp.getHcertExpirationTime().contains(EXPECTED_EXPIRATION_TIME));
     assertTrue(hcertTimeStamp.getHcertIssuedAtTime().contains(EXPECTED_ISSUED_AT_TIME));
@@ -176,9 +176,9 @@ class HcertServiceTest {
     assertEquals(expectedHcertPrefix, hcertPrefix);
     assertEquals(SWISS_QR_CODE_VACC_KID, hcertKID);
     assertEquals(HcertAlgoKeys.PS256.toString(), hcertAlgo);
-    assertEquals(expectedVersion, hcertContent.getVer());
-    assertEquals(expectedDateOfBirth, hcertContent.getDob());
-    assertFalse(hcertContent.getR().isEmpty());
+    assertEquals(expectedVersion, hcertContent.getVersion());
+    assertEquals(expectedDateOfBirth, hcertContent.getDateOfBirth());
+    assertFalse(hcertContent.getRecovery().isEmpty());
     assertEquals(SWISS_QR_CODE_ISSUER, hcertIssuer);
     assertTrue(hcertTimeStamp.getHcertExpirationTime().contains(EXPECTED_EXPIRATION_TIME));
     assertTrue(hcertTimeStamp.getHcertIssuedAtTime().contains(EXPECTED_ISSUED_AT_TIME));
