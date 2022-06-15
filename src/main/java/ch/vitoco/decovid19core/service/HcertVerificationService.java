@@ -3,13 +3,26 @@ package ch.vitoco.decovid19core.service;
 import static ch.vitoco.decovid19core.constants.ExceptionMessages.INVALID_SIGNATURE;
 
 import java.math.BigInteger;
-import java.security.*;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
 import java.security.cert.X509Certificate;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import ch.vitoco.decovid19core.constants.HcertEndpointsApi;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.util.encoders.Base64;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.crypto.impl.ECDSA;
+import com.upokecenter.cbor.CBORObject;
+
+import ch.vitoco.decovid19core.config.ConfigProperties;
 import ch.vitoco.decovid19core.enums.HcertAlgoKeys;
 import ch.vitoco.decovid19core.enums.HcertCBORKeys;
 import ch.vitoco.decovid19core.exception.ServerException;
@@ -19,13 +32,6 @@ import ch.vitoco.decovid19core.model.certificates.SwissCertificate;
 import ch.vitoco.decovid19core.model.certificates.SwissCertificates;
 import ch.vitoco.decovid19core.server.HcertVerificationServerRequest;
 import ch.vitoco.decovid19core.server.HcertVerificationServerResponse;
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.crypto.impl.ECDSA;
-import com.upokecenter.cbor.CBORObject;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.util.encoders.Base64;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 
 /**
  * Service class for the Health Certificate verification process.
@@ -41,10 +47,14 @@ public class HcertVerificationService {
 
   private final TrustListService trustListService;
   private final HcertDecodingService hcertDecodingService;
+  private final ConfigProperties configProperties;
 
-  public HcertVerificationService(TrustListService trustListService, HcertDecodingService hcertDecodingService) {
+  public HcertVerificationService(TrustListService trustListService,
+      HcertDecodingService hcertDecodingService,
+      ConfigProperties configProperties) {
     this.trustListService = trustListService;
     this.hcertDecodingService = hcertDecodingService;
+    this.configProperties = configProperties;
   }
 
   /**
@@ -75,8 +85,8 @@ public class HcertVerificationService {
     } else {
       try {
         if (region.equals(SWISS_REGION)) {
-          ResponseEntity<String> certificates = trustListService.getHcertCertificates(HcertEndpointsApi.SWISS_CERTS_API,
-              hcertVerificationServerRequest.getBearerToken());
+          ResponseEntity<String> certificates = trustListService.getHcertCertificates(
+              configProperties.getSwissCertsApi(), hcertVerificationServerRequest.getBearerToken());
           SwissCertificates swissCertificates = trustListService.buildSwissHcertCertificates(
               Objects.requireNonNull(certificates.getBody()));
           return swissCertificates.getCerts()
@@ -84,7 +94,7 @@ public class HcertVerificationService {
               .anyMatch(cert -> cert.getKeyId().equals(hcertVerificationServerRequest.getKeyId()));
         } else if (region.equals(EU_REGION)) {
           ResponseEntity<String> certificates = trustListService.getHcertCertificates(
-              HcertEndpointsApi.GERMAN_CERTS_API);
+              configProperties.getGermanCertsApi());
           EUCertificates euCertificates = trustListService.buildEUHcertCertificates(
               Objects.requireNonNull(certificates.getBody()));
           return euCertificates.getCertificates()
@@ -131,7 +141,7 @@ public class HcertVerificationService {
   }
 
   private PublicKey getEUPublicKey(HcertVerificationServerRequest hcertVerificationServerRequest) {
-    ResponseEntity<String> certificates = trustListService.getHcertCertificates(HcertEndpointsApi.GERMAN_CERTS_API);
+    ResponseEntity<String> certificates = trustListService.getHcertCertificates(configProperties.getGermanCertsApi());
 
     EUCertificates euCertificates = trustListService.buildEUHcertCertificates(
         Objects.requireNonNull(certificates.getBody()));
@@ -147,7 +157,7 @@ public class HcertVerificationService {
   }
 
   private PublicKey getSwissPublicKey(HcertVerificationServerRequest hcertVerificationServerRequest, String algoName) {
-    ResponseEntity<String> certificates = trustListService.getHcertCertificates(HcertEndpointsApi.SWISS_CERTS_API,
+    ResponseEntity<String> certificates = trustListService.getHcertCertificates(configProperties.getSwissCertsApi(),
         hcertVerificationServerRequest.getBearerToken());
     SwissCertificates swissCertificates = trustListService.buildSwissHcertCertificates(certificates.getBody());
 
@@ -171,8 +181,8 @@ public class HcertVerificationService {
   }
 
   private boolean isECAlgorithm(String algoName) {
-    return algoName.equals(HcertAlgoKeys.ES256.getName()) || algoName.equals(HcertAlgoKeys.ES384.getName()) ||
-        algoName.equals(HcertAlgoKeys.ES512.getName());
+    return algoName.equals(HcertAlgoKeys.ES256.getName()) || algoName.equals(HcertAlgoKeys.ES384.getName())
+        || algoName.equals(HcertAlgoKeys.ES512.getName());
   }
 
   private byte[] getValidationData(byte[] protectedHeader, byte[] content) {

@@ -59,9 +59,10 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation "org.springframework.boot:spring-boot-starter-actuator:${libs.versions.springBoot.get()}"
+    implementation "org.springframework.boot:spring-boot-starter-web:${libs.versions.springBoot.get()}"
     implementation "org.springframework.boot:spring-boot-starter-webflux:${libs.versions.webFlux.get()}"
+    implementation "org.springframework.boot:spring-boot-starter-validation:${libs.versions.springBoot.get()}"
     implementation "org.springdoc:springdoc-openapi-ui:${libs.versions.openapi.get()}"
     implementation "io.github.ehn-digital-green-development:base45:${libs.versions.base45.get()}"
     implementation "com.google.zxing:core:${libs.versions.zxing.get()}"

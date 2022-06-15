@@ -1,7 +1,10 @@
 package ch.vitoco.decovid19core.service;
 
 import static ch.vitoco.decovid19core.constants.ExceptionMessages.KEY_SPEC_EXCEPTION;
-import static org.junit.jupiter.api.Assertions.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -17,6 +20,14 @@ import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Objects;
 
+import org.apache.commons.codec.binary.Base64;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import ch.vitoco.decovid19core.config.ConfigProperties;
 import ch.vitoco.decovid19core.exception.ServerException;
 import ch.vitoco.decovid19core.model.certificates.EUCertificate;
 import ch.vitoco.decovid19core.model.certificates.EUCertificates;
@@ -24,10 +35,6 @@ import ch.vitoco.decovid19core.model.certificates.SwissCertificate;
 import ch.vitoco.decovid19core.model.certificates.SwissCertificates;
 import ch.vitoco.decovid19core.server.HcertVerificationServerRequest;
 import ch.vitoco.decovid19core.server.HcertVerificationServerResponse;
-import org.apache.commons.codec.binary.Base64;
-import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 class HcertVerificationServiceTest {
 
@@ -42,10 +49,20 @@ class HcertVerificationServiceTest {
   private static final String GERMAN_QR_CODE_VACC_KEY_ID = "DEsVUSvpFAE=";
   private static final String GERMAN_QR_CODE_VACC_HC1_PREFIX = "HC1:6BF+70790T9WJWG.FKY*4GO0.O1CV2 O5 N2FBBRW1*70HS8WY04AC*WIFN0AHCD8KD97TK0F90KECTHGWJC0FDC:5AIA%G7X+AQB9746HS80:54IBQF60R6$A80X6S1BTYACG6M+9XG8KIAWNA91AY%67092L4WJCT3EHS8XJC$+DXJCCWENF6OF63W5NW6WF6%JC QE/IAYJC5LEW34U3ET7DXC9 QE-ED8%E.JCBECB1A-:8$96646AL60A60S6Q$D.UDRYA 96NF6L/5QW6307KQEPD09WEQDD+Q6TW6FA7C466KCN9E%961A6DL6FA7D46JPCT3E5JDLA7$Q6E464W5TG6..DX%DZJC6/DTZ9 QE5$CB$DA/D JC1/D3Z8WED1ECW.CCWE.Y92OAGY8MY9L+9MPCG/D5 C5IA5N9$PC5$CUZCY$5Y$527B+A4KZNQG5TKOWWD9FL%I8U$F7O2IBM85CWOC%LEZU4R/BXHDAHN 11$CA5MRI:AONFN7091K9FKIGIY%VWSSSU9%01FO2*FTPQ3C3F";
 
+  public static final String GERMAN_CERTS_API = "https://de.dscg.ubirch.com/trustList/DSC/";
+  public static final String SWISS_CERTS_API = "https://www.cc.bit.admin.ch/trust/v1/keys/updates?certFormat=ANDROID";
+
   private final TrustListService trustListService = mock(TrustListService.class);
   private final HcertDecodingService hcertDecodingService = new HcertDecodingService();
+  private final ConfigProperties configProperties = Mockito.mock(ConfigProperties.class);
   private final HcertVerificationService hcertVerificationService = new HcertVerificationService(trustListService,
-      hcertDecodingService);
+      hcertDecodingService, configProperties);
+
+  @BeforeEach
+  public void setupConfig() {
+    when(configProperties.getGermanCertsApi()).thenReturn(GERMAN_CERTS_API);
+    when(configProperties.getSwissCertsApi()).thenReturn(SWISS_CERTS_API);
+  }
 
   @Test
   void shouldVerifyGermanTheHealthCertificate() {
