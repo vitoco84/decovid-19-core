@@ -33,10 +33,13 @@ import ch.vitoco.decovid19core.model.certificates.SwissCertificates;
 import ch.vitoco.decovid19core.server.HcertVerificationServerRequest;
 import ch.vitoco.decovid19core.server.HcertVerificationServerResponse;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * Service class for the Health Certificate verification process.
  */
 @Service
+@RequiredArgsConstructor
 public class HcertVerificationService {
 
   private static final String CONTEXT_STRING = "Signature1";
@@ -49,13 +52,6 @@ public class HcertVerificationService {
   private final HcertDecodingService hcertDecodingService;
   private final ConfigProperties configProperties;
 
-  public HcertVerificationService(TrustListService trustListService,
-      HcertDecodingService hcertDecodingService,
-      ConfigProperties configProperties) {
-    this.trustListService = trustListService;
-    this.hcertDecodingService = hcertDecodingService;
-    this.configProperties = configProperties;
-  }
 
   /**
    * Gets the HcertVerificationServerResponse

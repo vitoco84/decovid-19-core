@@ -1,8 +1,12 @@
 package ch.vitoco.decovid19core.constants;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 /**
  * Representation class of messages for exceptions
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ExceptionMessages {
 
   /**
@@ -29,10 +33,6 @@ public final class ExceptionMessages {
    * JSON serialize exception message.
    */
   public static final String JSON_SERIALIZE_EXCEPTION = "The payload could not be serialized.";
-  /**
-   * Utility class exception message.
-   */
-  public static final String UTILITY_CLASS_EXCEPTION = "Utility class.";
   /**
    * Resources read exception message.
    */
@@ -61,12 +61,5 @@ public final class ExceptionMessages {
    * Signature not valid exception.
    */
   public static final String INVALID_SIGNATURE = "The Signature or the provided keyId is not valid.";
-
-  /**
-   * Constructor.
-   */
-  private ExceptionMessages() {
-    throw new IllegalStateException(UTILITY_CLASS_EXCEPTION);
-  }
 
 }

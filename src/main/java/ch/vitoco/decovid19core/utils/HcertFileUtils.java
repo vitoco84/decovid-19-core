@@ -1,28 +1,23 @@
 package ch.vitoco.decovid19core.utils;
 
-import static ch.vitoco.decovid19core.constants.ExceptionMessages.UTILITY_CLASS_EXCEPTION;
-
 import java.util.Set;
 
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 /**
  * Helper class of the Health Certificate file handling.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class HcertFileUtils {
 
   /**
    * Set of allowed image file extensions.
    */
   private static final Set<String> ALLOWED_IMAGE_FORMAT = Set.of("png", "jpg", "jpeg", "gif");
-
-  /**
-   * Constructor.
-   */
-  private HcertFileUtils() {
-    throw new IllegalStateException(UTILITY_CLASS_EXCEPTION);
-  }
 
   /**
    * Helper method for verifieng if the given file is allowed.

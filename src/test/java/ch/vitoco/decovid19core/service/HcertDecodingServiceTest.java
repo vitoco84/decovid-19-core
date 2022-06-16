@@ -360,8 +360,8 @@ class HcertDecodingServiceTest {
     hcertContentDTO.setName(hcertHolder);
     hcertContentDTO.setTest(List.of(hcertTest));
 
-    ObjectMapper mapper = new ObjectMapper();
-    return mapper.writeValueAsString(hcertContentDTO);
+    ObjectMapper objectMapper = new ObjectMapper();
+    return objectMapper.writeValueAsString(hcertContentDTO);
   }
 
 }

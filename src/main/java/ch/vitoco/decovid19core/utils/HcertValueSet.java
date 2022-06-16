@@ -1,7 +1,6 @@
 package ch.vitoco.decovid19core.utils;
 
 import static ch.vitoco.decovid19core.constants.ExceptionMessages.RESOURCES_READ_EXCEPTION;
-import static ch.vitoco.decovid19core.constants.ExceptionMessages.UTILITY_CLASS_EXCEPTION;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,13 +8,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import ch.vitoco.decovid19core.exception.ServerException;
 import ch.vitoco.decovid19core.model.valueset.ValueSet;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 /**
  * Representation class for value sets from: <a href="https://github.com/ehn-dcc-development/eu-dcc-valuesets">eu-dcc-valuesets</a>.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class HcertValueSet {
 
   /**
@@ -57,15 +61,6 @@ public final class HcertValueSet {
    */
   private static final Path TEST_RESULT = Paths.get("src/main/resources/valuesets/test-result.json");
 
-  private static final ObjectMapper jsonMapper = new ObjectMapper();
-
-
-  /**
-   * Constructor.
-   */
-  private HcertValueSet() {
-    throw new IllegalStateException(UTILITY_CLASS_EXCEPTION);
-  }
 
   /**
    * Gets the value set of the country codes.
@@ -147,7 +142,8 @@ public final class HcertValueSet {
    */
   public static ValueSet getValueSet(Path countryCodesValueSetPath) {
     try (InputStream inputStream = getInputStream(countryCodesValueSetPath)) {
-      return jsonMapper.readValue(inputStream, ValueSet.class);
+      ObjectMapper objectMapper = new ObjectMapper();
+      return objectMapper.readValue(inputStream, ValueSet.class);
     } catch (IOException e) {
       throw new ServerException(RESOURCES_READ_EXCEPTION, e);
     }

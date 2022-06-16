@@ -117,11 +117,11 @@ public class QRCodeGeneratorService {
 
   private byte[] getCBORBytes(HcertContentDTO hcertContentDTO) {
     try {
-      ObjectMapper mapper = new ObjectMapper();
+      ObjectMapper objectMapper = new ObjectMapper();
       hcertContentDTO.getTest()
           .get(FIRST_ENTRY_HCERT_TEST_LIST)
           .setCertIdentifier(UNIQUE_ID_HEADER + UUID.randomUUID());
-      String json = mapper.writeValueAsString(hcertContentDTO);
+      String json = objectMapper.writeValueAsString(hcertContentDTO);
       CBORObject map = CBORObject.NewMap();
       map.set(CBORObject.FromObject(HcertClaimKeys.HCERT_MESSAGE_TAG.getClaimKey()), CBORObject.FromObject(ISSUER));
       map.set(CBORObject.FromObject(HcertClaimKeys.HCERT_ISSUED_AT_CLAIM_KEY.getClaimKey()),
