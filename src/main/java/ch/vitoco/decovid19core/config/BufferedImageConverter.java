@@ -8,7 +8,7 @@ import org.springframework.http.converter.BufferedImageHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 
 /**
- * Configuration class for a Buffered Response.
+ * Configuration class for a BufferedImage Response.
  */
 @Configuration
 public class BufferedImageConverter {

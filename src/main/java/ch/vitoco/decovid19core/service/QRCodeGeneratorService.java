@@ -1,6 +1,10 @@
 package ch.vitoco.decovid19core.service;
 
-import static ch.vitoco.decovid19core.constants.ExceptionMessages.*;
+import static ch.vitoco.decovid19core.constants.ExceptionMessages.CBOR_SIGNATURE_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.ExceptionMessages.COSE_COMPRESS_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.ExceptionMessages.HCERT_TEST_ENCODE_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.ExceptionMessages.JSON_SERIALIZE_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.ExceptionMessages.URL_ENCODE_EXCEPTION;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -9,15 +13,17 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
-import COSE.*;
-import ch.vitoco.decovid19core.enums.HcertClaimKeys;
-import ch.vitoco.decovid19core.exception.ServerException;
-import ch.vitoco.decovid19core.model.hcert.HcertContentDTO;
-import ch.vitoco.decovid19core.server.QRCodeServerRequest;
+import org.apache.commons.compress.compressors.CompressorException;
+import org.apache.commons.compress.compressors.CompressorOutputStream;
+import org.apache.commons.compress.compressors.CompressorStreamFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.zxing.BarcodeFormat;
@@ -26,12 +32,20 @@ import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.upokecenter.cbor.CBORObject;
+
+import ch.vitoco.decovid19core.enums.HcertClaimKeys;
+import ch.vitoco.decovid19core.exception.ServerException;
+import ch.vitoco.decovid19core.model.hcert.HcertContentDTO;
+import ch.vitoco.decovid19core.server.QRCodeServerRequest;
+
+import COSE.AlgorithmID;
+import COSE.Attribute;
+import COSE.CoseException;
+import COSE.HeaderKeys;
+import COSE.KeyKeys;
+import COSE.OneKey;
+import COSE.Sign1Message;
 import nl.minvws.encoding.Base45;
-import org.apache.commons.compress.compressors.CompressorException;
-import org.apache.commons.compress.compressors.CompressorOutputStream;
-import org.apache.commons.compress.compressors.CompressorStreamFactory;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 
 /**
  * Service class QRCodeGeneratorService.
@@ -40,8 +54,7 @@ import org.springframework.stereotype.Service;
 public class QRCodeGeneratorService {
 
   private static final int IMG_WIDTH_HEIGHT = 250;
-  private static final int ONE_YEAR = 1;
-  private static final long TIME_CONVERTER_MILLIS = 1000L;
+  private static final long ONE_YEAR = 365L;
   private static final int FIRST_ENTRY_HCERT_TEST_LIST = 0;
   private static final String HCERT_HEADER = "HC1:";
   private static final String UNIQUE_ID_HEADER = "uvci:";
@@ -105,7 +118,9 @@ public class QRCodeGeneratorService {
   private byte[] getCBORBytes(HcertContentDTO hcertContentDTO) {
     try {
       ObjectMapper mapper = new ObjectMapper();
-      hcertContentDTO.getTest().get(FIRST_ENTRY_HCERT_TEST_LIST).setCertIdentifier(UNIQUE_ID_HEADER + UUID.randomUUID());
+      hcertContentDTO.getTest()
+          .get(FIRST_ENTRY_HCERT_TEST_LIST)
+          .setCertIdentifier(UNIQUE_ID_HEADER + UUID.randomUUID());
       String json = mapper.writeValueAsString(hcertContentDTO);
       CBORObject map = CBORObject.NewMap();
       map.set(CBORObject.FromObject(HcertClaimKeys.HCERT_MESSAGE_TAG.getClaimKey()), CBORObject.FromObject(ISSUER));
@@ -155,12 +170,11 @@ public class QRCodeGeneratorService {
   }
 
   private long getIssuedAt() {
-    return LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() / TIME_CONVERTER_MILLIS;
+    return Instant.now().atZone(ZoneId.systemDefault()).toEpochSecond();
   }
 
   private long getExpiration() {
-    return LocalDateTime.now().plusYears(ONE_YEAR).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() /
-        TIME_CONVERTER_MILLIS;
+    return Instant.now().plus(ONE_YEAR, ChronoUnit.DAYS).atZone(ZoneId.systemDefault()).toEpochSecond();
   }
 
 }

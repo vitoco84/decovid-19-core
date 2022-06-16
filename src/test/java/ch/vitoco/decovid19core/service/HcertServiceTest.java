@@ -33,7 +33,7 @@ class HcertServiceTest {
 
   private static final String NAME = "foo";
   private static final String FILE_NAME_PNG_EXT_ALLOWED = "TestFile.png";
-  private static final String FILE_NAME_PNG_EXT_NOT_ALLOWED = "TestFile.gif";
+  private static final String FILE_NAME_PDF_EXT_NOT_ALLOWED = "TestFile.pdf";
 
   private static final Path SWISS_QR_CODE_VACC_CERT_IMG_PATH = Paths.get(
       "src/test/resources/swissQRCodeVaccinationCertificate.png");
@@ -199,7 +199,7 @@ class HcertServiceTest {
   @Test
   void shouldReturnBadRequestIfFileIsNotAllowed() throws IOException {
     InputStream testVaccImageInputStream = Files.newInputStream(SWISS_QR_CODE_VACC_CERT_IMG_PATH);
-    MockMultipartFile mockMultipartFile = new MockMultipartFile(NAME, FILE_NAME_PNG_EXT_NOT_ALLOWED,
+    MockMultipartFile mockMultipartFile = new MockMultipartFile(NAME, FILE_NAME_PDF_EXT_NOT_ALLOWED,
         MediaType.MULTIPART_FORM_DATA_VALUE, testVaccImageInputStream);
     testVaccImageInputStream.close();
 

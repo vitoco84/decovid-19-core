@@ -15,7 +15,7 @@ public final class HcertFileUtils {
   /**
    * Set of allowed image file extensions.
    */
-  private static final Set<String> ALLOWED_IMAGE_FORMAT = Set.of("png", "jpg", "jpeg");
+  private static final Set<String> ALLOWED_IMAGE_FORMAT = Set.of("png", "jpg", "jpeg", "gif");
 
   /**
    * Constructor.
@@ -33,20 +33,10 @@ public final class HcertFileUtils {
   public static boolean isFileAllowed(MultipartFile imageFile) {
     String originalFilename = imageFile.getOriginalFilename();
     if (StringUtils.hasLength(originalFilename) && originalFilename.contains(".")) {
-      String fileNameExt = getFileExtension(originalFilename);
+      String fileNameExt = StringUtils.getFilenameExtension(originalFilename);
       return ALLOWED_IMAGE_FORMAT.contains(fileNameExt);
     }
     return false;
-  }
-
-  /**
-   * Helper method for retrieveing the file extension.
-   *
-   * @param fileName the file name with extension
-   * @return file extension
-   */
-  public static String getFileExtension(String fileName) {
-    return fileName.substring(fileName.lastIndexOf(".") + 1);
   }
 
 }

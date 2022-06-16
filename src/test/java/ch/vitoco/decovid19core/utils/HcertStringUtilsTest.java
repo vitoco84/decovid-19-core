@@ -14,18 +14,23 @@ class HcertStringUtilsTest {
   private static final String FILE_NAME_EXPECTED = "Test_Fi__l___e.png";
   private static final String FILE_CONTENT = "Hello World!";
 
-  @Test
-  void shouldSanitizeUserInputString() {
-    MockMultipartFile mockFileAllowed = new MockMultipartFile(NAME, FILE_NAME, MediaType.MULTIPART_FORM_DATA_VALUE,
-        FILE_CONTENT.getBytes());
-    MockMultipartFile mockFileAllowedNotAllowed = new MockMultipartFile(NAME, FILE_NAME_EMPTY,
-        MediaType.MULTIPART_FORM_DATA_VALUE, FILE_CONTENT.getBytes());
 
-    String actualOriginalFileName = HcertStringUtils.sanitizeUserInputString(mockFileAllowed);
-    String actualOriginalFileNameEmpty = HcertStringUtils.sanitizeUserInputString(mockFileAllowedNotAllowed);
+  @Test
+  void shouldSanitizeUserInputFileName() {
+    MockMultipartFile mockFile = new MockMultipartFile(NAME, FILE_NAME, MediaType.MULTIPART_FORM_DATA_VALUE,
+        FILE_CONTENT.getBytes());
+    String actualOriginalFileName = HcertStringUtils.sanitizeUserInputString(mockFile);
 
     assertEquals(FILE_NAME_EXPECTED, actualOriginalFileName);
-    assertEquals("", actualOriginalFileNameEmpty);
+  }
+
+  @Test
+  void shouldSanitizeUserInputEmptyFileName() {
+    MockMultipartFile mockFile = new MockMultipartFile(NAME, FILE_NAME_EMPTY, MediaType.MULTIPART_FORM_DATA_VALUE,
+        FILE_CONTENT.getBytes());
+    String actualOriginalFileName = HcertStringUtils.sanitizeUserInputString(mockFile);
+
+    assertEquals("", actualOriginalFileName);
   }
 
 }
