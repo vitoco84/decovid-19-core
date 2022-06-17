@@ -2,8 +2,8 @@ package ch.vitoco.decovid19core.service;
 
 import static ch.vitoco.decovid19core.constants.ExceptionMessages.CBOR_SIGNATURE_EXCEPTION;
 import static ch.vitoco.decovid19core.constants.ExceptionMessages.COSE_COMPRESS_EXCEPTION;
-import static ch.vitoco.decovid19core.constants.ExceptionMessages.HCERT_TEST_ENCODE_EXCEPTION;
 import static ch.vitoco.decovid19core.constants.ExceptionMessages.JSON_SERIALIZE_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.ExceptionMessages.QR_CODE_ENCODE_EXCEPTION;
 import static ch.vitoco.decovid19core.constants.ExceptionMessages.URL_ENCODE_EXCEPTION;
 
 import java.awt.image.BufferedImage;
@@ -108,7 +108,7 @@ public class QRCodeGeneratorService {
             BarcodeFormat.QR_CODE, IMG_WIDTH_HEIGHT, IMG_WIDTH_HEIGHT);
         return ResponseEntity.ok().body(MatrixToImageWriter.toBufferedImage(bitMatrix));
       } catch (WriterException e) {
-        throw new ServerException(HCERT_TEST_ENCODE_EXCEPTION, e);
+        throw new ServerException(QR_CODE_ENCODE_EXCEPTION, e);
       }
     } else {
       return ResponseEntity.badRequest().build();

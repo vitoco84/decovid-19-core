@@ -1,7 +1,10 @@
 package ch.vitoco.decovid19core.service;
 
-import static ch.vitoco.decovid19core.constants.ExceptionMessages.QR_CODE_DECODE_EXCEPTION;
-import static org.junit.jupiter.api.Assertions.*;
+import static ch.vitoco.decovid19core.constants.ExceptionMessages.BARCODE_NOT_FOUND_EXCEPTION;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,15 +15,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
-import COSE.*;
-import ch.vitoco.decovid19core.enums.HcertAlgoKeys;
-import ch.vitoco.decovid19core.enums.HcertCBORKeys;
-import ch.vitoco.decovid19core.enums.HcertClaimKeys;
-import ch.vitoco.decovid19core.exception.ServerException;
-import ch.vitoco.decovid19core.model.hcert.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.upokecenter.cbor.CBORObject;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.tomcat.util.codec.binary.Base64;
@@ -29,6 +23,28 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.upokecenter.cbor.CBORObject;
+
+import ch.vitoco.decovid19core.enums.HcertAlgoKeys;
+import ch.vitoco.decovid19core.enums.HcertCBORKeys;
+import ch.vitoco.decovid19core.enums.HcertClaimKeys;
+import ch.vitoco.decovid19core.exception.ServerException;
+import ch.vitoco.decovid19core.model.hcert.HcertContentDTO;
+import ch.vitoco.decovid19core.model.hcert.HcertHolder;
+import ch.vitoco.decovid19core.model.hcert.HcertRecovery;
+import ch.vitoco.decovid19core.model.hcert.HcertTest;
+import ch.vitoco.decovid19core.model.hcert.HcertVaccination;
+
+import COSE.AlgorithmID;
+import COSE.Attribute;
+import COSE.CoseException;
+import COSE.HeaderKeys;
+import COSE.KeyKeys;
+import COSE.OneKey;
+import COSE.Sign1Message;
 
 class HcertDecodingServiceTest {
 
@@ -56,7 +72,7 @@ class HcertDecodingServiceTest {
   private final HcertDecodingService hcertDecodingService = new HcertDecodingService();
 
   @Test
-  void shouldReturnHealthCertificatePrefixContent() throws IOException, ParseException {
+  void shouldReturnHealthCertificateHC1PrefixContent() throws IOException, ParseException {
     InputStream testVaccImageInputStream = Files.newInputStream(SWISS_QR_CODE_VACC_CERT_IMG_PATH);
     String actualHealthCertificateContent = hcertDecodingService.getHealthCertificateContent(testVaccImageInputStream);
     testVaccImageInputStream.close();
@@ -234,7 +250,7 @@ class HcertDecodingServiceTest {
   }
 
   @Test
-  void shouldServerExceptionException() throws IOException {
+  void shouldThrowServerExceptionForInvalidBarcode() throws IOException {
     InputStream testImageInputStream = Files.newInputStream(FREE_TEST_IMAGE);
 
     Exception exception = assertThrows(ServerException.class, () -> {
@@ -244,7 +260,7 @@ class HcertDecodingServiceTest {
     testImageInputStream.close();
     String actualMessage = exception.getMessage();
 
-    assertEquals(QR_CODE_DECODE_EXCEPTION, actualMessage);
+    assertEquals(BARCODE_NOT_FOUND_EXCEPTION, actualMessage);
   }
 
   @Test
@@ -257,6 +273,15 @@ class HcertDecodingServiceTest {
     String actualAlgo = hcertDecodingService.getAlgo(cborObject);
 
     assertEquals(HcertAlgoKeys.PS256.toString(), actualAlgo);
+  }
+
+  @Test
+  void shouldReturnCorrectJcaAlgo() {
+    String es256 = hcertDecodingService.getJcaAlgo(HcertAlgoKeys.ES256.getName());
+    String ps256 = hcertDecodingService.getJcaAlgo(HcertAlgoKeys.PS256.getName());
+
+    assertEquals(SIGNATURE_ALGO_SHA256_WITH_ECDSA, es256);
+    assertEquals(SIGNATURE_ALGO_SHA256_WITH_RSA, ps256);
   }
 
   @Test
@@ -282,16 +307,7 @@ class HcertDecodingServiceTest {
   }
 
   @Test
-  void shouldReturnCorrectJcaAlgo() {
-    String es256 = hcertDecodingService.getJcaAlgo(HcertAlgoKeys.ES256.getName());
-    String ps256 = hcertDecodingService.getJcaAlgo(HcertAlgoKeys.PS256.getName());
-
-    assertEquals(SIGNATURE_ALGO_SHA256_WITH_ECDSA, es256);
-    assertEquals(SIGNATURE_ALGO_SHA256_WITH_RSA, ps256);
-  }
-
-  @Test
-  void shouldReturnCorrectKID() throws IOException {
+  void shouldReturnCorrectKIDFromHeaders() throws IOException {
     InputStream testVaccImageInputStream = Files.newInputStream(SWISS_QR_CODE_VACC_CERT_IMG_PATH);
     String hcert = hcertDecodingService.getHealthCertificateContent(testVaccImageInputStream);
     testVaccImageInputStream.close();

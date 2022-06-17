@@ -51,7 +51,7 @@ public class HcertDecodingService {
       Result result = new MultiFormatReader().decode(bitmap);
       return result.getText();
     } catch (IOException | NotFoundException e) {
-      throw new ServerException(QR_CODE_DECODE_EXCEPTION, e);
+      throw new ServerException(BARCODE_NOT_FOUND_EXCEPTION, e);
     }
   }
 

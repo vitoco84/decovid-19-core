@@ -10,13 +10,17 @@ import lombok.NoArgsConstructor;
 public final class ExceptionMessages {
 
   /**
+   * Barcode not found exception message.
+   */
+  public static final String BARCODE_NOT_FOUND_EXCEPTION = "The Barcode was not found in the provided image.";
+  /**
    * QR-Code decode exception message.
    */
   public static final String QR_CODE_DECODE_EXCEPTION = "The Health Certificate content of the QR-Code could not be decoded.";
   /**
-   * QR-Code corrupted exception message.
+   * HCERT encode exception message.
    */
-  public static final String QR_CODE_CORRUPTED_EXCEPTION = "The uploaded QR-Code is corrupted.";
+  public static final String QR_CODE_ENCODE_EXCEPTION = "The Health Certificate could not be encoded.";
   /**
    * COSE format exception message.
    */
@@ -41,10 +45,6 @@ public final class ExceptionMessages {
    * URL encode exception message.
    */
   public static final String URL_ENCODE_EXCEPTION = "Could not encode the given URL.";
-  /**
-   * HCERT Test encode exception message.
-   */
-  public static final String HCERT_TEST_ENCODE_EXCEPTION = "Could not encode the given Test Certificate.";
   /**
    * Private or Public Key exception message.
    */

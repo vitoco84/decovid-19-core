@@ -95,7 +95,7 @@ class HcertValueSetTest {
   }
 
   @Test
-  void shouldThrowServerException() {
+  void shouldThrowServerExceptionForIncorrectPath() {
     Path path = Paths.get("foobar");
     Exception exception = assertThrows(ServerException.class, () -> {
       HcertValueSet.getValueSet(path);

@@ -1,15 +1,29 @@
 package ch.vitoco.decovid19core.service;
 
-import static ch.vitoco.decovid19core.constants.ExceptionMessages.QR_CODE_CORRUPTED_EXCEPTION;
-import static org.junit.jupiter.api.Assertions.*;
+import static ch.vitoco.decovid19core.constants.ExceptionMessages.QR_CODE_DECODE_EXCEPTION;
 
-import javax.annotation.Nonnull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
+
+import javax.annotation.Nonnull;
+
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
 
 import ch.vitoco.decovid19core.enums.HcertAlgoKeys;
 import ch.vitoco.decovid19core.exception.ServerException;
@@ -20,14 +34,6 @@ import ch.vitoco.decovid19core.server.HcertServerRequest;
 import ch.vitoco.decovid19core.server.HcertServerResponse;
 import ch.vitoco.decovid19core.server.PEMCertServerRequest;
 import ch.vitoco.decovid19core.server.PEMCertServerResponse;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.mock.web.MockMultipartFile;
 
 class HcertServiceTest {
 
@@ -74,7 +80,7 @@ class HcertServiceTest {
   private final HcertService hcertService = new HcertService(valueSetService, hcertDecodingService, trustListService);
 
   @Test
-  void shouldReturnVaccHealthCertificateResponseFromImageFile() throws IOException, ParseException {
+  void shouldReturnVaccinationHealthCertificateServerResponseFromImage() throws IOException, ParseException {
     InputStream testVaccImageInputStream = Files.newInputStream(SWISS_QR_CODE_VACC_CERT_IMG_PATH);
     MockMultipartFile mockMultipartFile = new MockMultipartFile(NAME, FILE_NAME_PNG_EXT_ALLOWED,
         MediaType.MULTIPART_FORM_DATA_VALUE, testVaccImageInputStream);
@@ -111,7 +117,7 @@ class HcertServiceTest {
   }
 
   @Test
-  void shouldReturnTestHealthCertificateResponseFromImageFile() throws IOException, ParseException {
+  void shouldReturnTestHealthCertificateServerResponseFromImage() throws IOException, ParseException {
     InputStream testTestImageInputStream = Files.newInputStream(SWISS_QR_CODE_TEST_CERT_IMG_PATH);
     MockMultipartFile mockMultipartFile = new MockMultipartFile(NAME, FILE_NAME_PNG_EXT_ALLOWED,
         MediaType.MULTIPART_FORM_DATA_VALUE, testTestImageInputStream);
@@ -148,7 +154,7 @@ class HcertServiceTest {
   }
 
   @Test
-  void shouldReturnRecoveryHealthCertificateResponseFromImageFile() throws IOException, ParseException {
+  void shouldReturnRecoveryHealthCertificateServerResponseFromImage() throws IOException, ParseException {
     InputStream testTestImageInputStream = Files.newInputStream(SWISS_QR_CODE_RECOVERY_CERT_IMG_PATH);
     MockMultipartFile mockMultipartFile = new MockMultipartFile(NAME, FILE_NAME_PNG_EXT_ALLOWED,
         MediaType.MULTIPART_FORM_DATA_VALUE, testTestImageInputStream);
@@ -185,7 +191,7 @@ class HcertServiceTest {
   }
 
   @Test
-  void shouldReturnHealthCertificateResponseFromHC1Prefix() {
+  void shouldReturnHealthCertificateServerResponseFromHC1Prefix() {
     HcertServerRequest hcertServerRequest = new HcertServerRequest();
     hcertServerRequest.setHcertPrefix(SWISS_QR_CODE_VACC_HC1_PREFIX);
     ResponseEntity<HcertServerResponse> healthCertificateContent = hcertService.decodeHealthCertificateContent(
@@ -197,7 +203,7 @@ class HcertServiceTest {
   }
 
   @Test
-  void shouldReturnBadRequestIfFileIsNotAllowed() throws IOException {
+  void shouldReturnBadRequestIfFileExtensionIsNotAllowed() throws IOException {
     InputStream testVaccImageInputStream = Files.newInputStream(SWISS_QR_CODE_VACC_CERT_IMG_PATH);
     MockMultipartFile mockMultipartFile = new MockMultipartFile(NAME, FILE_NAME_PDF_EXT_NOT_ALLOWED,
         MediaType.MULTIPART_FORM_DATA_VALUE, testVaccImageInputStream);
@@ -212,7 +218,7 @@ class HcertServiceTest {
   }
 
   @Test
-  void shouldReturnBadRequestIfWrongHC1Prefix() {
+  void shouldReturnBadRequestForWrongHC1Prefix() {
     HcertServerRequest hcertServerRequest = new HcertServerRequest();
     hcertServerRequest.setHcertPrefix(SWISS_QR_CODE_VACC_HC1_PREFIX_WRONG);
     ResponseEntity<HcertServerResponse> healthCertificateContent = hcertService.decodeHealthCertificateContent(
@@ -224,7 +230,7 @@ class HcertServiceTest {
   }
 
   @Test
-  void shouldThrowServerException() throws IOException {
+  void shouldThrowServerExceptionIfBarcodeWasNotFound() throws IOException {
     InputStream testVaccImageInputStream = Files.newInputStream(SWISS_QR_CODE_VACC_CERT_IMG_PATH);
     CustomMockMultipartFile customMockMultipartFile = new CustomMockMultipartFile(NAME, FILE_NAME_PNG_EXT_ALLOWED,
         MediaType.MULTIPART_FORM_DATA_VALUE, testVaccImageInputStream);
@@ -236,7 +242,7 @@ class HcertServiceTest {
 
     String actualMessage = exception.getMessage();
 
-    assertEquals(QR_CODE_CORRUPTED_EXCEPTION, actualMessage);
+    assertEquals(QR_CODE_DECODE_EXCEPTION, actualMessage);
   }
 
   @Test

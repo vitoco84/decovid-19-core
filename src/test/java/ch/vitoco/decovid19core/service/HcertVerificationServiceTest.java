@@ -65,7 +65,7 @@ class HcertVerificationServiceTest {
   }
 
   @Test
-  void shouldVerifyGermanTheHealthCertificate() {
+  void shouldVerifyGermanHealthCertificate() {
     HcertVerificationServerRequest hcertVerificationServerRequest = buildHcertVerificationServerRequest(
         GERMAN_QR_CODE_VACC_KEY_ID, GERMAN_QR_CODE_VACC_HC1_PREFIX, "");
     EUCertificates euCertificates = new EUCertificates();

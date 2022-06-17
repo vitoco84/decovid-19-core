@@ -22,7 +22,7 @@ class QRCodeGeneratorServiceTest {
   private final QRCodeGeneratorService qrCodeGeneratorService = new QRCodeGeneratorService();
 
   @Test
-  void shouldGenerateQRCode() {
+  void shouldGenerateURLQRCode() {
     QRCodeServerRequest qrCodeServerRequest = new QRCodeServerRequest();
     qrCodeServerRequest.setUrl(URL_VALID);
 
@@ -49,7 +49,7 @@ class QRCodeGeneratorServiceTest {
   }
 
   @Test
-  void shouldGenerateFakeQRCodeCovid() {
+  void shouldGenerateFakeHcertQRCode() {
     HcertHolder hcertHolder = new HcertHolder();
     hcertHolder.setSurname("Uncle");
     hcertHolder.setForename("Bob");
