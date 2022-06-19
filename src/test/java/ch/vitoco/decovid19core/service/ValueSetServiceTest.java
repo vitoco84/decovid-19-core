@@ -4,12 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 
-import org.junit.jupiter.api.Test;
-
 import ch.vitoco.decovid19core.model.hcert.HcertContentDTO;
 import ch.vitoco.decovid19core.model.hcert.HcertRecovery;
 import ch.vitoco.decovid19core.model.hcert.HcertTest;
 import ch.vitoco.decovid19core.model.hcert.HcertVaccination;
+import org.junit.jupiter.api.Test;
 
 class ValueSetServiceTest {
 

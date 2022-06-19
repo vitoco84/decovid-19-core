@@ -6,17 +6,19 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
-/**
- * Representation class for the EU Health Certificates Trust List.
- */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
-public class EUCertificates {
+public class SwissJwtHeader {
 
   /**
-   * List of Health Certificates.
+   * The X509 Certificate chain.
    */
-  @JsonProperty("certificates")
-  private List<EUCertificate> certificates;
+  @JsonProperty("x5c")
+  private List<String> x5c;
+  /**
+   * The Signature Algorithm.
+   */
+  @JsonProperty("alg")
+  private String alg;
 
 }

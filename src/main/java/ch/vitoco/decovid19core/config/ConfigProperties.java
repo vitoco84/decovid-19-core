@@ -2,10 +2,9 @@ package ch.vitoco.decovid19core.config;
 
 import javax.validation.constraints.NotBlank;
 
+import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
-
-import lombok.Data;
 
 @ConfigurationProperties("endpoints")
 @Validated
@@ -45,5 +44,10 @@ public class ConfigProperties {
    */
   @NotBlank
   private String swissRevocationListApi;
+  /**
+   * Swiss Root Certificate Endpoint.
+   */
+  @NotBlank
+  private String swissRootCertApi;
 
 }

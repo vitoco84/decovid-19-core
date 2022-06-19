@@ -3,7 +3,6 @@ package ch.vitoco.decovid19core.server;
 import javax.validation.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import lombok.Data;
 
 /**

@@ -1,10 +1,9 @@
 package ch.vitoco.decovid19core.utils;
 
-import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
-
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Helper class of the Health Certificate input handling.

@@ -1,10 +1,7 @@
 package ch.vitoco.decovid19core.service;
 
 import static ch.vitoco.decovid19core.constants.ExceptionMessages.KEY_SPEC_EXCEPTION;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -13,19 +10,15 @@ import static org.mockito.Mockito.when;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Objects;
-
-import org.apache.commons.codec.binary.Base64;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import ch.vitoco.decovid19core.config.ConfigProperties;
 import ch.vitoco.decovid19core.exception.ServerException;
@@ -35,6 +28,12 @@ import ch.vitoco.decovid19core.model.certificates.SwissCertificate;
 import ch.vitoco.decovid19core.model.certificates.SwissCertificates;
 import ch.vitoco.decovid19core.server.HcertVerificationServerRequest;
 import ch.vitoco.decovid19core.server.HcertVerificationServerResponse;
+import org.apache.commons.codec.binary.Base64;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 class HcertVerificationServiceTest {
 
@@ -48,9 +47,14 @@ class HcertVerificationServiceTest {
 
   private static final String GERMAN_QR_CODE_VACC_KEY_ID = "DEsVUSvpFAE=";
   private static final String GERMAN_QR_CODE_VACC_HC1_PREFIX = "HC1:6BF+70790T9WJWG.FKY*4GO0.O1CV2 O5 N2FBBRW1*70HS8WY04AC*WIFN0AHCD8KD97TK0F90KECTHGWJC0FDC:5AIA%G7X+AQB9746HS80:54IBQF60R6$A80X6S1BTYACG6M+9XG8KIAWNA91AY%67092L4WJCT3EHS8XJC$+DXJCCWENF6OF63W5NW6WF6%JC QE/IAYJC5LEW34U3ET7DXC9 QE-ED8%E.JCBECB1A-:8$96646AL60A60S6Q$D.UDRYA 96NF6L/5QW6307KQEPD09WEQDD+Q6TW6FA7C466KCN9E%961A6DL6FA7D46JPCT3E5JDLA7$Q6E464W5TG6..DX%DZJC6/DTZ9 QE5$CB$DA/D JC1/D3Z8WED1ECW.CCWE.Y92OAGY8MY9L+9MPCG/D5 C5IA5N9$PC5$CUZCY$5Y$527B+A4KZNQG5TKOWWD9FL%I8U$F7O2IBM85CWOC%LEZU4R/BXHDAHN 11$CA5MRI:AONFN7091K9FKIGIY%VWSSSU9%01FO2*FTPQ3C3F";
+  private static final Path FAKE_GERMAN_CERTIFICATES_RESPONSE_BODY = Paths.get(
+      "src/test/resources/fakeGermanCertificateResponseBody.txt");
 
-  public static final String GERMAN_CERTS_API = "https://de.dscg.ubirch.com/trustList/DSC/";
-  public static final String SWISS_CERTS_API = "https://www.cc.bit.admin.ch/trust/v1/keys/updates?certFormat=ANDROID";
+  private static final String GERMAN_CERTS_API = "https://de.dscg.ubirch.com/trustList/DSC/";
+  private static final String GERMAN_PUBLIC_KEY_API = "https://github.com/Digitaler-Impfnachweis/covpass-ios/raw/main/Certificates/PROD_RKI/CA/pubkey.pem";
+  private static final String SWISS_CERTS_API = "https://www.cc.bit.admin.ch/trust/v1/keys/updates?certFormat=ANDROID";
+  private static final String SWISS_ROOT_CERT_API = "https://www.bit.admin.ch/dam/bit/en/dokumente/pki/scanning_center/swiss_governmentrootcaii.crt.download.crt/swiss_governmentrootcaii.crt";
+
 
   private final TrustListService trustListService = mock(TrustListService.class);
   private final HcertDecodingService hcertDecodingService = new HcertDecodingService();
@@ -61,11 +65,13 @@ class HcertVerificationServiceTest {
   @BeforeEach
   public void setupConfig() {
     when(configProperties.getGermanCertsApi()).thenReturn(GERMAN_CERTS_API);
+    when(configProperties.getGermanPublicKeyApi()).thenReturn(GERMAN_PUBLIC_KEY_API);
     when(configProperties.getSwissCertsApi()).thenReturn(SWISS_CERTS_API);
+    when(configProperties.getSwissRootCertApi()).thenReturn(SWISS_ROOT_CERT_API);
   }
 
   @Test
-  void shouldVerifyGermanHealthCertificate() {
+  void shouldVerifyGermanHealthCertificate() throws IOException {
     HcertVerificationServerRequest hcertVerificationServerRequest = buildHcertVerificationServerRequest(
         GERMAN_QR_CODE_VACC_KEY_ID, GERMAN_QR_CODE_VACC_HC1_PREFIX, "");
     EUCertificates euCertificates = new EUCertificates();
@@ -73,21 +79,32 @@ class HcertVerificationServiceTest {
     euCertificates.setCertificates(List.of(euCertificate));
 
     ResponseEntity<String> mockResponseEntity = new ResponseEntity<>("Mock", HttpStatus.OK);
+    ResponseEntity<String> mockResponseEntityCerts = new ResponseEntity<>("Mock\nMock", HttpStatus.OK);
+
+    String body = Files.readString(FAKE_GERMAN_CERTIFICATES_RESPONSE_BODY).replace("\r\n", "");
+    ResponseEntity<String> mockResponseEntityPublicKey = new ResponseEntity<>(body, HttpStatus.OK);
+    PublicKey publicKey = mock(PublicKey.class);
 
     when(trustListService.getHcertCertificates(anyString())).thenReturn(mockResponseEntity);
     when(trustListService.buildEUHcertCertificates(any())).thenReturn(euCertificates);
     when(trustListService.getHcertCertificates(anyString())).thenReturn(mockResponseEntity);
     when(trustListService.buildEUHcertCertificates(any())).thenReturn(euCertificates);
     when(trustListService.convertCertificateToX509(anyString())).thenReturn(convertCertificateToX509(euCertificate));
+    when(trustListService.getPublicKey(anyString())).thenReturn(mockResponseEntityPublicKey);
+    when(trustListService.getPublicKey(anyString(), anyString())).thenReturn(publicKey);
+    when(trustListService.getHcertCertificates(anyString())).thenReturn(mockResponseEntityCerts);
 
     ResponseEntity<HcertVerificationServerResponse> hcertVerificationServerResponseResponseEntity = hcertVerificationService.verifyHealthCertificate(
         hcertVerificationServerRequest);
 
     HttpStatus actualStatusCode = hcertVerificationServerResponseResponseEntity.getStatusCode();
-    boolean isVerified = Objects.requireNonNull(hcertVerificationServerResponseResponseEntity.getBody()).isVerified();
+    boolean isVerified = Objects.requireNonNull(hcertVerificationServerResponseResponseEntity.getBody()).isHcertVerified();
+    boolean isTrustChainVerified = Objects.requireNonNull(hcertVerificationServerResponseResponseEntity.getBody())
+        .isTrustChainVerified();
 
     assertEquals(HttpStatus.OK, actualStatusCode);
     assertTrue(isVerified);
+    assertFalse(isTrustChainVerified);
   }
 
   @Test
@@ -99,22 +116,31 @@ class HcertVerificationServiceTest {
     swissCertificates.setCerts(List.of(swissCertificate));
 
     ResponseEntity<String> mockResponseEntity = new ResponseEntity<>("Mock", HttpStatus.OK);
-    PublicKey publicKey = mock(PublicKey.class);
+    PublicKey mockPublicKey = mock(PublicKey.class);
+    X509Certificate mockX509Certificate = mock(X509Certificate.class);
 
     when(trustListService.getHcertCertificates(anyString(), anyString())).thenReturn(mockResponseEntity);
     when(trustListService.buildSwissHcertCertificates(any())).thenReturn(swissCertificates);
     when(trustListService.getHcertCertificates(anyString(), anyString())).thenReturn(mockResponseEntity);
     when(trustListService.buildSwissHcertCertificates(any())).thenReturn(swissCertificates);
-    when(trustListService.getRSAPublicKey(any(), any())).thenReturn(publicKey);
+    when(trustListService.getRSAPublicKey(any(), any())).thenReturn(mockPublicKey);
+    when(trustListService.getJWT(anyString(), anyString())).thenReturn(mockResponseEntity);
+    when(trustListService.convertCertificateToX509(anyString())).thenReturn(mockX509Certificate);
+    when(trustListService.convertCertificateToX509(anyString())).thenReturn(mockX509Certificate);
+    when(trustListService.getHcertCertificates(anyString(), anyString())).thenReturn(mockResponseEntity);
+    when(trustListService.convertCertificateToX509(anyString())).thenReturn(mockX509Certificate);
 
     ResponseEntity<HcertVerificationServerResponse> hcertVerificationServerResponseResponseEntity = hcertVerificationService.verifyHealthCertificate(
         hcertVerificationServerRequest);
 
     HttpStatus actualStatusCode = hcertVerificationServerResponseResponseEntity.getStatusCode();
-    boolean isVerified = Objects.requireNonNull(hcertVerificationServerResponseResponseEntity.getBody()).isVerified();
+    boolean isVerified = Objects.requireNonNull(hcertVerificationServerResponseResponseEntity.getBody()).isHcertVerified();
+    boolean isTrustChainVerified = Objects.requireNonNull(hcertVerificationServerResponseResponseEntity.getBody())
+        .isTrustChainVerified();
 
     assertEquals(HttpStatus.OK, actualStatusCode);
     assertFalse(isVerified);
+    assertFalse(isTrustChainVerified);
   }
 
   private X509Certificate convertCertificateToX509(EUCertificate euCertificate) {

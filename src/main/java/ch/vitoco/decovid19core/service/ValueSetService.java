@@ -7,8 +7,8 @@ import ch.vitoco.decovid19core.model.hcert.Hcert;
 import ch.vitoco.decovid19core.model.hcert.HcertRecovery;
 import ch.vitoco.decovid19core.model.hcert.HcertTest;
 import ch.vitoco.decovid19core.model.hcert.HcertVaccination;
-import ch.vitoco.decovid19core.utils.HcertValueSet;
 import ch.vitoco.decovid19core.model.valueset.ValueSetValues;
+import ch.vitoco.decovid19core.utils.HcertValueSet;
 import org.springframework.stereotype.Service;
 
 /**
@@ -38,7 +38,8 @@ public class ValueSetService {
           hcertVacc.setVaccineProduct(vaccineMedicinalProdValueMap.get(hcertVacc.getVaccineProduct()).getDisplay());
         }
         if (vaccineProphylaxisValueMap.containsKey(hcertVacc.getVaccineProphylaxis())) {
-          hcertVacc.setVaccineProphylaxis(vaccineProphylaxisValueMap.get(hcertVacc.getVaccineProphylaxis()).getDisplay());
+          hcertVacc.setVaccineProphylaxis(
+              vaccineProphylaxisValueMap.get(hcertVacc.getVaccineProphylaxis()).getDisplay());
         }
       }
     }
@@ -58,7 +59,8 @@ public class ValueSetService {
     if (hcertTestList != null) {
       for (HcertTest hcertTest : hcertTestList) {
         if (testDeviceValueMap.containsKey(hcertTest.getTestDeviceManufacturer())) {
-          hcertTest.setTestDeviceManufacturer(testDeviceValueMap.get(hcertTest.getTestDeviceManufacturer()).getDisplay());
+          hcertTest.setTestDeviceManufacturer(
+              testDeviceValueMap.get(hcertTest.getTestDeviceManufacturer()).getDisplay());
         }
         if (testTypeValueMap.containsKey(hcertTest.getTypeOfTest())) {
           hcertTest.setTypeOfTest(testTypeValueMap.get(hcertTest.getTypeOfTest()).getDisplay());

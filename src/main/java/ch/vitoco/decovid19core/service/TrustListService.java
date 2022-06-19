@@ -52,6 +52,11 @@ public class TrustListService {
   private static final String PUBLIC_KEY_PREFIX = "-----BEGIN PUBLIC KEY-----";
   private static final String PUBLIC_KEY_POSTFIX = "-----END PUBLIC KEY-----";
 
+  private static final String ACCEPT = "Accept";
+  private static final String APPLICATION_JSON_JWS = "application/json+jws";
+  private static final String ACCEPT_ENCODING = "Accept-Encoding";
+  private static final String APPLICATION_GZIP = "application/gzip";
+
   private WebClient getWebclient(String baseUrl) {
     return WebClient.builder()
         .baseUrl(baseUrl)
@@ -105,6 +110,24 @@ public class TrustListService {
     return getWebclient(baseUrl).get()
         .headers(h -> h.setBearerAuth(token))
         .accept(MediaType.APPLICATION_JSON)
+        .retrieve()
+        .toEntity(String.class)
+        .blockOptional(Duration.ofSeconds(TIMEOUT_DURATION_IN_SECONDS))
+        .orElseThrow();
+  }
+
+  /**
+   * Gets the JWT from the given endpoint.
+   *
+   * @param baseUrl the base URL for retrieving the JWT
+   * @param token   the Bearer Token for Authentication
+   * @return JWT
+   */
+  public ResponseEntity<String> getJWT(String baseUrl, String token) {
+    return getWebclient(baseUrl).get()
+        .headers(h -> h.setBearerAuth(token))
+        .header(ACCEPT, APPLICATION_JSON_JWS)
+        .header(ACCEPT_ENCODING, APPLICATION_GZIP)
         .retrieve()
         .toEntity(String.class)
         .blockOptional(Duration.ofSeconds(TIMEOUT_DURATION_IN_SECONDS))

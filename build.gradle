@@ -96,9 +96,12 @@ generateTypeScript {
             'ch.vitoco.decovid19core.server.HcertServerRequest',
             'ch.vitoco.decovid19core.server.HcertServerResponse',
             'ch.vitoco.decovid19core.server.PEMCertServerRequest',
-            'ch.vitoco.decovid19core.server.PEMCertServerResponse'
+            'ch.vitoco.decovid19core.server.PEMCertServerResponse',
+            'ch.vitoco.decovid19core.server.HcertVerificationServerRequest',
+            'ch.vitoco.decovid19core.server.HcertVerificationServerResponse'
     ]
-    outputFile = 'build/generated/decovid19client-communication.d.ts'
+    outputFile = 'build/generated/decovid19client-communication.ts'
+    outputFileType = 'implementationFile'
     outputKind = 'module'
     namespace = 'ClientCommunication'
     stringQuotes = 'singleQuotes'

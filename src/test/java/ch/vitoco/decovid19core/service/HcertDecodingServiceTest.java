@@ -1,10 +1,7 @@
 package ch.vitoco.decovid19core.service;
 
 import static ch.vitoco.decovid19core.constants.ExceptionMessages.BARCODE_NOT_FOUND_EXCEPTION;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,36 +12,23 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
+import COSE.*;
+import ch.vitoco.decovid19core.enums.HcertAlgoKeys;
+import ch.vitoco.decovid19core.enums.HcertCBORKeys;
+import ch.vitoco.decovid19core.enums.HcertClaimKeys;
+import ch.vitoco.decovid19core.exception.ServerException;
+import ch.vitoco.decovid19core.model.hcert.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.upokecenter.cbor.CBORObject;
 import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
-import org.apache.tomcat.util.codec.binary.Base64;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.junit.jupiter.api.Test;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.upokecenter.cbor.CBORObject;
-
-import ch.vitoco.decovid19core.enums.HcertAlgoKeys;
-import ch.vitoco.decovid19core.enums.HcertCBORKeys;
-import ch.vitoco.decovid19core.enums.HcertClaimKeys;
-import ch.vitoco.decovid19core.exception.ServerException;
-import ch.vitoco.decovid19core.model.hcert.HcertContentDTO;
-import ch.vitoco.decovid19core.model.hcert.HcertHolder;
-import ch.vitoco.decovid19core.model.hcert.HcertRecovery;
-import ch.vitoco.decovid19core.model.hcert.HcertTest;
-import ch.vitoco.decovid19core.model.hcert.HcertVaccination;
-
-import COSE.AlgorithmID;
-import COSE.Attribute;
-import COSE.CoseException;
-import COSE.HeaderKeys;
-import COSE.KeyKeys;
-import COSE.OneKey;
-import COSE.Sign1Message;
 
 class HcertDecodingServiceTest {
 

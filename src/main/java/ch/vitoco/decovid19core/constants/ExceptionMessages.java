@@ -61,5 +61,9 @@ public final class ExceptionMessages {
    * Signature not valid exception.
    */
   public static final String INVALID_SIGNATURE = "The Signature or the provided keyId is not valid.";
+  /**
+   * Certificate retrieve exception.
+   */
+  public static final String CERTIFICATES_RETRIEVE_EXCEPTION = "The Health or Root Certificate could not be retrieved.";
 
 }

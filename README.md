@@ -7,9 +7,13 @@
 # Decovid-19-Core
 > * API that can decode and verify QR-Codes for EU Digital Covid-19 Health Certificates.
 > * No personal or sensitive data is stored in any way.
+> * Backend Application for [decovid-19-client](https://github.com/vitoco84/decovid-19-client).
 
 # Install Prerequisites
 > JDK 11
+
+# TypeScript Generator for decovid-19-client
+> Run from terminal with: `.\gradlew generateTypeScript` or run Gradle task: `Tasks\other\generateTypeScript`
 
 # Getting it Running
 > Edit `application.yml` in `config` folder
@@ -176,6 +180,7 @@
 > ## Example HcertVerificationServerResponse
 > ```yaml
 > {
->   "verified": true
+>   "isHcertVerified": true,
+>   "isTrustChainVerified": true
 > }
 > ```

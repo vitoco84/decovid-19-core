@@ -3,7 +3,6 @@ package ch.vitoco.decovid19core.server;
 import ch.vitoco.decovid19core.model.hcert.HcertPublicKeyDTO;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import lombok.Data;
 
 /**

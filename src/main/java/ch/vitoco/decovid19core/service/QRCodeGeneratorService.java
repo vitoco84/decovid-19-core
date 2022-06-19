@@ -1,10 +1,6 @@
 package ch.vitoco.decovid19core.service;
 
-import static ch.vitoco.decovid19core.constants.ExceptionMessages.CBOR_SIGNATURE_EXCEPTION;
-import static ch.vitoco.decovid19core.constants.ExceptionMessages.COSE_COMPRESS_EXCEPTION;
-import static ch.vitoco.decovid19core.constants.ExceptionMessages.JSON_SERIALIZE_EXCEPTION;
-import static ch.vitoco.decovid19core.constants.ExceptionMessages.QR_CODE_ENCODE_EXCEPTION;
-import static ch.vitoco.decovid19core.constants.ExceptionMessages.URL_ENCODE_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.ExceptionMessages.*;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -18,12 +14,11 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
-import org.apache.commons.compress.compressors.CompressorException;
-import org.apache.commons.compress.compressors.CompressorOutputStream;
-import org.apache.commons.compress.compressors.CompressorStreamFactory;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-
+import COSE.*;
+import ch.vitoco.decovid19core.enums.HcertClaimKeys;
+import ch.vitoco.decovid19core.exception.ServerException;
+import ch.vitoco.decovid19core.model.hcert.HcertContentDTO;
+import ch.vitoco.decovid19core.server.QRCodeServerRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.zxing.BarcodeFormat;
@@ -32,20 +27,12 @@ import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.upokecenter.cbor.CBORObject;
-
-import ch.vitoco.decovid19core.enums.HcertClaimKeys;
-import ch.vitoco.decovid19core.exception.ServerException;
-import ch.vitoco.decovid19core.model.hcert.HcertContentDTO;
-import ch.vitoco.decovid19core.server.QRCodeServerRequest;
-
-import COSE.AlgorithmID;
-import COSE.Attribute;
-import COSE.CoseException;
-import COSE.HeaderKeys;
-import COSE.KeyKeys;
-import COSE.OneKey;
-import COSE.Sign1Message;
 import nl.minvws.encoding.Base45;
+import org.apache.commons.compress.compressors.CompressorException;
+import org.apache.commons.compress.compressors.CompressorOutputStream;
+import org.apache.commons.compress.compressors.CompressorStreamFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 
 /**
  * Service class QRCodeGeneratorService.

@@ -2,34 +2,22 @@ package ch.vitoco.decovid19core.controller;
 
 import java.awt.image.BufferedImage;
 
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
 import ch.vitoco.decovid19core.exception.ServerException;
 import ch.vitoco.decovid19core.model.hcert.HcertContentDTO;
-import ch.vitoco.decovid19core.server.HcertServerRequest;
-import ch.vitoco.decovid19core.server.HcertServerResponse;
-import ch.vitoco.decovid19core.server.HcertVerificationServerRequest;
-import ch.vitoco.decovid19core.server.HcertVerificationServerResponse;
-import ch.vitoco.decovid19core.server.PEMCertServerRequest;
-import ch.vitoco.decovid19core.server.PEMCertServerResponse;
-import ch.vitoco.decovid19core.server.QRCodeServerRequest;
+import ch.vitoco.decovid19core.server.*;
 import ch.vitoco.decovid19core.service.HcertService;
 import ch.vitoco.decovid19core.service.HcertVerificationService;
 import ch.vitoco.decovid19core.service.QRCodeGeneratorService;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor

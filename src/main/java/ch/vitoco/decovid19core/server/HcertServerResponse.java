@@ -4,7 +4,6 @@ import ch.vitoco.decovid19core.model.hcert.HcertDTO;
 import ch.vitoco.decovid19core.model.hcert.HcertTimeStampDTO;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import lombok.Data;
 
 /**

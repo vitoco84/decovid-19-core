@@ -1,12 +1,7 @@
 package ch.vitoco.decovid19core.service;
 
 import static ch.vitoco.decovid19core.constants.ExceptionMessages.KEY_SPEC_EXCEPTION;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -14,34 +9,35 @@ import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.PublicKey;
+import java.security.*;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import ch.vitoco.decovid19core.config.ConfigProperties;
+import ch.vitoco.decovid19core.enums.HcertAlgoKeys;
+import ch.vitoco.decovid19core.enums.HcertSignatureAlgoKeys;
+import ch.vitoco.decovid19core.exception.ServerException;
+import ch.vitoco.decovid19core.model.certificates.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.crypto.impl.ECDSA;
+import okhttp3.HttpUrl;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
 import org.apache.commons.codec.binary.Base64;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
-import ch.vitoco.decovid19core.config.ConfigProperties;
-import ch.vitoco.decovid19core.enums.HcertSignatureAlgoKeys;
-import ch.vitoco.decovid19core.exception.ServerException;
-import ch.vitoco.decovid19core.model.certificates.EUCertificate;
-import ch.vitoco.decovid19core.model.certificates.EUCertificates;
-import ch.vitoco.decovid19core.model.certificates.SwissActiveKeyIds;
-import ch.vitoco.decovid19core.model.certificates.SwissCertificate;
-import ch.vitoco.decovid19core.model.certificates.SwissCertificates;
-import ch.vitoco.decovid19core.model.certificates.SwissRevokedCertificates;
-
-import okhttp3.HttpUrl;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
 
 class TrustListServiceTest {
 
@@ -83,11 +79,12 @@ class TrustListServiceTest {
   private static final String BEARER_TOKEN = "token";
   private static final String TARGET_REPLACE_TXT = "\r\n";
 
-  public static final String GERMAN_CERTS_API = "https://de.dscg.ubirch.com/trustList/DSC/";
-  public static final String GERMAN_PUBLIC_KEY_API = "https://github.com/Digitaler-Impfnachweis/covpass-ios/raw/main/Certificates/PROD_RKI/CA/pubkey.pem";
-  public static final String SWISS_CERTS_API = "https://www.cc.bit.admin.ch/trust/v1/keys/updates?certFormat=ANDROID";
-  public static final String SWISS_ACTIVE_KID_API = "https://www.cc.bit.admin.ch/trust/v2/keys/list/";
-  public static final String SWISS_REVOCATION_LIST_API = "https://www.cc.bit.admin.ch/trust/v2/revocationList";
+  private static final String GERMAN_CERTS_API = "https://de.dscg.ubirch.com/trustList/DSC/";
+  private static final String GERMAN_PUBLIC_KEY_API = "https://github.com/Digitaler-Impfnachweis/covpass-ios/raw/main/Certificates/PROD_RKI/CA/pubkey.pem";
+  private static final String SWISS_CERTS_API = "https://www.cc.bit.admin.ch/trust/v1/keys/updates?certFormat=ANDROID";
+  private static final String SWISS_ACTIVE_KID_API = "https://www.cc.bit.admin.ch/trust/v2/keys/list/";
+  private static final String SWISS_REVOCATION_LIST_API = "https://www.cc.bit.admin.ch/trust/v2/revocationList";
+  private static final String SWISS_ROOT_CERT_API = "https://www.bit.admin.ch/dam/bit/en/dokumente/pki/scanning_center/swiss_governmentrootcaii.crt.download.crt/swiss_governmentrootcaii.crt";
 
   private static final int RADIX_HEX = 16;
 
@@ -101,6 +98,7 @@ class TrustListServiceTest {
     when(configProperties.getSwissCertsApi()).thenReturn(SWISS_CERTS_API);
     when(configProperties.getSwissActiveKidApi()).thenReturn(SWISS_ACTIVE_KID_API);
     when(configProperties.getSwissRevocationListApi()).thenReturn(SWISS_REVOCATION_LIST_API);
+    when(configProperties.getSwissRootCertApi()).thenReturn(SWISS_ROOT_CERT_API);
   }
 
   @Disabled("Only used for local testing and verification. MockWebServer is used instead, see Test shouldRetrieveHcertFromGermanApiWithMockWebServer().")
@@ -382,6 +380,87 @@ class TrustListServiceTest {
     String actualMessage = exception.getMessage();
 
     assertEquals(KEY_SPEC_EXCEPTION, actualMessage);
+  }
+
+  @Disabled("Only used for local testing and verification.")
+  @Test
+  void shouldVerifySwissCertificatesTrustChain()
+      throws JsonProcessingException, NoSuchAlgorithmException, InvalidKeyException, SignatureException,
+      NoSuchProviderException {
+    ResponseEntity<String> jwt = trustListService.getJWT(configProperties.getSwissCertsApi(), BEARER_TOKEN);
+
+    String[] split = Objects.requireNonNull(jwt.getBody()).split("\\.");
+    String header = new String(Base64.decodeBase64(split[0]));
+    String payload = new String(Base64.decodeBase64(split[1]));
+
+    ObjectMapper objectMapper = new ObjectMapper();
+    SwissJwtHeader swissJwtHeader = objectMapper.readValue(header, SwissJwtHeader.class);
+    SwissCertificates swissCertificates = objectMapper.readValue(payload, SwissCertificates.class);
+
+    X509Certificate signedCert = trustListService.convertCertificateToX509(swissJwtHeader.getX5c().get(0));
+    X509Certificate issuerCert = trustListService.convertCertificateToX509(swissJwtHeader.getX5c().get(1));
+
+    ResponseEntity<String> rootCertResponse = trustListService.getHcertCertificates(
+        configProperties.getSwissRootCertApi(), BEARER_TOKEN);
+    X509Certificate rootCert = trustListService.convertCertificateToX509(rootCertResponse.getBody());
+
+    List<X509Certificate> trustChain = new ArrayList<>();
+    trustChain.add(signedCert);
+    trustChain.add(issuerCert);
+    trustChain.add(rootCert);
+
+    List<Boolean> isValid = new ArrayList<>();
+    boolean isValidLast;
+
+    try {
+      for (int i = 0; i < trustChain.size() - 1; i++) {
+        trustChain.get(i).verify(trustChain.get(i + 1).getPublicKey());
+        isValid.add(true);
+      }
+    } catch (CertificateException e) {
+      isValid.add(false);
+    }
+
+    try {
+      trustChain.get(2).verify(trustChain.get(2).getPublicKey());
+      isValidLast = true;
+    } catch (CertificateException e) {
+      isValidLast = false;
+    }
+
+    assertTrue(isValid.stream().allMatch(isValid.get(0)::equals));
+    assertTrue(isValidLast);
+    assertFalse(swissCertificates.getCerts().isEmpty());
+  }
+
+  @Disabled("Only used for local testing and verification.")
+  @Test
+  void shouldVerifyGermanCertificatesTrustChain() throws JOSEException {
+    ResponseEntity<String> publicKeyResponse = trustListService.getPublicKey(configProperties.getGermanPublicKeyApi());
+    PublicKey publicKey = trustListService.getPublicKey(publicKeyResponse.getBody(),
+        HcertSignatureAlgoKeys.ECDSA.getName());
+
+    ResponseEntity<String> certificates = trustListService.getHcertCertificates(configProperties.getGermanCertsApi());
+
+    String[] split = Objects.requireNonNull(certificates.getBody()).split("\n");
+    String signatureBase64encoded = split[0];
+    String content = split[1];
+    byte[] signatureBase64decoded = Base64.decodeBase64(signatureBase64encoded);
+    byte[] ecdsaSignature = ECDSA.transcodeSignatureToDER(signatureBase64decoded);
+
+    boolean isValid;
+
+    try {
+      Signature signature = Signature.getInstance(HcertAlgoKeys.ES256.getJcaAlgoName(), new BouncyCastleProvider());
+      signature.initVerify(publicKey);
+      signature.update(content.getBytes());
+
+      signature.verify(ecdsaSignature);
+      isValid = true;
+    } catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException e) {
+      isValid = false;
+    }
+    assertTrue(isValid);
   }
 
 }

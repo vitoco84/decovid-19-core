@@ -23,9 +23,9 @@ import com.google.zxing.common.HybridBinarizer;
 import com.upokecenter.cbor.CBORObject;
 import nl.minvws.encoding.Base45;
 import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.stereotype.Service;
 
 /**
