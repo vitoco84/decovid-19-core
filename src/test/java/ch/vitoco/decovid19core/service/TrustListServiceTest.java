@@ -312,6 +312,24 @@ class TrustListServiceTest {
   }
 
   @Test
+  void shouldRetrieveJWTFromSwissCertsApiWithMockWebServer() throws IOException {
+    String body = "jwt";
+
+    try (MockWebServer mockWebServer = new MockWebServer()) {
+      mockWebServer.start();
+      mockWebServer.enqueue(new MockResponse().setBody(body));
+
+      HttpUrl baseUrl = mockWebServer.url("/bit/admin/");
+
+      ResponseEntity<String> jwt = trustListService.getJWT(String.valueOf(baseUrl), BEARER_TOKEN);
+
+      assertEquals(body, jwt.getBody());
+
+      mockWebServer.shutdown();
+    }
+  }
+
+  @Test
   void shouldConvertRawCertificatesToX509Format() {
     X509Certificate swissX509Certificate = trustListService.convertCertificateToX509(SWISS_QR_CODE_CERTIFICATE);
     X509Certificate germanX509Certificate = trustListService.convertCertificateToX509(GERMAN_QR_CODE_CERTIFICATE);
