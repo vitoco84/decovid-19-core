@@ -27,6 +27,7 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.crypto.impl.ECDSA;
 import com.upokecenter.cbor.CBORObject;
 import lombok.RequiredArgsConstructor;
+
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.http.ResponseEntity;
@@ -45,6 +46,10 @@ public class HcertVerificationService {
   private static final String EU_REGION = "EU";
   private static final int SIG_NUM = 1;
   private static final int JWT_HEADER = 0;
+  private static final int SIGNED_CERTIFICATE = 0;
+  private static final int ISSUER_CERTIFICATE = 1;
+  private static final int CERTIFICATE_SIGNATURE = 0;
+  private static final int CERTIFICATE_CONTENT = 1;
   private static final String GERMAN_CERTS_REGEX_SPLITTER = "\n";
   private static final String SWISS_CERTS_REGEX_SPLITTER = "\\.";
 
@@ -114,8 +119,8 @@ public class HcertVerificationService {
     try {
       if (region.equals(SWISS_REGION)) {
         SwissJwtHeader swissJwtHeader = getSwissJwtHeader(hcertVerificationServerRequest);
-        X509Certificate signedCert = trustListService.convertCertificateToX509(swissJwtHeader.getX5c().get(0));
-        X509Certificate issuerCert = trustListService.convertCertificateToX509(swissJwtHeader.getX5c().get(1));
+        X509Certificate signedCert = trustListService.convertCertificateToX509(swissJwtHeader.getX5c().get(SIGNED_CERTIFICATE));
+        X509Certificate issuerCert = trustListService.convertCertificateToX509(swissJwtHeader.getX5c().get(ISSUER_CERTIFICATE));
         X509Certificate swissRootCert = getSwissRootCert(hcertVerificationServerRequest);
 
         List<X509Certificate> trustChain = List.of(signedCert, issuerCert, swissRootCert);
@@ -184,9 +189,9 @@ public class HcertVerificationService {
   private boolean isGermanTrustChainVerified(PublicKey publicKey) {
     try {
       ResponseEntity<String> certificates = trustListService.getHcertCertificates(configProperties.getGermanCertsApi());
-      String[] split = Objects.requireNonNull(certificates.getBody()).split(GERMAN_CERTS_REGEX_SPLITTER);
-      String signatureBase64encoded = split[0];
-      String content = split[1];
+      String[] splitCertificates = Objects.requireNonNull(certificates.getBody()).split(GERMAN_CERTS_REGEX_SPLITTER);
+      String signatureBase64encoded = splitCertificates[CERTIFICATE_SIGNATURE];
+      String content = splitCertificates[CERTIFICATE_CONTENT];
       byte[] signatureBase64decoded = Base64.decodeBase64(signatureBase64encoded);
       byte[] signature = ECDSA.transcodeSignatureToDER(signatureBase64decoded);
       return verifyGermanTrustChain(publicKey, content, signature);
