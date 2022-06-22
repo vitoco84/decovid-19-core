@@ -1,9 +1,9 @@
 package ch.vitoco.decovid19core.model.hcert;
 
-import java.util.List;
-
-import javax.validation.constraints.NotBlank;
+import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -32,6 +32,8 @@ public class HcertContentDTO extends HcertDTO {
   /**
    * List of Test Health Certificates information.
    */
+  @Valid
+  @Size(message = "Max size should be 1", max = 1)
   @NotEmpty(message = "Must not be empty")
   @JsonProperty("t")
   private List<HcertTest> test;

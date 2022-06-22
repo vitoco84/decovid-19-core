@@ -1,11 +1,11 @@
 package ch.vitoco.decovid19core.controller;
 
-import java.awt.image.BufferedImage;
-
 import javax.validation.Valid;
+import java.awt.image.BufferedImage;
 
 import ch.vitoco.decovid19core.exception.ServerException;
 import ch.vitoco.decovid19core.model.hcert.HcertContentDTO;
+import ch.vitoco.decovid19core.validation.ValidFile;
 import ch.vitoco.decovid19core.server.*;
 import ch.vitoco.decovid19core.service.HcertService;
 import ch.vitoco.decovid19core.service.HcertVerificationService;
@@ -18,9 +18,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+@Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/decovid19")
@@ -39,7 +41,7 @@ public class Decovid19Controller {
           @Content(mediaType = "application/json", schema = @Schema(implementation = ServerException.class))})})
   @PostMapping(value = "/hcert/qrcode", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}, produces = {
       MediaType.APPLICATION_JSON_VALUE, "application/json"})
-  public ResponseEntity<HcertServerResponse> decodeHealthCertificateContent(@RequestParam("imageFile") MultipartFile imageFile) {
+  public ResponseEntity<HcertServerResponse> decodeHealthCertificateContent(@ValidFile @RequestParam(value = "imageFile") MultipartFile imageFile) {
     return hcertService.decodeHealthCertificateContent(imageFile);
   }
 

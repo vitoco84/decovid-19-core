@@ -15,7 +15,7 @@ public class PEMCertServerRequest {
   /**
    * PEM formatted String.
    */
-  @NotBlank(message = "Must not be blank")
+  @NotBlank
   @Pattern(message = "Should start with MII", regexp = "^MII.*")
   @JsonProperty("pemCertificate")
   private String pemCertificate;

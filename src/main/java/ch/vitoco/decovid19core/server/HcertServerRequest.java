@@ -15,7 +15,7 @@ public class HcertServerRequest {
   /**
    * Health Certificate String Prefix starting with "HC1:"
    */
-  @NotBlank(message = "Must not be blank")
+  @NotBlank
   @Pattern(message = "Should start with HC1:", regexp = "^HC1.*")
   @JsonProperty("hcertPrefix")
   private String hcertPrefix;

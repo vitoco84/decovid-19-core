@@ -24,14 +24,14 @@ public class HcertDTO {
   /**
    * Holder date of birth.
    */
-  @NotBlank(message = "Must not be blank")
-  @Pattern(message = "Date format should be YYYY-MM-DD" , regexp = "^\\d{4}-\\d{2}-\\d{2}$")
+  @NotBlank
+  @Pattern(message = "Date format should be YYYY-MM-DD", regexp = "^\\d{4}-\\d{2}-\\d{2}$")
   @JsonProperty("dob")
   private String dateOfBirth;
   /**
    * Health Certificate version information.
    */
-  @NotBlank(message = "Must not be blank")
+  @NotBlank
   @JsonProperty("ver")
   private String version;
 

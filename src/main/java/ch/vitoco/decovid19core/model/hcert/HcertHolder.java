@@ -16,25 +16,25 @@ public class HcertHolder {
   /**
    * Holder surname.
    */
-  @NotBlank(message = "Must not be blank")
+  @NotBlank
   @JsonProperty("fn")
   private String surname;
   /**
    * Holder standardised surname.
    */
-  @NotBlank(message = "Must not be blank")
+  @NotBlank
   @JsonProperty("fnt")
   private String standardSurname;
   /**
    * Holder forename.
    */
-  @NotBlank(message = "Must not be blank")
+  @NotBlank
   @JsonProperty("gn")
   private String forename;
   /**
    * Holder standardised forename.
    */
-  @NotBlank(message = "Must not be blank")
+  @NotBlank
   @JsonProperty("gnt")
   private String standardForename;
 
