@@ -2,6 +2,8 @@ package ch.vitoco.decovid19core.controller;
 
 import java.awt.image.BufferedImage;
 
+import javax.validation.Valid;
+
 import ch.vitoco.decovid19core.exception.ServerException;
 import ch.vitoco.decovid19core.model.hcert.HcertContentDTO;
 import ch.vitoco.decovid19core.server.*;
@@ -49,7 +51,7 @@ public class Decovid19Controller {
           @Content(mediaType = "application/json", schema = @Schema(implementation = ServerException.class))})})
   @PostMapping(value = "/hcert/prefix", consumes = {MediaType.APPLICATION_JSON_VALUE, "application/json"}, produces = {
       MediaType.APPLICATION_JSON_VALUE, "application/json"})
-  public ResponseEntity<HcertServerResponse> decodeHealthCertificateContent(@RequestBody HcertServerRequest hcert) {
+  public ResponseEntity<HcertServerResponse> decodeHealthCertificateContent(@Valid @RequestBody HcertServerRequest hcert) {
     return hcertService.decodeHealthCertificateContent(hcert);
   }
 
@@ -60,7 +62,7 @@ public class Decovid19Controller {
       @ApiResponse(responseCode = "500", description = "Server Exception", content = {
           @Content(mediaType = "application/json", schema = @Schema(implementation = ServerException.class))})})
   @PostMapping(value = "/hcert/qrcode/url", produces = {MediaType.IMAGE_PNG_VALUE})
-  public ResponseEntity<BufferedImage> createURLQRCode(@RequestBody QRCodeServerRequest url) {
+  public ResponseEntity<BufferedImage> createURLQRCode(@Valid @RequestBody QRCodeServerRequest url) {
     return qrCodeGeneratorService.createURLQRCode(url);
   }
 
@@ -71,7 +73,7 @@ public class Decovid19Controller {
       @ApiResponse(responseCode = "500", description = "Server Exception", content = {
           @Content(mediaType = "application/json", schema = @Schema(implementation = ServerException.class))})})
   @PostMapping(value = "/hcert/qrcode/hcert", produces = {MediaType.IMAGE_PNG_VALUE})
-  public ResponseEntity<BufferedImage> createTestCovidQRCode(@RequestBody HcertContentDTO hcertContentDTO) {
+  public ResponseEntity<BufferedImage> createTestCovidQRCode(@Valid @RequestBody HcertContentDTO hcertContentDTO) {
     return qrCodeGeneratorService.createTestCovidQRCode(hcertContentDTO);
   }
 
@@ -83,7 +85,7 @@ public class Decovid19Controller {
           @Content(mediaType = "application/json", schema = @Schema(implementation = ServerException.class))})})
   @PostMapping(value = "/hcert/qrcode/pem", consumes = {MediaType.APPLICATION_JSON_VALUE,
       "application/json"}, produces = {MediaType.APPLICATION_JSON_VALUE, "application/json"})
-  public ResponseEntity<PEMCertServerResponse> decodeX509Certificate(@RequestBody PEMCertServerRequest pemCertificate) {
+  public ResponseEntity<PEMCertServerResponse> decodeX509Certificate(@Valid @RequestBody PEMCertServerRequest pemCertificate) {
     return hcertService.decodeX509Certificate(pemCertificate);
   }
 
@@ -96,7 +98,7 @@ public class Decovid19Controller {
           @Content(mediaType = "application/json", schema = @Schema(implementation = ServerException.class))})})
   @PostMapping(value = "/hcert/verify", consumes = {MediaType.APPLICATION_JSON_VALUE, "application/json"}, produces = {
       MediaType.APPLICATION_JSON_VALUE, "application/json"})
-  public ResponseEntity<HcertVerificationServerResponse> verifyHealthCertificate(@RequestBody HcertVerificationServerRequest hcertVerificationServerRequest) {
+  public ResponseEntity<HcertVerificationServerResponse> verifyHealthCertificate(@Valid @RequestBody HcertVerificationServerRequest hcertVerificationServerRequest) {
     return hcertVerificationService.verifyHealthCertificate(hcertVerificationServerRequest);
   }
 

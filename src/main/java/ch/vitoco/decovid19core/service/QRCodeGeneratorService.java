@@ -55,7 +55,7 @@ public class QRCodeGeneratorService {
    * @return BufferedImage
    */
   public ResponseEntity<BufferedImage> createURLQRCode(QRCodeServerRequest url) {
-    if (isValidURL(url.getUrl())) {
+    if (isValidURL(url.getUrl()) && !url.getUrl().isBlank()) {
       try {
         BitMatrix bitMatrix = new MultiFormatWriter().encode(
             new String(url.getUrl().getBytes(), StandardCharsets.UTF_8), BarcodeFormat.QR_CODE, IMG_WIDTH_HEIGHT,
