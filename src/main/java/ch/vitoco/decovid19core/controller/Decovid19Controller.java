@@ -5,11 +5,12 @@ import java.awt.image.BufferedImage;
 
 import ch.vitoco.decovid19core.exception.ServerException;
 import ch.vitoco.decovid19core.model.hcert.HcertContentDTO;
-import ch.vitoco.decovid19core.validation.ValidFile;
 import ch.vitoco.decovid19core.server.*;
 import ch.vitoco.decovid19core.service.HcertService;
 import ch.vitoco.decovid19core.service.HcertVerificationService;
 import ch.vitoco.decovid19core.service.QRCodeGeneratorService;
+import ch.vitoco.decovid19core.validation.ValidFile;
+import ch.vitoco.decovid19core.validation.ValidationError;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -36,7 +37,8 @@ public class Decovid19Controller {
   @Operation(summary = "Decode Covid-19 Health Certificate with QR-Code")
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Decoded Covid-19 HCERT", content = {
       @Content(mediaType = "application/json", schema = @Schema(implementation = HcertServerResponse.class))}),
-      @ApiResponse(responseCode = "400", description = "Invalid QR-Code supplied", content = @Content),
+      @ApiResponse(responseCode = "400", description = "Invalid QR-Code supplied", content = {
+          @Content(mediaType = "application/json", schema = @Schema(implementation = ValidationError.class))}),
       @ApiResponse(responseCode = "500", description = "Server Exception", content = {
           @Content(mediaType = "application/json", schema = @Schema(implementation = ServerException.class))})})
   @PostMapping(value = "/hcert/qrcode", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}, produces = {
@@ -48,7 +50,8 @@ public class Decovid19Controller {
   @Operation(summary = "Decode Covid-19 Health Certificate with Prefix String 'HC1:'")
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Decoded Covid-19 HCERT", content = {
       @Content(mediaType = "application/json", schema = @Schema(implementation = HcertServerResponse.class))}),
-      @ApiResponse(responseCode = "400", description = "Invalid String supplied", content = @Content),
+      @ApiResponse(responseCode = "400", description = "Invalid Health Certificate Prefix supplied", content = {
+          @Content(mediaType = "application/json", schema = @Schema(implementation = ValidationError.class))}),
       @ApiResponse(responseCode = "500", description = "Server Exception", content = {
           @Content(mediaType = "application/json", schema = @Schema(implementation = ServerException.class))})})
   @PostMapping(value = "/hcert/prefix", consumes = {MediaType.APPLICATION_JSON_VALUE, "application/json"}, produces = {
@@ -60,21 +63,38 @@ public class Decovid19Controller {
   @Operation(summary = "URL QR-Code Generator")
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "URL QR-Code", content = {
       @Content(mediaType = "image/png", schema = @Schema(implementation = BufferedImage.class))}),
-      @ApiResponse(responseCode = "400", description = "Invalid URL supplied", content = @Content),
+      @ApiResponse(responseCode = "400", description = "Invalid URL supplied", content = {
+          @Content(mediaType = "application/json", schema = @Schema(implementation = ValidationError.class))}),
       @ApiResponse(responseCode = "500", description = "Server Exception", content = {
           @Content(mediaType = "application/json", schema = @Schema(implementation = ServerException.class))})})
-  @PostMapping(value = "/hcert/qrcode/url", produces = {MediaType.IMAGE_PNG_VALUE})
-  public ResponseEntity<BufferedImage> createURLQRCode(@Valid @RequestBody QRCodeServerRequest url) {
-    return qrCodeGeneratorService.createURLQRCode(url);
+  @PostMapping(value = "/hcert/qrcode/url", consumes = {MediaType.APPLICATION_JSON_VALUE,
+      "application/json"}, produces = {MediaType.IMAGE_PNG_VALUE})
+  public ResponseEntity<BufferedImage> createURLQRCodeImage(@Valid @RequestBody QRCodeServerRequest url) {
+    return qrCodeGeneratorService.createURLQRCodeImage(url);
+  }
+
+  @Operation(summary = "URL QR-Code Generator")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "URL QR-Code", content = {
+      @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class))}),
+      @ApiResponse(responseCode = "400", description = "Invalid URL supplied", content = {
+          @Content(mediaType = "application/json", schema = @Schema(implementation = ValidationError.class))}),
+      @ApiResponse(responseCode = "500", description = "Server Exception", content = {
+          @Content(mediaType = "application/json", schema = @Schema(implementation = ServerException.class))})})
+  @PostMapping(value = "/hcert/qrcode/url/client", consumes = {MediaType.APPLICATION_JSON_VALUE,
+      "application/json"}, produces = {MediaType.TEXT_PLAIN_VALUE})
+  public ResponseEntity<String> createURLQRCodeBase64String(@Valid @RequestBody QRCodeServerRequest url) {
+    return qrCodeGeneratorService.createURLQRCodeBase64String(url);
   }
 
   @Operation(summary = "Fake Covid Test Certificate QR-Code Generator")
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "URL QR-Code", content = {
       @Content(mediaType = "image/png", schema = @Schema(implementation = BufferedImage.class))}),
-      @ApiResponse(responseCode = "400", description = "Invalid JSON supplied", content = @Content),
+      @ApiResponse(responseCode = "400", description = "Invalid JSON supplied", content = {
+          @Content(mediaType = "application/json", schema = @Schema(implementation = ValidationError.class))}),
       @ApiResponse(responseCode = "500", description = "Server Exception", content = {
           @Content(mediaType = "application/json", schema = @Schema(implementation = ServerException.class))})})
-  @PostMapping(value = "/hcert/qrcode/hcert", produces = {MediaType.IMAGE_PNG_VALUE})
+  @PostMapping(value = "/hcert/qrcode/hcert", consumes = {MediaType.APPLICATION_JSON_VALUE,
+      "application/json"}, produces = {MediaType.IMAGE_PNG_VALUE})
   public ResponseEntity<BufferedImage> createTestCovidQRCode(@Valid @RequestBody HcertContentDTO hcertContentDTO) {
     return qrCodeGeneratorService.createTestCovidQRCode(hcertContentDTO);
   }
@@ -82,7 +102,8 @@ public class Decovid19Controller {
   @Operation(summary = "Decode PEM Data")
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Decode PEM Data", content = {
       @Content(mediaType = "application/json", schema = @Schema(implementation = PEMCertServerResponse.class))}),
-      @ApiResponse(responseCode = "400", description = "Invalid PEM data supplied", content = @Content),
+      @ApiResponse(responseCode = "400", description = "Invalid PEM supplied", content = {
+          @Content(mediaType = "application/json", schema = @Schema(implementation = ValidationError.class))}),
       @ApiResponse(responseCode = "500", description = "Server Exception", content = {
           @Content(mediaType = "application/json", schema = @Schema(implementation = ServerException.class))})})
   @PostMapping(value = "/hcert/qrcode/pem", consumes = {MediaType.APPLICATION_JSON_VALUE,
@@ -95,7 +116,8 @@ public class Decovid19Controller {
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Verification of the Health Certificate", content = {
           @Content(mediaType = "application/json", schema = @Schema(implementation = HcertVerificationServerResponse.class))}),
-      @ApiResponse(responseCode = "400", description = "Invalid PEM data supplied", content = @Content),
+      @ApiResponse(responseCode = "400", description = "Invalid Health Certificate supplied", content = {
+          @Content(mediaType = "application/json", schema = @Schema(implementation = ValidationError.class))}),
       @ApiResponse(responseCode = "500", description = "Server Exception", content = {
           @Content(mediaType = "application/json", schema = @Schema(implementation = ServerException.class))})})
   @PostMapping(value = "/hcert/verify", consumes = {MediaType.APPLICATION_JSON_VALUE, "application/json"}, produces = {

@@ -99,7 +99,8 @@ generateTypeScript {
             'ch.vitoco.decovid19core.server.PEMCertServerResponse',
             'ch.vitoco.decovid19core.server.HcertVerificationServerRequest',
             'ch.vitoco.decovid19core.server.HcertVerificationServerResponse',
-            'ch.vitoco.decovid19core.server.ValidationErrorServerResponse'
+            'ch.vitoco.decovid19core.server.ValidationErrorServerResponse',
+            'ch.vitoco.decovid19core.server.QRCodeServerRequest'
     ]
     outputFile = 'build/generated/decovid19client-communication.ts'
     outputFileType = 'implementationFile'

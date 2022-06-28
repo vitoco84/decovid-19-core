@@ -104,6 +104,15 @@ class Decovid19ControllerTest {
   }
 
   @Test
+  void shouldReturnOkResonseForValidUrlForClient() throws Exception {
+    String mockContent = "{\"url\": \"https://www.google.ch/\"}";
+
+    mockMvc.perform(MockMvcRequestBuilders.post("/decovid19/hcert/qrcode/url/client")
+        .content(mockContent)
+        .contentType(MediaType.APPLICATION_JSON_VALUE)).andExpect(MockMvcResultMatchers.status().isOk());
+  }
+
+  @Test
   void shouldReturnBadRequestForWrongPEMPrefix() throws Exception {
     String mockContent = "{\"pemCertificate\": \"foobar\"}";
 

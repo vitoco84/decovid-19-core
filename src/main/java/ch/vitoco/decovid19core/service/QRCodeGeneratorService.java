@@ -2,6 +2,7 @@ package ch.vitoco.decovid19core.service;
 
 import static ch.vitoco.decovid19core.constants.ExceptionMessages.*;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -28,6 +29,7 @@ import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.upokecenter.cbor.CBORObject;
 import nl.minvws.encoding.Base45;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.compress.compressors.CompressorOutputStream;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
@@ -41,6 +43,7 @@ import org.springframework.stereotype.Service;
 public class QRCodeGeneratorService {
 
   private static final int IMG_WIDTH_HEIGHT = 250;
+  private static final String IMG_PNG = "png";
   private static final long ONE_YEAR = 365L;
   private static final int FIRST_ENTRY_HCERT_TEST_LIST = 0;
   private static final String HCERT_HEADER = "HC1:";
@@ -54,7 +57,7 @@ public class QRCodeGeneratorService {
    * @param url the QRCodeServerRequest
    * @return BufferedImage
    */
-  public ResponseEntity<BufferedImage> createURLQRCode(QRCodeServerRequest url) {
+  public ResponseEntity<BufferedImage> createURLQRCodeImage(QRCodeServerRequest url) {
     if (isValidURL(url.getUrl()) && !url.getUrl().isBlank()) {
       try {
         BitMatrix bitMatrix = new MultiFormatWriter().encode(
@@ -66,6 +69,21 @@ public class QRCodeGeneratorService {
       }
     } else {
       return ResponseEntity.badRequest().build();
+    }
+  }
+
+  public ResponseEntity<String> createURLQRCodeBase64String(QRCodeServerRequest url) {
+    BufferedImage img = createURLQRCodeImage(url).getBody();
+    if (img == null) {
+      return ResponseEntity.badRequest().build();
+    } else {
+      try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+        ImageIO.write(img, IMG_PNG, os);
+        String encodedImage = Base64.encodeBase64String(os.toByteArray());
+        return ResponseEntity.ok().body(encodedImage);
+      } catch (IOException e) {
+        throw new ServerException(URL_ENCODE_EXCEPTION, e);
+      }
     }
   }
 

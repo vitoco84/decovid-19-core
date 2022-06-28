@@ -22,11 +22,11 @@ class QRCodeGeneratorServiceTest {
   private final QRCodeGeneratorService qrCodeGeneratorService = new QRCodeGeneratorService();
 
   @Test
-  void shouldGenerateURLQRCode() {
+  void shouldGenerateURLQRCodeAsBufferedImage() {
     QRCodeServerRequest qrCodeServerRequest = new QRCodeServerRequest();
     qrCodeServerRequest.setUrl(URL_VALID);
 
-    ResponseEntity<BufferedImage> bufferedImageResponseEntity = qrCodeGeneratorService.createURLQRCode(
+    ResponseEntity<BufferedImage> bufferedImageResponseEntity = qrCodeGeneratorService.createURLQRCodeImage(
         qrCodeServerRequest);
     HttpStatus statusCode = bufferedImageResponseEntity.getStatusCode();
     BufferedImage bufferedImage = bufferedImageResponseEntity.getBody();
@@ -37,11 +37,26 @@ class QRCodeGeneratorServiceTest {
   }
 
   @Test
+  void shouldGenerateURLQRCodeAsString() {
+    QRCodeServerRequest qrCodeServerRequest = new QRCodeServerRequest();
+    qrCodeServerRequest.setUrl(URL_VALID);
+
+    ResponseEntity<String> urlqrCodeClient = qrCodeGeneratorService.createURLQRCodeBase64String(qrCodeServerRequest);
+    HttpStatus statusCode = urlqrCodeClient.getStatusCode();
+    String actualBody = urlqrCodeClient.getBody();
+
+    String expectedBody = "iVBORw0KGgoAAAANSUhEUgAAAPoAAAD6AQAAAACgl2eQAAABRUlEQVR4Xu2XMQ7CMAxFXXVg5Ag9So/WHI2j9AgdGaoaf/9EgoIYkfjKXxw7b6lt7GD+XTc7R07qANUBqgNUB6ifAXeDRt/MljC+pn+VA3A+xvRh1rkFxYD48oN5OCIB61xslAVgFtRZHpjLAE8V8OzqzWbHzYeulgAMYh5YdUgOaNomL77zpkoJuNvkbnaJcpcwEYnm1gMiAXHYL1g1R3DhkdMCWh9b3Ax7noZadSnAYjiRw2INbsFElgOYB3Q1PRo5gF/ujsW6Zx7Q43IA8pC/2nA+drUKgPdRbhzOqOX8TNIAHCGWGz9lvA1xoQVU5X7lcCotpgQ8vwZr8TM5agDOeO1G1fGH9D0PIsDKPo7FWmcUOVWAj14s1vMoVgJCGFVpXrtaA/Da1Z6jeEJYEDBoTJNAm8hawBd1gOoA1QGqA9R/AA8qoCkHXcmkggAAAABJRU5ErkJggg==";
+
+    assertEquals(HttpStatus.OK, statusCode);
+    assertEquals(expectedBody, actualBody);
+  }
+
+  @Test
   void shouldReturnBadRequestForInvalidURL() {
     QRCodeServerRequest qrCodeServerRequest = new QRCodeServerRequest();
     qrCodeServerRequest.setUrl(URL_INVALID);
 
-    ResponseEntity<BufferedImage> bufferedImageResponseEntity = qrCodeGeneratorService.createURLQRCode(
+    ResponseEntity<BufferedImage> bufferedImageResponseEntity = qrCodeGeneratorService.createURLQRCodeImage(
         qrCodeServerRequest);
     HttpStatus statusCode = bufferedImageResponseEntity.getStatusCode();
 

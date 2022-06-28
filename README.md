@@ -123,15 +123,23 @@
 > }
 > ```
 > ## Example QRCodeServerRequest
-> POST [http://localhost:8082/decovid19/hcert/qrcode/url](http://localhost:8082/decovid19/hcert/qrcode/url)
+> Image POST [http://localhost:8082/decovid19/hcert/qrcode/url](http://localhost:8082/decovid19/hcert/qrcode/url)
+>
+> Base64 encoded String POST [http://localhost:8082/decovid19/hcert/qrcode/url/client](http://localhost:8082/decovid19/hcert/qrcode/url/client)
 > ```yaml
 > {
 >    "url": "https://www.google.ch/"
 > }
 > ```
 > ## Example QRCodeServerResponse
+> Image
+> 
 > ![Google URL](src/main/resources/images/QRCodeServerResponse.png)
 > 
+> Base64 encoded String
+> ```yaml
+> iVBORw0KGgoAAAANSUhEUgAAAPoAAAD6AQAAAACgl2eQAAABRUlEQVR4Xu2XMQ7CMAxFXXVg5Ag9So/WHI2j9AgdGaoaf/9EgoIYkfjKXxw7b6lt7GD+XTc7R07qANUBqgNUB6ifAXeDRt/MljC+pn+VA3A+xvRh1rkFxYD48oN5OCIB61xslAVgFtRZHpjLAE8V8OzqzWbHzYeulgAMYh5YdUgOaNomL77zpkoJuNvkbnaJcpcwEYnm1gMiAXHYL1g1R3DhkdMCWh9b3Ax7noZadSnAYjiRw2INbsFElgOYB3Q1PRo5gF/ujsW6Zx7Q43IA8pC/2nA+drUKgPdRbhzOqOX8TNIAHCGWGz9lvA1xoQVU5X7lcCotpgQ8vwZr8TM5agDOeO1G1fGH9D0PIsDKPo7FWmcUOVWAj14s1vMoVgJCGFVpXrtaA/Da1Z6jeEJYEDBoTJNAm8hawBd1gOoA1QGqA9R/AA8qoCkHXcmkggAAAABJRU5ErkJggg==
+>```
 > ## Example Generate Fake Covid-19 Test Health Certificate Request
 > This is only used for test purposes. No real digital signature is present in it.
 > 
