@@ -21,5 +21,10 @@ public class HcertTimeStampDTO {
    */
   @JsonProperty("hcertIssuedAtTime")
   private String hcertIssuedAtTime;
+  /**
+   * Health Certificate Expired.
+   */
+  @JsonProperty("isHcertExpired")
+  private boolean isHcertExpired;
 
 }

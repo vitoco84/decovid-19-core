@@ -181,6 +181,7 @@ public class HcertDecodingService {
     HcertTimeStampDTO hcertTimeStampDTO = new HcertTimeStampDTO();
     hcertTimeStampDTO.setHcertExpirationTime(Instant.ofEpochSecond(expirationTimeStamp).toString());
     hcertTimeStampDTO.setHcertIssuedAtTime(Instant.ofEpochSecond(issuedAtTimeStamp).toString());
+    hcertTimeStampDTO.setHcertExpired(Instant.ofEpochSecond(expirationTimeStamp).isBefore(Instant.now()));
     return hcertTimeStampDTO;
   }
 

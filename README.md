@@ -90,7 +90,8 @@
 >     "hcertIssuer": "CH BAG",
 >     "hcertTimeStamp": {
 >         "hcerExpirationTime": "2022-05-29T07:55:08Z",
->         "hcertIssuedAtTime": "2021-05-29T07:55:08Z"
+>         "hcertIssuedAtTime": "2021-05-29T07:55:08Z",
+>         "isHcertExpired": true
 >     },
 >     "hcertSignature": "Fqzo50TBt9un8CakzKb/gXIUOVXPWBUQ0OrKD2BBXi2QEJHYmByWdl/fyreCJalXbkNfDGVXxJ5g0vk4h+khCFQCrYAX1fIRBFgMZQAX2juzM7dGZKwIJOLcZifX75ekbEvrcgWxWCUE1Ucc2OXsu6PitnOV/f5jaDVWugB3KomsrDSPi/O9SSraWgHDaINfAZ8xjXfoQ+wUdHjQYipuwVqThOzz0QKlpXUZFjmQqVHvym+raiWMN4j+2xfqElGCf0jmbUNSixm3mCtkRquoTkmdcCfmECnE/mLVnnRmFzjvj9yB8OVvFT56kSrIrfcABGZapc+Z0r6Cbnrm/ytJfA=="
 > }

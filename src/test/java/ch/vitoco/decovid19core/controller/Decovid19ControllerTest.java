@@ -204,6 +204,7 @@ class Decovid19ControllerTest {
     HcertTimeStampDTO hcertTimeStampDTO = new HcertTimeStampDTO();
     hcertTimeStampDTO.setHcertExpirationTime("2022-05-29T07:55:08Z");
     hcertTimeStampDTO.setHcertIssuedAtTime("2021-05-29T07:55:08Z");
+    hcertTimeStampDTO.setHcertExpired(true);
 
     HcertHolder hcertHolder = new HcertHolder();
     hcertHolder.setForename("Céline");
