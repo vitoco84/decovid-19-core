@@ -143,7 +143,9 @@
 > ## Example Generate Fake Covid-19 Test Health Certificate Request
 > This is only used for test purposes. No real digital signature is present in it.
 > 
-> POST [http://localhost:8082/decovid19/hcert/qrcode/hcert](http://localhost:8082/decovid19/hcert/qrcode/hcert)
+> Image POST [http://localhost:8082/decovid19/hcert/qrcode/hcert](http://localhost:8082/decovid19/hcert/qrcode/hcert)
+> 
+> Base64 encoded String POST [http://localhost:8082/decovid19/hcert/qrcode/hcert/client](http://localhost:8082/decovid19/hcert/qrcode/hcert/clientt)
 > ```yaml
 > {
 >   "nam": {
@@ -170,8 +172,14 @@
 > }
 > ```
 > ## Example QRCodeServerResponse
+> Image
+> 
 > ![Fake QR-Code Test](src/main/resources/images/FakeQRCodeTestServerResponse.png)
 > 
+> Base64 encoded String
+> ```yaml
+> iVBORw0KGgoAAAANSUhEUgAAAPoAAAD6AQAAAACgl2eQAAAFRUlEQVR4Xu2YQYrrOhBFy2jgWbIBg7bhmbaUbCC2N5BsSTNvw6AN2DMNhPVPJR2n33vw4CPx4UObENL2bVQq3bp1y5L/fnn5/c5v1w/gdf0AXtd/BIgifTr7pfHd2cuplZOYu+NbztUAeXd2FzvK0syLSHeN9pG5mR/VAMvJhd11N+5EwjA5plsb9t5UBUiT5RrlPC/D3A3REti9MsA85u46h7tIE81d8upCVYAmbRWzOzlHskcMy0XCr6kuBMAHVvzj8wth/nj6rwBcMYx9d5M0xDy65ey7S/uN1eWA2J3IZA5rn6cozZzOWS69KD2qAfS8rhnKyamXiywnyXsPvZd3HooBrNjazYu48JjDxNn1Zu+TSPiKoRxAsWQDTJxdXUdtNjPlr5EcmSwGEEN4UDXRrAITzNimm9iHD9UAOWwxSQ8yXZxm9eS6YYYY3VAL8KSZ9PbeKzFGSc2cdb/95zSLAdAsPHySNkyzaADerq39XpvFgHRzyAuqReHLNScAm7d7e8RQDMhm8t2tpdiXJnJAdhUURhqvml8HQG22Fp28OHNvEWQ2iLyYTAurBdCll/NM9swWaY5mgh6cmkZVCRC1Kje/aMMVg85sSEFrR/ehfTGA0wnZax8hdXcH9+wj8v3hQykgL6fW7K3chA9tl0fUkcZQD2CzT1ciiemqwcgQeSTnD2HKAUgiO1XKiUPwkTKjDWs+WF0MYOnZ3oVIwtgGWHdDx5wMH1aXA8wuYeW+khkkpbrQWeTZGesAcqIMtzlRj8jLBRroeYWs/bEWgNWRlLASgBPUeMQ69tgh+46hHLBcUWPJ2xx2bSUmz7SYvDtTDRDp49CYes9jD9kSmr86wdq9D6sYAKtnjBzCwt92bJcmp/Ns1vaozWJAxLQr2ZB36em/pBHi0eUPESsHQICFzv6AFfz2JJPmwp1DxMoBEEwVhgAuZJIiolvpzaNwygFsjXoMq3rRPJFDbs4qle8YigFPhWnUC+k3HhuFHFF7fVQLQM8yVAqAQVshXggdg4ff22IZgKpBT3QGgXt2hRJ47JYWcOhkBUCe8+QXaXFZ3XPMec0IMlQDqMLcndk8OoaRWNgvq2+QsBaA9sQY2LOuatepX77EPx8dpxjwdLx7j5F72UVi6JD6b+VfDtAXC8J9taC0kuXSU6Rh8vaLchUAahvuauRUwQafmszgn6imz2GVAvAMDAgcVni696BI2v18nGY5ALLxCH+i8/iGQSWrmZQeIlYMyFgFJgJ67oLXatRmUziE8RaxCgB6B8KIziBlVJAQzDWqza4GiJSJUcPgw+7UqKwqwsjOcVjFgGx3dSbcgczosN1ywmuR4XdllQNo4mbK3VXpzSOkGOul7ut9WMWAKMzgz6NZ9D2JYnSz/Fc1QMZl6RjI6hspdXaKOoYgBUceSgGRpbsbB4RR6Wm7aCbxwL30dVgVADoAUpt3R9V3mslWZU0ZUguQUTAYzdyx3J5SNjod0u/t4eWKAREXh+DbXV8fUUFdE7WFDR8/WQ4Io74rxgKhMEw39uHVRWCA35ksB7BT/kS1cD464DCki2Nw+/iHYkA6Pd8mQeYrq4tOIoP++LTFUkBW1p2YYfUtrr6Rpm3BB2zq1zbLATr763R5a7X2aV44eR3Z+q4eIO+MUfPTzkFmnQ6oIDb+ntQqAHSPkxoV+KZvQZH6gfOSzxhVA0BPoTDJXtBJymfs1jXbmgDdJlO/ToKr6AuTyedNJboWAJdFsadm1oY7sTDzsk/PFl8LoJXIjADTEBnpu/PTSACrBvjr9QN4XT+A1/X/APwDkqL7E7sG3tkAAAAASUVORK5CYII=
+>```
 > ## Example HcertVerificationServerRequest
 > Leave Bearer Token empty for verifying EU Certificates.
 > 

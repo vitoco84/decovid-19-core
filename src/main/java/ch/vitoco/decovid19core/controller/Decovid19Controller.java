@@ -87,7 +87,7 @@ public class Decovid19Controller {
   }
 
   @Operation(summary = "Fake Covid Test Certificate QR-Code Generator")
-  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "URL QR-Code", content = {
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Health Test Certificate QR-Code", content = {
       @Content(mediaType = "image/png", schema = @Schema(implementation = BufferedImage.class))}),
       @ApiResponse(responseCode = "400", description = "Invalid JSON supplied", content = {
           @Content(mediaType = "application/json", schema = @Schema(implementation = ValidationError.class))}),
@@ -95,8 +95,21 @@ public class Decovid19Controller {
           @Content(mediaType = "application/json", schema = @Schema(implementation = ServerException.class))})})
   @PostMapping(value = "/hcert/qrcode/hcert", consumes = {MediaType.APPLICATION_JSON_VALUE,
       "application/json"}, produces = {MediaType.IMAGE_PNG_VALUE})
-  public ResponseEntity<BufferedImage> createTestCovidQRCode(@Valid @RequestBody HcertContentDTO hcertContentDTO) {
-    return qrCodeGeneratorService.createTestCovidQRCode(hcertContentDTO);
+  public ResponseEntity<BufferedImage> createTestCovidQRCodeImage(@Valid @RequestBody HcertContentDTO hcertContentDTO) {
+    return qrCodeGeneratorService.createTestCovidQRCodeImage(hcertContentDTO);
+  }
+
+  @Operation(summary = "Fake Covid Test Certificate QR-Code Generator")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Health Test Certificate QR-Code", content = {
+      @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class))}),
+      @ApiResponse(responseCode = "400", description = "Invalid JSON supplied", content = {
+          @Content(mediaType = "application/json", schema = @Schema(implementation = ValidationError.class))}),
+      @ApiResponse(responseCode = "500", description = "Server Exception", content = {
+          @Content(mediaType = "application/json", schema = @Schema(implementation = ServerException.class))})})
+  @PostMapping(value = "/hcert/qrcode/hcert/client", consumes = {MediaType.APPLICATION_JSON_VALUE,
+      "application/json"}, produces = {MediaType.TEXT_PLAIN_VALUE})
+  public ResponseEntity<String> createTestCovidQRCodeBase64String(@Valid @RequestBody HcertContentDTO hcertContentDTO) {
+    return qrCodeGeneratorService.createTestCovidQRCodeBase64String(hcertContentDTO);
   }
 
   @Operation(summary = "Decode PEM Data")

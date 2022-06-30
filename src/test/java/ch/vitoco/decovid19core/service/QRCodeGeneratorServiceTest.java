@@ -37,7 +37,7 @@ class QRCodeGeneratorServiceTest {
   }
 
   @Test
-  void shouldGenerateURLQRCodeAsString() {
+  void shouldGenerateURLQRCodeAsBase64String() {
     QRCodeServerRequest qrCodeServerRequest = new QRCodeServerRequest();
     qrCodeServerRequest.setUrl(URL_VALID);
 
@@ -64,23 +64,44 @@ class QRCodeGeneratorServiceTest {
   }
 
   @Test
-  void shouldGenerateFakeHcertQRCode() {
+  void shouldGenerateFakeTestHcertQRCodeAsBufferedImage() {
+    HcertContentDTO hcertContentDTO = buildHcertContentDTO();
+
+    ResponseEntity<BufferedImage> bufferedImageResponseEntity = qrCodeGeneratorService.createTestCovidQRCodeImage(
+        hcertContentDTO);
+
+    assertEquals(HttpStatus.OK, bufferedImageResponseEntity.getStatusCode());
+    assertEquals(IMG_WIDTH_HEIGHT, bufferedImageResponseEntity.getBody().getHeight());
+    assertEquals(IMG_WIDTH_HEIGHT, bufferedImageResponseEntity.getBody().getWidth());
+  }
+
+  @Test
+  void shouldGenerateFakeTestHcertQRCodeAsBase64String() {
+    HcertContentDTO hcertContentDTO = buildHcertContentDTO();
+
+    ResponseEntity<String> testCovidQRCodeBase64String = qrCodeGeneratorService.createTestCovidQRCodeBase64String(
+        hcertContentDTO);
+
+    assertEquals(HttpStatus.OK, testCovidQRCodeBase64String.getStatusCode());
+  }
+
+  private HcertContentDTO buildHcertContentDTO() {
     HcertHolder hcertHolder = new HcertHolder();
     hcertHolder.setSurname("Uncle");
-    hcertHolder.setForename("Bob");
     hcertHolder.setStandardSurname("UNCLE");
+    hcertHolder.setForename("Bob");
     hcertHolder.setStandardForename("BOB");
 
     HcertTest hcertTest = new HcertTest();
     hcertTest.setTarget("COVID-19");
-    hcertTest.setTypeOfTest("Test");
-    hcertTest.setNucleicAcidAmplName("Test Name");
-    hcertTest.setTestDeviceManufacturer("Test Identifier");
-    hcertTest.setSampleCollectionDate("2021-04-30");
-    hcertTest.setTestResult("Not Detected");
-    hcertTest.setTestingCentre("Testing Centre");
     hcertTest.setCountry("Switzerland");
-    hcertTest.setIssuer("BAG");
+    hcertTest.setTypeOfTest("Rapid Test");
+    hcertTest.setNucleicAcidAmplName("COVID-19");
+    hcertTest.setTestDeviceManufacturer("COVID-19 Test");
+    hcertTest.setSampleCollectionDate("2021-04-30");
+    hcertTest.setTestResult("Not detected");
+    hcertTest.setTestingCentre("Test Center");
+    hcertTest.setIssuer("Bundesamt für Gesundheit (BAG)");
 
     HcertContentDTO hcertContentDTO = new HcertContentDTO();
     hcertContentDTO.setDateOfBirth("1943-02-01");
@@ -88,12 +109,7 @@ class QRCodeGeneratorServiceTest {
     hcertContentDTO.setName(hcertHolder);
     hcertContentDTO.setTest(List.of(hcertTest));
 
-    ResponseEntity<BufferedImage> bufferedImageResponseEntity = qrCodeGeneratorService.createTestCovidQRCode(
-        hcertContentDTO);
-
-    assertEquals(HttpStatus.OK, bufferedImageResponseEntity.getStatusCode());
-    assertEquals(IMG_WIDTH_HEIGHT, bufferedImageResponseEntity.getBody().getHeight());
-    assertEquals(IMG_WIDTH_HEIGHT, bufferedImageResponseEntity.getBody().getWidth());
+    return hcertContentDTO;
   }
 
 }

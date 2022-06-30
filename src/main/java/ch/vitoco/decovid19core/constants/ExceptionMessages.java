@@ -20,7 +20,7 @@ public final class ExceptionMessages {
   /**
    * HCERT encode exception message.
    */
-  public static final String QR_CODE_ENCODE_EXCEPTION = "The Health Certificate could not be encoded.";
+  public static final String QR_CODE_ENCODE_EXCEPTION = "The given content could not be encoded.";
   /**
    * COSE format exception message.
    */
@@ -41,10 +41,6 @@ public final class ExceptionMessages {
    * Resources read exception message.
    */
   public static final String RESOURCES_READ_EXCEPTION = "Could not read resources.";
-  /**
-   * URL encode exception message.
-   */
-  public static final String URL_ENCODE_EXCEPTION = "Could not encode the given URL.";
   /**
    * Private or Public Key exception message.
    */

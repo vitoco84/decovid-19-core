@@ -65,26 +65,22 @@ public class QRCodeGeneratorService {
             IMG_WIDTH_HEIGHT);
         return ResponseEntity.ok().body(MatrixToImageWriter.toBufferedImage(bitMatrix));
       } catch (WriterException e) {
-        throw new ServerException(URL_ENCODE_EXCEPTION, e);
+        throw new ServerException(QR_CODE_ENCODE_EXCEPTION, e);
       }
     } else {
       return ResponseEntity.badRequest().build();
     }
   }
 
+  /**
+   * Generates a QR-Code as Base64 String given a QRCodeServerRequest
+   *
+   * @param url the QRCodeServerRequest
+   * @return String
+   */
   public ResponseEntity<String> createURLQRCodeBase64String(QRCodeServerRequest url) {
     BufferedImage img = createURLQRCodeImage(url).getBody();
-    if (img == null) {
-      return ResponseEntity.badRequest().build();
-    } else {
-      try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-        ImageIO.write(img, IMG_PNG, os);
-        String encodedImage = Base64.encodeBase64String(os.toByteArray());
-        return ResponseEntity.ok().body(encodedImage);
-      } catch (IOException e) {
-        throw new ServerException(URL_ENCODE_EXCEPTION, e);
-      }
-    }
+    return convertBufferedImgToBase64String(img);
   }
 
   private boolean isValidURL(String url) {
@@ -97,12 +93,12 @@ public class QRCodeGeneratorService {
   }
 
   /**
-   * Generates a fake Covid Test Health Certificate given a HcertContentDTO.
+   * Generates a fake Covid Test Health Certificate (BufferedImage) given a HcertContentDTO.
    *
    * @param hcertContentDTO the HcertContentDTO
    * @return BufferedImage
    */
-  public ResponseEntity<BufferedImage> createTestCovidQRCode(HcertContentDTO hcertContentDTO) {
+  public ResponseEntity<BufferedImage> createTestCovidQRCodeImage(HcertContentDTO hcertContentDTO) {
     if (hcertContentDTO.getRecovery() == null && hcertContentDTO.getVaccination() == null) {
       byte[] cbor = getCBORBytes(hcertContentDTO);
       byte[] cose = getCOSESignatureBytes(cbor);
@@ -117,6 +113,31 @@ public class QRCodeGeneratorService {
       }
     } else {
       return ResponseEntity.badRequest().build();
+    }
+  }
+
+  /**
+   * Generates a fake Covid Test Health Certificate as Base64 String given a HcertContentDTO.
+   *
+   * @param hcertContentDTO the HcertContentDTO
+   * @return String
+   */
+  public ResponseEntity<String> createTestCovidQRCodeBase64String(HcertContentDTO hcertContentDTO) {
+    BufferedImage img = createTestCovidQRCodeImage(hcertContentDTO).getBody();
+    return convertBufferedImgToBase64String(img);
+  }
+
+  private ResponseEntity<String> convertBufferedImgToBase64String(BufferedImage img) {
+    if (img == null) {
+      return ResponseEntity.badRequest().build();
+    } else {
+      try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+        ImageIO.write(img, IMG_PNG, os);
+        String encodedImage = Base64.encodeBase64String(os.toByteArray());
+        return ResponseEntity.ok().body(encodedImage);
+      } catch (IOException e) {
+        throw new ServerException(QR_CODE_ENCODE_EXCEPTION, e);
+      }
     }
   }
 

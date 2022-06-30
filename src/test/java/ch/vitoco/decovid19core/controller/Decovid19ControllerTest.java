@@ -104,7 +104,7 @@ class Decovid19ControllerTest {
   }
 
   @Test
-  void shouldReturnOkResonseForValidUrlForClient() throws Exception {
+  void shouldReturnOkResponseForValidUrlForClient() throws Exception {
     String mockContent = "{\"url\": \"https://www.google.ch/\"}";
 
     mockMvc.perform(MockMvcRequestBuilders.post("/decovid19/hcert/qrcode/url/client")
@@ -170,6 +170,15 @@ class Decovid19ControllerTest {
     String mockContent = "{\"nam\":{\"fn\":\"Uncle\",\"fnt\":\"UNCLE\",\"gn\":\"Bob\",\"gnt\":\"BOB\"},\"dob\":\"1943-02-01\",\"ver\":\"1.0.0\",\"t\":[{\"tg\":\"COVID-19\",\"co\":\"Switzerland\",\"tt\":\"RapidTest\",\"nm\":\"COVID-19\",\"ma\":\"COVID-19Test\",\"sc\":\"2021-04-30\",\"tr\":\"Notdetected\",\"tc\":\"TestCenter\",\"is\":\"BundesamtfürGesundheit(BAG)\"}]}";
 
     mockMvc.perform(MockMvcRequestBuilders.post("/decovid19/hcert/qrcode/hcert")
+        .content(mockContent)
+        .contentType(MediaType.APPLICATION_JSON_VALUE)).andExpect(MockMvcResultMatchers.status().isOk());
+  }
+
+  @Test
+  void shouldReturnOkResponseForValidHcertContentDTOServerRequestForClient() throws Exception {
+    String mockContent = "{\"nam\":{\"fn\":\"Uncle\",\"fnt\":\"UNCLE\",\"gn\":\"Bob\",\"gnt\":\"BOB\"},\"dob\":\"1943-02-01\",\"ver\":\"1.0.0\",\"t\":[{\"tg\":\"COVID-19\",\"co\":\"Switzerland\",\"tt\":\"RapidTest\",\"nm\":\"COVID-19\",\"ma\":\"COVID-19Test\",\"sc\":\"2021-04-30\",\"tr\":\"Notdetected\",\"tc\":\"TestCenter\",\"is\":\"BundesamtfürGesundheit(BAG)\"}]}";
+
+    mockMvc.perform(MockMvcRequestBuilders.post("/decovid19/hcert/qrcode/hcert/client")
         .content(mockContent)
         .contentType(MediaType.APPLICATION_JSON_VALUE)).andExpect(MockMvcResultMatchers.status().isOk());
   }

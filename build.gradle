@@ -91,6 +91,7 @@ generateTypeScript {
     jsonLibrary = 'jackson2'
     classes = [
             'ch.vitoco.decovid19core.model.hcert.HcertDTO',
+            'ch.vitoco.decovid19core.model.hcert.HcertContentDTO',
             'ch.vitoco.decovid19core.model.hcert.HcertPublicKeyDTO',
             'ch.vitoco.decovid19core.model.hcert.HcertTimeStampDTO',
             'ch.vitoco.decovid19core.server.HcertServerRequest',
