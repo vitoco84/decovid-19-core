@@ -6,6 +6,7 @@ import javax.validation.constraints.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
@@ -24,6 +25,7 @@ public class HcertDTO {
   /**
    * Holder date of birth.
    */
+  @Schema(description = "Holder date of birth", example = "1943-10-15", required = true)
   @NotBlank
   @Pattern(message = "Date format should be YYYY-MM-DD", regexp = "^\\d{4}-\\d{2}-\\d{2}$")
   @JsonProperty("dob")
@@ -31,6 +33,7 @@ public class HcertDTO {
   /**
    * Health Certificate version information.
    */
+  @Schema(description = "Health Certificate version information", example = "1.0.0", required = true)
   @NotBlank
   @JsonProperty("ver")
   private String version;
