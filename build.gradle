@@ -1,10 +1,21 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: 'cz.habarta.typescript-generator', name: 'typescript-generator-gradle-plugin', version: '2.36.1070'
+    }
+}
+
 plugins {
-    id 'org.springframework.boot' version '2.6.7'
+    id 'org.springframework.boot' version '2.7.1'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
     id 'jacoco'
     id 'org.sonarqube' version '3.3'
 }
+
+apply plugin: 'cz.habarta.typescript-generator'
 
 group = 'ch.vitoco'
 version = '0.0.1-SNAPSHOT'
@@ -24,6 +35,7 @@ sonarqube {
         property "sonar.coverage.jacoco.xmlReportPaths", "**/build/reports/jacoco/test/jacocoTestReport.xml"
         property "sonar.exclusions", "**/src/main/java/ch/vitoco/decovid19core/constants/**"
         property "sonar.exclusions", "**/src/main/java/ch/vitoco/decovid19core/config/**"
+        property "sonar.exclusions", "**/src/main/java/ch/vitoco/decovid19core/controller/**"
     }
 }
 
@@ -47,9 +59,10 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation "org.springframework.boot:spring-boot-starter-actuator:${libs.versions.springBoot.get()}"
+    implementation "org.springframework.boot:spring-boot-starter-web:${libs.versions.springBoot.get()}"
     implementation "org.springframework.boot:spring-boot-starter-webflux:${libs.versions.webFlux.get()}"
+    implementation "org.springframework.boot:spring-boot-starter-validation:${libs.versions.springBoot.get()}"
     implementation "org.springdoc:springdoc-openapi-ui:${libs.versions.openapi.get()}"
     implementation "io.github.ehn-digital-green-development:base45:${libs.versions.base45.get()}"
     implementation "com.google.zxing:core:${libs.versions.zxing.get()}"
@@ -72,6 +85,29 @@ dependencies {
     }
     testImplementation "com.squareup.okhttp3:mockwebserver:${libs.versions.mockWebServer.get()}"
     testImplementation "com.squareup.okhttp3:okhttp:${libs.versions.mockWebServer.get()}"
+}
+
+generateTypeScript {
+    jsonLibrary = 'jackson2'
+    classes = [
+            'ch.vitoco.decovid19core.model.hcert.HcertDTO',
+            'ch.vitoco.decovid19core.model.hcert.HcertContentDTO',
+            'ch.vitoco.decovid19core.model.hcert.HcertPublicKeyDTO',
+            'ch.vitoco.decovid19core.model.hcert.HcertTimeStampDTO',
+            'ch.vitoco.decovid19core.server.HcertServerRequest',
+            'ch.vitoco.decovid19core.server.HcertServerResponse',
+            'ch.vitoco.decovid19core.server.PEMCertServerRequest',
+            'ch.vitoco.decovid19core.server.PEMCertServerResponse',
+            'ch.vitoco.decovid19core.server.HcertVerificationServerRequest',
+            'ch.vitoco.decovid19core.server.HcertVerificationServerResponse',
+            'ch.vitoco.decovid19core.server.ValidationErrorServerResponse',
+            'ch.vitoco.decovid19core.server.QRCodeServerRequest'
+    ]
+    outputFile = 'build/generated/decovid19client-communication.ts'
+    outputFileType = 'implementationFile'
+    outputKind = 'module'
+    namespace = 'ClientCommunication'
+    stringQuotes = 'singleQuotes'
 }
 
 tasks.named('test') {

@@ -23,9 +23,9 @@ import com.google.zxing.common.HybridBinarizer;
 import com.upokecenter.cbor.CBORObject;
 import nl.minvws.encoding.Base45;
 import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.stereotype.Service;
 
 /**
@@ -51,7 +51,7 @@ public class HcertDecodingService {
       Result result = new MultiFormatReader().decode(bitmap);
       return result.getText();
     } catch (IOException | NotFoundException e) {
-      throw new ServerException(QR_CODE_DECODE_EXCEPTION, e);
+      throw new ServerException(BARCODE_NOT_FOUND_EXCEPTION, e);
     }
   }
 
@@ -179,8 +179,9 @@ public class HcertDecodingService {
 
   private HcertTimeStampDTO buildHcertTimeStampResponse(Long expirationTimeStamp, Long issuedAtTimeStamp) {
     HcertTimeStampDTO hcertTimeStampDTO = new HcertTimeStampDTO();
-    hcertTimeStampDTO.setHcerExpirationTime(Instant.ofEpochSecond(expirationTimeStamp).toString());
+    hcertTimeStampDTO.setHcertExpirationTime(Instant.ofEpochSecond(expirationTimeStamp).toString());
     hcertTimeStampDTO.setHcertIssuedAtTime(Instant.ofEpochSecond(issuedAtTimeStamp).toString());
+    hcertTimeStampDTO.setHcertExpired(Instant.ofEpochSecond(expirationTimeStamp).isBefore(Instant.now()));
     return hcertTimeStampDTO;
   }
 

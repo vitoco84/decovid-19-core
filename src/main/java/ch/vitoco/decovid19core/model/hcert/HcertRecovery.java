@@ -1,6 +1,7 @@
 package ch.vitoco.decovid19core.model.hcert;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 /**
@@ -13,30 +14,37 @@ public class HcertRecovery extends Hcert {
   /**
    * Disease or agent targeted.
    */
-  private String tg;
+  @JsonProperty("tg")
+  private String target;
   /**
    * Date of the holder's first positive test result.
    */
-  private String fr;
+  @JsonProperty("fr")
+  private String firstPositiveDateResult;
   /**
    * Member state or third country in which the test was carried out.
    */
-  private String co;
+  @JsonProperty("co")
+  private String country;
   /**
    * Health Certificate valid from.
    */
-  private String df;
+  @JsonProperty("df")
+  private String validFrom;
   /**
    * Health Certificate valid until.
    */
-  private String du;
+  @JsonProperty("du")
+  private String validTo;
   /**
    * Certificate issuer.
    */
-  private String is;
+  @JsonProperty("is")
+  private String issuer;
   /**
    * Unique certificate identifier.
    */
-  private String ci;
+  @JsonProperty("ci")
+  private String certIdentifier;
 
 }

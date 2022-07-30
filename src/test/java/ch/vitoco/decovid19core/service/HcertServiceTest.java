@@ -1,6 +1,6 @@
 package ch.vitoco.decovid19core.service;
 
-import static ch.vitoco.decovid19core.constants.ExceptionMessages.QR_CODE_CORRUPTED_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.ExceptionMessages.QR_CODE_DECODE_EXCEPTION;
 import static org.junit.jupiter.api.Assertions.*;
 
 import javax.annotation.Nonnull;
@@ -33,7 +33,7 @@ class HcertServiceTest {
 
   private static final String NAME = "foo";
   private static final String FILE_NAME_PNG_EXT_ALLOWED = "TestFile.png";
-  private static final String FILE_NAME_PNG_EXT_NOT_ALLOWED = "TestFile.gif";
+  private static final String FILE_NAME_PDF_EXT_NOT_ALLOWED = "TestFile.pdf";
 
   private static final Path SWISS_QR_CODE_VACC_CERT_IMG_PATH = Paths.get(
       "src/test/resources/swissQRCodeVaccinationCertificate.png");
@@ -74,7 +74,7 @@ class HcertServiceTest {
   private final HcertService hcertService = new HcertService(valueSetService, hcertDecodingService, trustListService);
 
   @Test
-  void shouldReturnVaccHealthCertificateResponseFromImageFile() throws IOException, ParseException {
+  void shouldReturnVaccinationHealthCertificateServerResponseFromImage() throws IOException, ParseException {
     InputStream testVaccImageInputStream = Files.newInputStream(SWISS_QR_CODE_VACC_CERT_IMG_PATH);
     MockMultipartFile mockMultipartFile = new MockMultipartFile(NAME, FILE_NAME_PNG_EXT_ALLOWED,
         MediaType.MULTIPART_FORM_DATA_VALUE, testVaccImageInputStream);
@@ -87,7 +87,7 @@ class HcertServiceTest {
     String expectedVersion = (String) jsonHcertPaylod.get(VER);
     String expectedDateOfBirth = (String) jsonHcertPaylod.get(DOB);
 
-    ResponseEntity<HcertServerResponse> healthCertificateContent = hcertService.getHealthCertificateContent(
+    ResponseEntity<HcertServerResponse> healthCertificateContent = hcertService.decodeHealthCertificateContent(
         mockMultipartFile);
 
     HttpStatus statusCode = healthCertificateContent.getStatusCode();
@@ -102,16 +102,16 @@ class HcertServiceTest {
     assertEquals(expectedHcertPrefix, hcertPrefix);
     assertEquals(SWISS_QR_CODE_VACC_KID, hcertKID);
     assertEquals(HcertAlgoKeys.PS256.toString(), hcertAlgo);
-    assertEquals(expectedVersion, hcertContent.getVer());
-    assertEquals(expectedDateOfBirth, hcertContent.getDob());
-    assertFalse(hcertContent.getV().isEmpty());
+    assertEquals(expectedVersion, hcertContent.getVersion());
+    assertEquals(expectedDateOfBirth, hcertContent.getDateOfBirth());
+    assertFalse(hcertContent.getVaccination().isEmpty());
     assertEquals(SWISS_QR_CODE_ISSUER, hcertIssuer);
-    assertTrue(hcertTimeStamp.getHcerExpirationTime().contains(EXPECTED_EXPIRATION_TIME));
+    assertTrue(hcertTimeStamp.getHcertExpirationTime().contains(EXPECTED_EXPIRATION_TIME));
     assertTrue(hcertTimeStamp.getHcertIssuedAtTime().contains(EXPECTED_ISSUED_AT_TIME));
   }
 
   @Test
-  void shouldReturnTestHealthCertificateResponseFromImageFile() throws IOException, ParseException {
+  void shouldReturnTestHealthCertificateServerResponseFromImage() throws IOException, ParseException {
     InputStream testTestImageInputStream = Files.newInputStream(SWISS_QR_CODE_TEST_CERT_IMG_PATH);
     MockMultipartFile mockMultipartFile = new MockMultipartFile(NAME, FILE_NAME_PNG_EXT_ALLOWED,
         MediaType.MULTIPART_FORM_DATA_VALUE, testTestImageInputStream);
@@ -124,7 +124,7 @@ class HcertServiceTest {
     String expectedVersion = (String) jsonHcertPaylod.get(VER);
     String expectedDateOfBirth = (String) jsonHcertPaylod.get(DOB);
 
-    ResponseEntity<HcertServerResponse> healthCertificateContent = hcertService.getHealthCertificateContent(
+    ResponseEntity<HcertServerResponse> healthCertificateContent = hcertService.decodeHealthCertificateContent(
         mockMultipartFile);
 
     HttpStatus statusCode = healthCertificateContent.getStatusCode();
@@ -139,16 +139,16 @@ class HcertServiceTest {
     assertEquals(expectedHcertPrefix, hcertPrefix);
     assertEquals(SWISS_QR_CODE_VACC_KID, hcertKID);
     assertEquals(HcertAlgoKeys.PS256.toString(), hcertAlgo);
-    assertEquals(expectedVersion, hcertContent.getVer());
-    assertEquals(expectedDateOfBirth, hcertContent.getDob());
-    assertFalse(hcertContent.getT().isEmpty());
+    assertEquals(expectedVersion, hcertContent.getVersion());
+    assertEquals(expectedDateOfBirth, hcertContent.getDateOfBirth());
+    assertFalse(hcertContent.getTest().isEmpty());
     assertEquals(SWISS_QR_CODE_ISSUER, hcertIssuer);
-    assertTrue(hcertTimeStamp.getHcerExpirationTime().contains(EXPECTED_EXPIRATION_TIME));
+    assertTrue(hcertTimeStamp.getHcertExpirationTime().contains(EXPECTED_EXPIRATION_TIME));
     assertTrue(hcertTimeStamp.getHcertIssuedAtTime().contains(EXPECTED_ISSUED_AT_TIME));
   }
 
   @Test
-  void shouldReturnRecoveryHealthCertificateResponseFromImageFile() throws IOException, ParseException {
+  void shouldReturnRecoveryHealthCertificateServerResponseFromImage() throws IOException, ParseException {
     InputStream testTestImageInputStream = Files.newInputStream(SWISS_QR_CODE_RECOVERY_CERT_IMG_PATH);
     MockMultipartFile mockMultipartFile = new MockMultipartFile(NAME, FILE_NAME_PNG_EXT_ALLOWED,
         MediaType.MULTIPART_FORM_DATA_VALUE, testTestImageInputStream);
@@ -161,7 +161,7 @@ class HcertServiceTest {
     String expectedVersion = (String) jsonHcertPaylod.get(VER);
     String expectedDateOfBirth = (String) jsonHcertPaylod.get(DOB);
 
-    ResponseEntity<HcertServerResponse> healthCertificateContent = hcertService.getHealthCertificateContent(
+    ResponseEntity<HcertServerResponse> healthCertificateContent = hcertService.decodeHealthCertificateContent(
         mockMultipartFile);
 
     HttpStatus statusCode = healthCertificateContent.getStatusCode();
@@ -176,19 +176,19 @@ class HcertServiceTest {
     assertEquals(expectedHcertPrefix, hcertPrefix);
     assertEquals(SWISS_QR_CODE_VACC_KID, hcertKID);
     assertEquals(HcertAlgoKeys.PS256.toString(), hcertAlgo);
-    assertEquals(expectedVersion, hcertContent.getVer());
-    assertEquals(expectedDateOfBirth, hcertContent.getDob());
-    assertFalse(hcertContent.getR().isEmpty());
+    assertEquals(expectedVersion, hcertContent.getVersion());
+    assertEquals(expectedDateOfBirth, hcertContent.getDateOfBirth());
+    assertFalse(hcertContent.getRecovery().isEmpty());
     assertEquals(SWISS_QR_CODE_ISSUER, hcertIssuer);
-    assertTrue(hcertTimeStamp.getHcerExpirationTime().contains(EXPECTED_EXPIRATION_TIME));
+    assertTrue(hcertTimeStamp.getHcertExpirationTime().contains(EXPECTED_EXPIRATION_TIME));
     assertTrue(hcertTimeStamp.getHcertIssuedAtTime().contains(EXPECTED_ISSUED_AT_TIME));
   }
 
   @Test
-  void shouldReturnHealthCertificateResponseFromHC1Prefix() {
+  void shouldReturnHealthCertificateServerResponseFromHC1Prefix() {
     HcertServerRequest hcertServerRequest = new HcertServerRequest();
     hcertServerRequest.setHcertPrefix(SWISS_QR_CODE_VACC_HC1_PREFIX);
-    ResponseEntity<HcertServerResponse> healthCertificateContent = hcertService.getHealthCertificateContent(
+    ResponseEntity<HcertServerResponse> healthCertificateContent = hcertService.decodeHealthCertificateContent(
         hcertServerRequest);
 
     HttpStatus statusCode = healthCertificateContent.getStatusCode();
@@ -197,13 +197,13 @@ class HcertServiceTest {
   }
 
   @Test
-  void shouldReturnBadRequestIfFileIsNotAllowed() throws IOException {
+  void shouldReturnBadRequestIfFileExtensionIsNotAllowed() throws IOException {
     InputStream testVaccImageInputStream = Files.newInputStream(SWISS_QR_CODE_VACC_CERT_IMG_PATH);
-    MockMultipartFile mockMultipartFile = new MockMultipartFile(NAME, FILE_NAME_PNG_EXT_NOT_ALLOWED,
+    MockMultipartFile mockMultipartFile = new MockMultipartFile(NAME, FILE_NAME_PDF_EXT_NOT_ALLOWED,
         MediaType.MULTIPART_FORM_DATA_VALUE, testVaccImageInputStream);
     testVaccImageInputStream.close();
 
-    ResponseEntity<HcertServerResponse> healthCertificateContent = hcertService.getHealthCertificateContent(
+    ResponseEntity<HcertServerResponse> healthCertificateContent = hcertService.decodeHealthCertificateContent(
         mockMultipartFile);
 
     HttpStatus statusCode = healthCertificateContent.getStatusCode();
@@ -212,10 +212,10 @@ class HcertServiceTest {
   }
 
   @Test
-  void shouldReturnBadRequestIfWrongHC1Prefix() {
+  void shouldReturnBadRequestForWrongHC1Prefix() {
     HcertServerRequest hcertServerRequest = new HcertServerRequest();
     hcertServerRequest.setHcertPrefix(SWISS_QR_CODE_VACC_HC1_PREFIX_WRONG);
-    ResponseEntity<HcertServerResponse> healthCertificateContent = hcertService.getHealthCertificateContent(
+    ResponseEntity<HcertServerResponse> healthCertificateContent = hcertService.decodeHealthCertificateContent(
         hcertServerRequest);
 
     HttpStatus statusCode = healthCertificateContent.getStatusCode();
@@ -224,26 +224,26 @@ class HcertServiceTest {
   }
 
   @Test
-  void shouldThrowServerException() throws IOException {
+  void shouldThrowServerExceptionIfBarcodeWasNotFound() throws IOException {
     InputStream testVaccImageInputStream = Files.newInputStream(SWISS_QR_CODE_VACC_CERT_IMG_PATH);
     CustomMockMultipartFile customMockMultipartFile = new CustomMockMultipartFile(NAME, FILE_NAME_PNG_EXT_ALLOWED,
         MediaType.MULTIPART_FORM_DATA_VALUE, testVaccImageInputStream);
     testVaccImageInputStream.close();
 
     Exception exception = assertThrows(ServerException.class, () -> {
-      hcertService.getHealthCertificateContent(customMockMultipartFile);
+      hcertService.decodeHealthCertificateContent(customMockMultipartFile);
     });
 
     String actualMessage = exception.getMessage();
 
-    assertEquals(QR_CODE_CORRUPTED_EXCEPTION, actualMessage);
+    assertEquals(QR_CODE_DECODE_EXCEPTION, actualMessage);
   }
 
   @Test
   void shouldReturnPEMCertServerResponseForRSA() {
     PEMCertServerRequest pemCertServerRequest = new PEMCertServerRequest();
     pemCertServerRequest.setPemCertificate(SWISS_QR_CODE_CERTIFICATE);
-    ResponseEntity<PEMCertServerResponse> x509Certificate = hcertService.getX509Certificate(pemCertServerRequest);
+    ResponseEntity<PEMCertServerResponse> x509Certificate = hcertService.decodeX509Certificate(pemCertServerRequest);
 
     PEMCertServerResponse pemCertServerResponse = x509Certificate.getBody();
     HcertPublicKeyDTO hcertPublicKey = pemCertServerResponse.getPublicKeyParams();
@@ -272,7 +272,7 @@ class HcertServiceTest {
   void shouldReturnPEMCertServerResponseForECDSA() {
     PEMCertServerRequest pemCertServerRequest = new PEMCertServerRequest();
     pemCertServerRequest.setPemCertificate(GERMAN_QR_CODE_CERTIFICATE);
-    ResponseEntity<PEMCertServerResponse> x509Certificate = hcertService.getX509Certificate(pemCertServerRequest);
+    ResponseEntity<PEMCertServerResponse> x509Certificate = hcertService.decodeX509Certificate(pemCertServerRequest);
 
     PEMCertServerResponse pemCertServerResponse = x509Certificate.getBody();
     HcertPublicKeyDTO hcertPublicKey = pemCertServerResponse.getPublicKeyParams();

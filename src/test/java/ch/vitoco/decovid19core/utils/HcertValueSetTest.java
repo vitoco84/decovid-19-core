@@ -11,7 +11,6 @@ import java.util.Map;
 import ch.vitoco.decovid19core.exception.ServerException;
 import ch.vitoco.decovid19core.model.valueset.ValueSet;
 import ch.vitoco.decovid19core.model.valueset.ValueSetValues;
-import ch.vitoco.decovid19core.utils.HcertValueSet;
 import org.junit.jupiter.api.Test;
 
 class HcertValueSetTest {
@@ -95,7 +94,7 @@ class HcertValueSetTest {
   }
 
   @Test
-  void shouldThrowServerException() {
+  void shouldThrowServerExceptionForIncorrectPath() {
     Path path = Paths.get("foobar");
     Exception exception = assertThrows(ServerException.class, () -> {
       HcertValueSet.getValueSet(path);

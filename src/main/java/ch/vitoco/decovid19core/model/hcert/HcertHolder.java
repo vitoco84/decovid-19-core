@@ -1,6 +1,11 @@
 package ch.vitoco.decovid19core.model.hcert;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
@@ -13,18 +18,32 @@ public class HcertHolder {
   /**
    * Holder surname.
    */
-  private String fn;
+  @Schema(description = "Holder surname", example = "Bob", required = true)
+  @NotBlank
+  @Pattern(message = "Only letters are supported", regexp = "[a-zA-Z]+")
+  @JsonProperty("fn")
+  private String surname;
   /**
    * Holder standardised surname.
    */
-  private String fnt;
+  @Schema(description = "Holder standardised surname", example = "BOB", required = true)
+  @NotBlank
+  @JsonProperty("fnt")
+  private String standardSurname;
   /**
    * Holder forename.
    */
-  private String gn;
+  @Schema(description = "Holder forename", example = "Uncle", required = true)
+  @NotBlank
+  @Pattern(message = "Only letters are supported", regexp = "[a-zA-Z]+")
+  @JsonProperty("gn")
+  private String forename;
   /**
    * Holder standardised forename.
    */
-  private String gnt;
+  @Schema(description = "Holder standardised forename", example = "UNCLE", required = true)
+  @NotBlank
+  @JsonProperty("gnt")
+  private String standardForename;
 
 }

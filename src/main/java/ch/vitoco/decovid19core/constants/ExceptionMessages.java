@@ -1,18 +1,26 @@
 package ch.vitoco.decovid19core.constants;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 /**
  * Representation class of messages for exceptions
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ExceptionMessages {
 
+  /**
+   * Barcode not found exception message.
+   */
+  public static final String BARCODE_NOT_FOUND_EXCEPTION = "The Barcode was not found in the provided image.";
   /**
    * QR-Code decode exception message.
    */
   public static final String QR_CODE_DECODE_EXCEPTION = "The Health Certificate content of the QR-Code could not be decoded.";
   /**
-   * QR-Code corrupted exception message.
+   * HCERT encode exception message.
    */
-  public static final String QR_CODE_CORRUPTED_EXCEPTION = "The uploaded QR-Code is corrupted.";
+  public static final String QR_CODE_ENCODE_EXCEPTION = "The given content could not be encoded.";
   /**
    * COSE format exception message.
    */
@@ -30,21 +38,9 @@ public final class ExceptionMessages {
    */
   public static final String JSON_SERIALIZE_EXCEPTION = "The payload could not be serialized.";
   /**
-   * Utility class exception message.
-   */
-  public static final String UTILITY_CLASS_EXCEPTION = "Utility class.";
-  /**
    * Resources read exception message.
    */
   public static final String RESOURCES_READ_EXCEPTION = "Could not read resources.";
-  /**
-   * URL encode exception message.
-   */
-  public static final String URL_ENCODE_EXCEPTION = "Could not encode the given URL.";
-  /**
-   * HCERT Test encode exception message.
-   */
-  public static final String HCERT_TEST_ENCODE_EXCEPTION = "Could not encode the given Test Certificate.";
   /**
    * Private or Public Key exception message.
    */
@@ -61,12 +57,9 @@ public final class ExceptionMessages {
    * Signature not valid exception.
    */
   public static final String INVALID_SIGNATURE = "The Signature or the provided keyId is not valid.";
-
   /**
-   * Constructor.
+   * Certificate retrieve exception.
    */
-  private ExceptionMessages() {
-    throw new IllegalStateException(UTILITY_CLASS_EXCEPTION);
-  }
+  public static final String CERTIFICATES_RETRIEVE_EXCEPTION = "The Health or Root Certificate could not be retrieved.";
 
 }

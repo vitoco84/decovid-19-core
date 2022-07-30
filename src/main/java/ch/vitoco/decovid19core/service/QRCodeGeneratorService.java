@@ -2,6 +2,7 @@ package ch.vitoco.decovid19core.service;
 
 import static ch.vitoco.decovid19core.constants.ExceptionMessages.*;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -9,8 +10,9 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 import COSE.*;
@@ -27,6 +29,7 @@ import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.upokecenter.cbor.CBORObject;
 import nl.minvws.encoding.Base45;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.compress.compressors.CompressorOutputStream;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
@@ -40,8 +43,8 @@ import org.springframework.stereotype.Service;
 public class QRCodeGeneratorService {
 
   private static final int IMG_WIDTH_HEIGHT = 250;
-  private static final int ONE_YEAR = 1;
-  private static final long TIME_CONVERTER_MILLIS = 1000L;
+  private static final String IMG_PNG = "png";
+  private static final long ONE_YEAR = 365L;
   private static final int FIRST_ENTRY_HCERT_TEST_LIST = 0;
   private static final String HCERT_HEADER = "HC1:";
   private static final String UNIQUE_ID_HEADER = "uvci:";
@@ -54,19 +57,30 @@ public class QRCodeGeneratorService {
    * @param url the QRCodeServerRequest
    * @return BufferedImage
    */
-  public ResponseEntity<BufferedImage> getURLQRCode(QRCodeServerRequest url) {
-    if (isValidURL(url.getUrl())) {
+  public ResponseEntity<BufferedImage> createURLQRCodeImage(QRCodeServerRequest url) {
+    if (isValidURL(url.getUrl()) && !url.getUrl().isBlank()) {
       try {
         BitMatrix bitMatrix = new MultiFormatWriter().encode(
             new String(url.getUrl().getBytes(), StandardCharsets.UTF_8), BarcodeFormat.QR_CODE, IMG_WIDTH_HEIGHT,
             IMG_WIDTH_HEIGHT);
         return ResponseEntity.ok().body(MatrixToImageWriter.toBufferedImage(bitMatrix));
       } catch (WriterException e) {
-        throw new ServerException(URL_ENCODE_EXCEPTION, e);
+        throw new ServerException(QR_CODE_ENCODE_EXCEPTION, e);
       }
     } else {
       return ResponseEntity.badRequest().build();
     }
+  }
+
+  /**
+   * Generates a QR-Code as Base64 String given a QRCodeServerRequest
+   *
+   * @param url the QRCodeServerRequest
+   * @return String
+   */
+  public ResponseEntity<String> createURLQRCodeBase64String(QRCodeServerRequest url) {
+    BufferedImage img = createURLQRCodeImage(url).getBody();
+    return convertBufferedImgToBase64String(img);
   }
 
   private boolean isValidURL(String url) {
@@ -79,13 +93,13 @@ public class QRCodeGeneratorService {
   }
 
   /**
-   * Generates a fake Covid Test Health Certificate given a HcertContentDTO.
+   * Generates a fake Covid Test Health Certificate (BufferedImage) given a HcertContentDTO.
    *
    * @param hcertContentDTO the HcertContentDTO
    * @return BufferedImage
    */
-  public ResponseEntity<BufferedImage> getTestCovidQRCode(HcertContentDTO hcertContentDTO) {
-    if (hcertContentDTO.getR() == null && hcertContentDTO.getV() == null) {
+  public ResponseEntity<BufferedImage> createTestCovidQRCodeImage(HcertContentDTO hcertContentDTO) {
+    if (hcertContentDTO.getRecovery() == null && hcertContentDTO.getVaccination() == null) {
       byte[] cbor = getCBORBytes(hcertContentDTO);
       byte[] cose = getCOSESignatureBytes(cbor);
       byte[] zip = getCOSECompressedBytes(cose);
@@ -95,18 +109,45 @@ public class QRCodeGeneratorService {
             BarcodeFormat.QR_CODE, IMG_WIDTH_HEIGHT, IMG_WIDTH_HEIGHT);
         return ResponseEntity.ok().body(MatrixToImageWriter.toBufferedImage(bitMatrix));
       } catch (WriterException e) {
-        throw new ServerException(HCERT_TEST_ENCODE_EXCEPTION, e);
+        throw new ServerException(QR_CODE_ENCODE_EXCEPTION, e);
       }
     } else {
       return ResponseEntity.badRequest().build();
     }
   }
 
+  /**
+   * Generates a fake Covid Test Health Certificate as Base64 String given a HcertContentDTO.
+   *
+   * @param hcertContentDTO the HcertContentDTO
+   * @return String
+   */
+  public ResponseEntity<String> createTestCovidQRCodeBase64String(HcertContentDTO hcertContentDTO) {
+    BufferedImage img = createTestCovidQRCodeImage(hcertContentDTO).getBody();
+    return convertBufferedImgToBase64String(img);
+  }
+
+  private ResponseEntity<String> convertBufferedImgToBase64String(BufferedImage img) {
+    if (img == null) {
+      return ResponseEntity.badRequest().build();
+    } else {
+      try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+        ImageIO.write(img, IMG_PNG, os);
+        String encodedImage = Base64.encodeBase64String(os.toByteArray());
+        return ResponseEntity.ok().body(encodedImage);
+      } catch (IOException e) {
+        throw new ServerException(QR_CODE_ENCODE_EXCEPTION, e);
+      }
+    }
+  }
+
   private byte[] getCBORBytes(HcertContentDTO hcertContentDTO) {
     try {
-      ObjectMapper mapper = new ObjectMapper();
-      hcertContentDTO.getT().get(FIRST_ENTRY_HCERT_TEST_LIST).setCi(UNIQUE_ID_HEADER + UUID.randomUUID());
-      String json = mapper.writeValueAsString(hcertContentDTO);
+      ObjectMapper objectMapper = new ObjectMapper();
+      hcertContentDTO.getTest()
+          .get(FIRST_ENTRY_HCERT_TEST_LIST)
+          .setCertIdentifier(UNIQUE_ID_HEADER + UUID.randomUUID());
+      String json = objectMapper.writeValueAsString(hcertContentDTO);
       CBORObject map = CBORObject.NewMap();
       map.set(CBORObject.FromObject(HcertClaimKeys.HCERT_MESSAGE_TAG.getClaimKey()), CBORObject.FromObject(ISSUER));
       map.set(CBORObject.FromObject(HcertClaimKeys.HCERT_ISSUED_AT_CLAIM_KEY.getClaimKey()),
@@ -155,12 +196,11 @@ public class QRCodeGeneratorService {
   }
 
   private long getIssuedAt() {
-    return LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() / TIME_CONVERTER_MILLIS;
+    return Instant.now().atZone(ZoneId.systemDefault()).toEpochSecond();
   }
 
   private long getExpiration() {
-    return LocalDateTime.now().plusYears(ONE_YEAR).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() /
-        TIME_CONVERTER_MILLIS;
+    return Instant.now().plus(ONE_YEAR, ChronoUnit.DAYS).atZone(ZoneId.systemDefault()).toEpochSecond();
   }
 
 }

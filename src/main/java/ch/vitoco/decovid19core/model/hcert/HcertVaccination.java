@@ -1,6 +1,7 @@
 package ch.vitoco.decovid19core.model.hcert;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 /**
@@ -13,42 +14,52 @@ public class HcertVaccination extends Hcert {
   /**
    * Unique certificate identifier.
    */
-  private String ci;
+  @JsonProperty("ci")
+  private String certIdentifier;
   /**
    * Member state or third country in which the vaccine was administered.
    */
-  private String co;
+  @JsonProperty("co")
+  private String country;
   /**
    * Number in a series of doses.
    */
-  private Long dn;
+  @JsonProperty("dn")
+  private Long numberOfDoses;
   /**
    * Date of vaccination.
    */
-  private String dt;
+  @JsonProperty("dt")
+  private String vaccinationDate;
   /**
    * Certificate issuer.
    */
-  private String is;
+  @JsonProperty("is")
+  private String issuer;
   /**
    * Covid-19 vaccine marketing authorisation holder or manufacturer.
    */
-  private String ma;
+  @JsonProperty("ma")
+  private String manufacturer;
   /**
    * Covid-19 vaccine product.
    */
-  private String mp;
+  @JsonProperty("mp")
+  private String vaccineProduct;
   /**
    * The overall number of doses in the series.
    */
-  private Long sd;
+  @JsonProperty("sd")
+  private Long overallNumberOfDoses;
   /**
    * Disease or agent targeted.
    */
-  private String tg;
+  @JsonProperty("tg")
+  private String target;
   /**
    * Covid-19 vaccine or prophylaxis.
    */
-  private String vp;
+  @JsonProperty("vp")
+  private String vaccineProphylaxis;
 
 }

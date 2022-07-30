@@ -1,7 +1,7 @@
 package ch.vitoco.decovid19core.service;
 
 import static ch.vitoco.decovid19core.constants.ExceptionMessages.JSON_DESERIALIZE_EXCEPTION;
-import static ch.vitoco.decovid19core.constants.ExceptionMessages.QR_CODE_CORRUPTED_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.ExceptionMessages.QR_CODE_DECODE_EXCEPTION;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,6 +25,7 @@ import ch.vitoco.decovid19core.utils.HcertStringUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.upokecenter.cbor.CBORObject;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,7 @@ import org.springframework.web.multipart.MultipartFile;
  * Service class Decovid19DecoderService.
  */
 @Service
+@RequiredArgsConstructor
 public class HcertService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HcertService.class);
@@ -47,20 +49,6 @@ public class HcertService {
   private final HcertDecodingService hcertDecodingService;
   private final TrustListService trustListService;
 
-  /**
-   * Constructor.
-   *
-   * @param valueSetService      the ValueSetService
-   * @param hcertDecodingService the HcertDecodingService
-   * @param trustListService     the TrustListService
-   */
-  public HcertService(ValueSetService valueSetService,
-      HcertDecodingService hcertDecodingService,
-      TrustListService trustListService) {
-    this.valueSetService = valueSetService;
-    this.hcertDecodingService = hcertDecodingService;
-    this.trustListService = trustListService;
-  }
 
   /**
    * Gets the HcertServerResponse.
@@ -68,13 +56,13 @@ public class HcertService {
    * @param imageFile the Health Certificate QR-Code image file
    * @return HcertServerResponse
    */
-  public ResponseEntity<HcertServerResponse> getHealthCertificateContent(MultipartFile imageFile) {
+  public ResponseEntity<HcertServerResponse> decodeHealthCertificateContent(MultipartFile imageFile) {
     if (HcertFileUtils.isFileAllowed(imageFile)) {
       try (InputStream imageFileInputStream = imageFile.getInputStream()) {
         String hcertContent = hcertDecodingService.getHealthCertificateContent(imageFileInputStream);
         return getHcertServerResponseResponseEntity(hcertContent);
       } catch (IOException e) {
-        throw new ServerException(QR_CODE_CORRUPTED_EXCEPTION, e);
+        throw new ServerException(QR_CODE_DECODE_EXCEPTION, e);
       }
     } else {
       String originalFilename = HcertStringUtils.sanitizeUserInputString(imageFile);
@@ -89,7 +77,7 @@ public class HcertService {
    * @param hcertPrefix the HcertServerRequest with the Health Certificate Prefix
    * @return HcertServerResponse
    */
-  public ResponseEntity<HcertServerResponse> getHealthCertificateContent(HcertServerRequest hcertPrefix) {
+  public ResponseEntity<HcertServerResponse> decodeHealthCertificateContent(HcertServerRequest hcertPrefix) {
     if (!hcertPrefix.getHcertPrefix().isBlank() && hcertPrefix.getHcertPrefix().startsWith(HCERT_HEADER)) {
       String hcertContent = hcertPrefix.getHcertPrefix();
       return getHcertServerResponseResponseEntity(hcertContent);
@@ -135,9 +123,9 @@ public class HcertService {
   private HcertContentDTO buildHcertContentDTO(String jsonPayloadFromCBORMessage, ObjectMapper objectMapper)
       throws JsonProcessingException {
     HcertContentDTO hcertContentDTO = objectMapper.readValue(jsonPayloadFromCBORMessage, HcertContentDTO.class);
-    valueSetService.mappingVaccinationValueSet(hcertContentDTO.getV());
-    valueSetService.mappingTestValueSet(hcertContentDTO.getT());
-    valueSetService.mappingRecoveryValueSet(hcertContentDTO.getR());
+    valueSetService.mappingVaccinationValueSet(hcertContentDTO.getVaccination());
+    valueSetService.mappingTestValueSet(hcertContentDTO.getTest());
+    valueSetService.mappingRecoveryValueSet(hcertContentDTO.getRecovery());
     return hcertContentDTO;
   }
 
@@ -147,7 +135,7 @@ public class HcertService {
    * @param pemCertificate the PEMCertServerRequest with the Certificate as String.
    * @return PEMCertServerResponse
    */
-  public ResponseEntity<PEMCertServerResponse> getX509Certificate(PEMCertServerRequest pemCertificate) {
+  public ResponseEntity<PEMCertServerResponse> decodeX509Certificate(PEMCertServerRequest pemCertificate) {
     try {
       X509Certificate x509Certificate = trustListService.convertCertificateToX509(pemCertificate.getPemCertificate());
       PEMCertServerResponse pemCertServerResponse = buildPEMCertServerResponse(x509Certificate);

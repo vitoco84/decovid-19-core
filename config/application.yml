@@ -2,6 +2,11 @@ server:
   compression:
     enabled: true
   port: 8082
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: on_param
+    include-exception: false
 
 spring:
   application:
@@ -13,6 +18,15 @@ spring:
 
 management:
   endpoint.health.show-details: always
+
+endpoints:
+  german-certs-api: https://de.dscg.ubirch.com/trustList/DSC/
+  german-test-certs-api: https://de.test.dscg.ubirch.com/trustList/DSC/
+  german-public-key-api: https://github.com/Digitaler-Impfnachweis/covpass-ios/raw/main/Certificates/PROD_RKI/CA/pubkey.pem
+  swiss-active-kid-api: https://www.cc.bit.admin.ch/trust/v2/keys/list/
+  swiss-certs-api: https://www.cc.bit.admin.ch/trust/v1/keys/updates?certFormat=ANDROID
+  swiss-revocation-list-api: https://www.cc.bit.admin.ch/trust/v2/revocationList
+  swiss-root-cert-api: https://www.bit.admin.ch/dam/bit/en/dokumente/pki/scanning_center/swiss_governmentrootcaii.crt.download.crt/swiss_governmentrootcaii.crt
 
 #logging:
 #  file.name: 'logs/${spring.application.name}.log'

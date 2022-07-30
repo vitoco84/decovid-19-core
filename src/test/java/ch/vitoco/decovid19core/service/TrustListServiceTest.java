@@ -2,29 +2,40 @@ package ch.vitoco.decovid19core.service;
 
 import static ch.vitoco.decovid19core.constants.ExceptionMessages.KEY_SPEC_EXCEPTION;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.PublicKey;
+import java.security.*;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import ch.vitoco.decovid19core.constants.HcertEndpointsApi;
+import ch.vitoco.decovid19core.config.ConfigProperties;
+import ch.vitoco.decovid19core.enums.HcertAlgoKeys;
 import ch.vitoco.decovid19core.enums.HcertSignatureAlgoKeys;
 import ch.vitoco.decovid19core.exception.ServerException;
 import ch.vitoco.decovid19core.model.certificates.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.crypto.impl.ECDSA;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.apache.commons.codec.binary.Base64;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -68,15 +79,32 @@ class TrustListServiceTest {
   private static final String BEARER_TOKEN = "token";
   private static final String TARGET_REPLACE_TXT = "\r\n";
 
+  private static final String GERMAN_CERTS_API = "https://de.dscg.ubirch.com/trustList/DSC/";
+  private static final String GERMAN_PUBLIC_KEY_API = "https://github.com/Digitaler-Impfnachweis/covpass-ios/raw/main/Certificates/PROD_RKI/CA/pubkey.pem";
+  private static final String SWISS_CERTS_API = "https://www.cc.bit.admin.ch/trust/v1/keys/updates?certFormat=ANDROID";
+  private static final String SWISS_ACTIVE_KID_API = "https://www.cc.bit.admin.ch/trust/v2/keys/list/";
+  private static final String SWISS_REVOCATION_LIST_API = "https://www.cc.bit.admin.ch/trust/v2/revocationList";
+  private static final String SWISS_ROOT_CERT_API = "https://www.bit.admin.ch/dam/bit/en/dokumente/pki/scanning_center/swiss_governmentrootcaii.crt.download.crt/swiss_governmentrootcaii.crt";
+
   private static final int RADIX_HEX = 16;
 
   private final TrustListService trustListService = new TrustListService();
+  private final ConfigProperties configProperties = Mockito.mock(ConfigProperties.class);
 
+  @BeforeEach
+  public void setupConfig() {
+    when(configProperties.getGermanCertsApi()).thenReturn(GERMAN_CERTS_API);
+    when(configProperties.getGermanPublicKeyApi()).thenReturn(GERMAN_PUBLIC_KEY_API);
+    when(configProperties.getSwissCertsApi()).thenReturn(SWISS_CERTS_API);
+    when(configProperties.getSwissActiveKidApi()).thenReturn(SWISS_ACTIVE_KID_API);
+    when(configProperties.getSwissRevocationListApi()).thenReturn(SWISS_REVOCATION_LIST_API);
+    when(configProperties.getSwissRootCertApi()).thenReturn(SWISS_ROOT_CERT_API);
+  }
 
-  @Disabled("Only used for local testing and verification. MockWebServer is used instead, see Test shouldRetrieveGermanCertificatesWithMockWebServer().")
+  @Disabled("Only used for local testing and verification. MockWebServer is used instead, see Test shouldRetrieveHcertFromGermanApiWithMockWebServer().")
   @Test
-  void shouldRetrieveGermanCertificates() {
-    ResponseEntity<String> certificates = trustListService.getHcertCertificates(HcertEndpointsApi.GERMAN_CERTS_API);
+  void shouldRetrieveHcertFromGermanApi() {
+    ResponseEntity<String> certificates = trustListService.getHcertCertificates(configProperties.getGermanCertsApi());
 
     EUCertificates euCertificates = trustListService.buildEUHcertCertificates(
         Objects.requireNonNull(certificates.getBody()));
@@ -86,10 +114,10 @@ class TrustListServiceTest {
     assertFalse(certificatesList.isEmpty());
   }
 
-  @Disabled("Only used for local testing and verification. MockWebServer is used instead, see Test shouldRetrieveGermanPublicKeyWithMockWebServer().")
+  @Disabled("Only used for local testing and verification. MockWebServer is used instead, see Test shouldRetrievePublicKeyFromGermanApiWithMockWebServer().")
   @Test
-  void shouldRetrieveGermanPublicKey() {
-    ResponseEntity<String> publicKeyTest = trustListService.getPublicKey(HcertEndpointsApi.GERMAN_PUBLIC_KEY_API);
+  void shouldRetrievePublicKeyFromGermanApi() {
+    ResponseEntity<String> publicKeyTest = trustListService.getPublicKey(configProperties.getGermanPublicKeyApi());
 
     assertEquals(HttpStatus.OK, publicKeyTest.getStatusCode());
     assertTrue(Objects.requireNonNull(publicKeyTest.getBody()).startsWith(PUBLIC_KEY_PREFIX));
@@ -97,7 +125,7 @@ class TrustListServiceTest {
   }
 
   @Test
-  void shouldRetrieveGermanCertificatesWithMockWebServer() throws IOException {
+  void shouldRetrieveHcertFromGermanApiWithMockWebServer() throws IOException {
     String body = Files.readString(FAKE_GERMAN_CERTIFICATES_RESPONSE_BODY).replace(TARGET_REPLACE_TXT, "");
 
     try (MockWebServer mockWebServer = new MockWebServer()) {
@@ -127,7 +155,7 @@ class TrustListServiceTest {
   }
 
   @Test
-  void shouldRetrieveGermanPublicKeyWithMockWebServer() throws IOException {
+  void shouldRetrievePublicKeyFromGermanApiWithMockWebServer() throws IOException {
     String body = Files.readString(FAKE_GERMAN_PUBLIC_KEY_RESPONSE_BODY).replace(TARGET_REPLACE_TXT, "");
 
     try (MockWebServer mockWebServer = new MockWebServer()) {
@@ -145,10 +173,10 @@ class TrustListServiceTest {
     }
   }
 
-  @Disabled("Only used for local testing and verification. MockWebServer is used instead, see Test shouldRetrieveSwissGermanCertificatesWithMockWebServer().")
+  @Disabled("Only used for local testing and verification. MockWebServer is used instead, see Test shouldRetrieveHcertFromSwissApiWithMockWebServer().")
   @Test
-  void shouldRetrieveSwissCertificates() {
-    ResponseEntity<String> certificates = trustListService.getHcertCertificates(HcertEndpointsApi.SWISS_CERTS_API,
+  void shouldRetrieveHcertFromSwissApi() {
+    ResponseEntity<String> certificates = trustListService.getHcertCertificates(configProperties.getSwissCertsApi(),
         BEARER_TOKEN);
 
     SwissCertificates swissCertificates = trustListService.buildSwissHcertCertificates(
@@ -159,10 +187,10 @@ class TrustListServiceTest {
     assertEquals(SIGNATURE, certificatesList.get(0).getUse());
   }
 
-  @Disabled("Only used for local testing and verification. MockWebServer is used instead, see Test shouldRetrieveSwissActiveKeyIdsWithMockWebServer().")
+  @Disabled("Only used for local testing and verification. MockWebServer is used instead, see Test shouldRetrieveActiveKeyIdsFromSwissApiWithMockWebServer().")
   @Test
-  void shouldRetrieveSwissActiveKeyIds() {
-    ResponseEntity<String> certificates = trustListService.getHcertCertificates(HcertEndpointsApi.SWISS_ACTIVE_KID_API,
+  void shouldRetrieveActiveKeyIdsFromSwissApi() {
+    ResponseEntity<String> certificates = trustListService.getHcertCertificates(configProperties.getSwissActiveKidApi(),
         BEARER_TOKEN);
 
     SwissActiveKeyIds swissActiveKeyIds = trustListService.buildSwissHcertActiveKeyIds(
@@ -172,11 +200,11 @@ class TrustListServiceTest {
     assertEquals("e/YRqyv++qY=", activeKeyIds.get(0));
   }
 
-  @Disabled("Only used for local testing and verification. MockWebServer is used instead, see Test shouldRetrieveSwissRevokedCertificatesWithMockWebServer().")
+  @Disabled("Only used for local testing and verification. MockWebServer is used instead, see Test shouldRetrieveRevokedHcertFromSwissApiWithMockWebServer().")
   @Test
-  void shouldRetrieveSwissRevokedCertificates() {
+  void shouldRetrieveRevokedHcertFromSwissApi() {
     ResponseEntity<String> certificates = trustListService.getHcertCertificates(
-        HcertEndpointsApi.SWISS_REVOCATION_LIST_API, BEARER_TOKEN);
+        configProperties.getSwissRevocationListApi(), BEARER_TOKEN);
 
     SwissRevokedCertificates swissRevokedCertificates = trustListService.buildSwissRevokedHcert(
         Objects.requireNonNull(certificates.getBody()));
@@ -186,7 +214,7 @@ class TrustListServiceTest {
   }
 
   @Test
-  void shouldRetrieveSwissActiveKeyIdsWithMockWebServer() throws IOException {
+  void shouldRetrieveActiveKeyIdsFromSwissApiWithMockWebServer() throws IOException {
     String body = Files.readString(FAKE_SWISS_ACTIVE_KEY_IDS_RESPONSE_BODY).replace(TARGET_REPLACE_TXT, "");
 
     try (MockWebServer mockWebServer = new MockWebServer()) {
@@ -214,7 +242,7 @@ class TrustListServiceTest {
   }
 
   @Test
-  void shouldRetrieveSwissGermanCertificatesWithMockWebServer() throws IOException {
+  void shouldRetrieveHcertFromSwissApiWithMockWebServer() throws IOException {
     String body = Files.readString(FAKE_SWISS_CERTIFICATES_RESPONSE_BODY).replace(TARGET_REPLACE_TXT, "");
 
     try (MockWebServer mockWebServer = new MockWebServer()) {
@@ -257,7 +285,7 @@ class TrustListServiceTest {
   }
 
   @Test
-  void shouldRetrieveSwissRevokedCertificatesWithMockWebServer() throws IOException {
+  void shouldRetrieveRevokedHcertFromSwissApiWithMockWebServer() throws IOException {
     String body = Files.readString(FAKE_SWISS_REVOKED_CERTIFICATES_RESPONSE_BODY).replace(TARGET_REPLACE_TXT, "");
 
     try (MockWebServer mockWebServer = new MockWebServer()) {
@@ -284,7 +312,25 @@ class TrustListServiceTest {
   }
 
   @Test
-  void shouldReturnX509Certificate() {
+  void shouldRetrieveJWTFromSwissCertsApiWithMockWebServer() throws IOException {
+    String body = "jwt";
+
+    try (MockWebServer mockWebServer = new MockWebServer()) {
+      mockWebServer.start();
+      mockWebServer.enqueue(new MockResponse().setBody(body));
+
+      HttpUrl baseUrl = mockWebServer.url("/bit/admin/");
+
+      ResponseEntity<String> jwt = trustListService.getJWT(String.valueOf(baseUrl), BEARER_TOKEN);
+
+      assertEquals(body, jwt.getBody());
+
+      mockWebServer.shutdown();
+    }
+  }
+
+  @Test
+  void shouldConvertRawCertificatesToX509Format() {
     X509Certificate swissX509Certificate = trustListService.convertCertificateToX509(SWISS_QR_CODE_CERTIFICATE);
     X509Certificate germanX509Certificate = trustListService.convertCertificateToX509(GERMAN_QR_CODE_CERTIFICATE);
     X509Certificate austrianX509Certificate = trustListService.convertCertificateToX509(AUSTRIAN_QR_CODE_CERTIFICATE);
@@ -299,7 +345,7 @@ class TrustListServiceTest {
   }
 
   @Test
-  void shouldReturnPublicKey() {
+  void shouldConvertRawPublicKey() {
     RSAPublicKey rsaPublicKey = (RSAPublicKey) trustListService.getPublicKey(SWISS_QR_CODE_PUBLIC_KEY,
         HcertSignatureAlgoKeys.RSA.getName());
     ECPublicKey ecPublicKey = (ECPublicKey) trustListService.getPublicKey(GERMAN_QR_CODE_PUBLIC_KEY,
@@ -317,7 +363,7 @@ class TrustListServiceTest {
   }
 
   @Test
-  void shouldGetRSAPublicKey() {
+  void shouldReturnRSAPublicKeyFromParams() {
     BigInteger modulus = new BigInteger(SWISS_PUBLIC_KEY_PARAMS_MODULUS, RADIX_HEX);
     BigInteger exponent = new BigInteger(SWISS_PUBLIC_KEY_PARAMS_EXPONENT, RADIX_HEX);
     PublicKey rsaPublicKey = trustListService.getRSAPublicKey(modulus, exponent);
@@ -327,7 +373,7 @@ class TrustListServiceTest {
   }
 
   @Test
-  void shouldGetECPublicKey() {
+  void shouldReturnECPublicKeyFromParams() {
     BigInteger austrianXCoord = new BigInteger(AUSTRIAN_PUBLIC_KEY_PARAMS_X_COORD, RADIX_HEX);
     BigInteger austrianYCoord = new BigInteger(AUSTRIAN_PUBLIC_KEY_PARAMS_Y_COORD, RADIX_HEX);
     PublicKey austrianECPublicKey = trustListService.getECPublicKey(austrianXCoord, austrianYCoord);
@@ -344,7 +390,7 @@ class TrustListServiceTest {
   }
 
   @Test
-  void shouldThrowServerException() {
+  void shouldThrowServerExceptionForIncorrectRawCertificateFormat() {
     Exception exception = assertThrows(ServerException.class, () -> {
       trustListService.convertCertificateToX509("foobar");
     });
@@ -352,6 +398,87 @@ class TrustListServiceTest {
     String actualMessage = exception.getMessage();
 
     assertEquals(KEY_SPEC_EXCEPTION, actualMessage);
+  }
+
+  @Disabled("Only used for local testing and verification.")
+  @Test
+  void shouldVerifySwissCertificatesTrustChain()
+      throws JsonProcessingException, NoSuchAlgorithmException, InvalidKeyException, SignatureException,
+      NoSuchProviderException {
+    ResponseEntity<String> jwt = trustListService.getJWT(configProperties.getSwissCertsApi(), BEARER_TOKEN);
+
+    String[] split = Objects.requireNonNull(jwt.getBody()).split("\\.");
+    String header = new String(Base64.decodeBase64(split[0]));
+    String payload = new String(Base64.decodeBase64(split[1]));
+
+    ObjectMapper objectMapper = new ObjectMapper();
+    SwissJwtHeader swissJwtHeader = objectMapper.readValue(header, SwissJwtHeader.class);
+    SwissCertificates swissCertificates = objectMapper.readValue(payload, SwissCertificates.class);
+
+    X509Certificate signedCert = trustListService.convertCertificateToX509(swissJwtHeader.getX5c().get(0));
+    X509Certificate issuerCert = trustListService.convertCertificateToX509(swissJwtHeader.getX5c().get(1));
+
+    ResponseEntity<String> rootCertResponse = trustListService.getHcertCertificates(
+        configProperties.getSwissRootCertApi(), BEARER_TOKEN);
+    X509Certificate rootCert = trustListService.convertCertificateToX509(rootCertResponse.getBody());
+
+    List<X509Certificate> trustChain = new ArrayList<>();
+    trustChain.add(signedCert);
+    trustChain.add(issuerCert);
+    trustChain.add(rootCert);
+
+    List<Boolean> isValid = new ArrayList<>();
+    boolean isValidLast;
+
+    try {
+      for (int i = 0; i < trustChain.size() - 1; i++) {
+        trustChain.get(i).verify(trustChain.get(i + 1).getPublicKey());
+        isValid.add(true);
+      }
+    } catch (CertificateException e) {
+      isValid.add(false);
+    }
+
+    try {
+      trustChain.get(2).verify(trustChain.get(2).getPublicKey());
+      isValidLast = true;
+    } catch (CertificateException e) {
+      isValidLast = false;
+    }
+
+    assertTrue(isValid.stream().allMatch(isValid.get(0)::equals));
+    assertTrue(isValidLast);
+    assertFalse(swissCertificates.getCerts().isEmpty());
+  }
+
+  @Disabled("Only used for local testing and verification.")
+  @Test
+  void shouldVerifyGermanCertificatesTrustChain() throws JOSEException {
+    ResponseEntity<String> publicKeyResponse = trustListService.getPublicKey(configProperties.getGermanPublicKeyApi());
+    PublicKey publicKey = trustListService.getPublicKey(publicKeyResponse.getBody(),
+        HcertSignatureAlgoKeys.ECDSA.getName());
+
+    ResponseEntity<String> certificates = trustListService.getHcertCertificates(configProperties.getGermanCertsApi());
+
+    String[] split = Objects.requireNonNull(certificates.getBody()).split("\n");
+    String signatureBase64encoded = split[0];
+    String content = split[1];
+    byte[] signatureBase64decoded = Base64.decodeBase64(signatureBase64encoded);
+    byte[] ecdsaSignature = ECDSA.transcodeSignatureToDER(signatureBase64decoded);
+
+    boolean isValid;
+
+    try {
+      Signature signature = Signature.getInstance(HcertAlgoKeys.ES256.getJcaAlgoName(), new BouncyCastleProvider());
+      signature.initVerify(publicKey);
+      signature.update(content.getBytes());
+
+      signature.verify(ecdsaSignature);
+      isValid = true;
+    } catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException e) {
+      isValid = false;
+    }
+    assertTrue(isValid);
   }
 
 }
