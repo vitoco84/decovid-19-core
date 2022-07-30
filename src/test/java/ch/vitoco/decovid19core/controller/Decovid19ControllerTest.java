@@ -118,7 +118,7 @@ class Decovid19ControllerTest {
 
     ValidationErrorServerResponse validationErrorServerResponse = new ValidationErrorServerResponse();
     validationErrorServerResponse.getValidationErrors()
-        .add(new ValidationError("pemCertificate", "Should start with MII"));
+        .add(new ValidationError("pemCertificate", "Should start with MII or -----BEGIN CERTIFICATE-----"));
     ObjectMapper objectMapper = new ObjectMapper();
     String json = objectMapper.writeValueAsString(validationErrorServerResponse);
 

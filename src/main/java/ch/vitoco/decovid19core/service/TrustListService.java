@@ -56,6 +56,8 @@ public class TrustListService {
   private static final String APPLICATION_JSON_JWS = "application/json+jws";
   private static final String ACCEPT_ENCODING = "Accept-Encoding";
   private static final String APPLICATION_GZIP = "application/gzip";
+  private static final String REGEX_REPLACE_NEW_LINES = "\r\n";
+  private static final String REGEX_NEW_LINES = "\n";
 
   private WebClient getWebclient(String baseUrl) {
     return WebClient.builder()
@@ -272,19 +274,19 @@ public class TrustListService {
   }
 
   private String addPublicKeyPrefix(String publicKey) {
+    publicKey = publicKey.replace(REGEX_REPLACE_NEW_LINES, "");
     if (publicKey.startsWith(PUBLIC_KEY_PREFIX)) {
-      return publicKey;
-    } else {
-      return PUBLIC_KEY_PREFIX + "\n" + publicKey + "\n" + PUBLIC_KEY_POSTFIX;
+      publicKey = publicKey.replace(PUBLIC_KEY_PREFIX, "").replace(PUBLIC_KEY_POSTFIX, "");
     }
+    return PUBLIC_KEY_PREFIX + REGEX_NEW_LINES + publicKey + REGEX_NEW_LINES + PUBLIC_KEY_POSTFIX;
   }
 
   private String addCertificatePrefix(String pem) {
+    pem = pem.replace(REGEX_REPLACE_NEW_LINES, "");
     if (pem.startsWith(PEM_PREFIX)) {
-      return pem;
-    } else {
-      return PEM_PREFIX + "\n" + pem + "\n" + PEM_POSTFIX;
+      pem = pem.replace(PEM_PREFIX, "").replace(PEM_POSTFIX, "");
     }
+    return PEM_PREFIX + REGEX_NEW_LINES + pem + REGEX_NEW_LINES + PEM_POSTFIX;
   }
 
 }
