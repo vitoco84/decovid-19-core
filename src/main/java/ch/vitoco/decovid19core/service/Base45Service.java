@@ -1,7 +1,10 @@
 package ch.vitoco.decovid19core.service;
 
+import static ch.vitoco.decovid19core.constants.ExceptionMessages.BASE45_DECODE_EXCEPTION;
+
 import java.nio.charset.StandardCharsets;
 
+import ch.vitoco.decovid19core.exception.ServerException;
 import ch.vitoco.decovid19core.server.Base45DecodeServerRequest;
 import ch.vitoco.decovid19core.server.Base45EncodeServerRequest;
 import nl.minvws.encoding.Base45;
@@ -33,9 +36,13 @@ public class Base45Service {
    * @return Base45 decoded String
    */
   public ResponseEntity<String> decodeBase45(Base45DecodeServerRequest base45DecodeServerRequest) {
-    byte[] decodedInput = Base45.getDecoder().decode(base45DecodeServerRequest.getBase45Decode());
-    String decodedBase45String = new String(decodedInput, StandardCharsets.UTF_8);
-    return ResponseEntity.ok().body(decodedBase45String);
+    try {
+      byte[] decodedInput = Base45.getDecoder().decode(base45DecodeServerRequest.getBase45Decode());
+      String decodedBase45String = new String(decodedInput, StandardCharsets.UTF_8);
+      return ResponseEntity.ok().body(decodedBase45String);
+    } catch (IllegalArgumentException e) {
+      throw new ServerException(BASE45_DECODE_EXCEPTION, e);
+    }
   }
 
 }

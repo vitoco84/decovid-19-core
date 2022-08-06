@@ -144,9 +144,11 @@ public class Decovid19Controller {
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Encode Base45", content = {
       @Content(mediaType = "application/json", schema = @Schema(implementation = Base45EncodeServerRequest.class))}),
       @ApiResponse(responseCode = "400", description = "Could not encode String to Base45", content = {
-          @Content(mediaType = "application/json", schema = @Schema(implementation = ValidationError.class))})})
+          @Content(mediaType = "application/json", schema = @Schema(implementation = ValidationError.class))}),
+      @ApiResponse(responseCode = "500", description = "Server Exception", content = {
+          @Content(mediaType = "application/json", schema = @Schema(implementation = ServerException.class))})})
   @PostMapping(value = "/hcert/base45/encode", consumes = {MediaType.APPLICATION_JSON_VALUE,
-      "application/json"}, produces = {MediaType.APPLICATION_JSON_VALUE, "application/json"})
+      "application/json"}, produces = {MediaType.TEXT_PLAIN_VALUE})
   public ResponseEntity<String> encodeBase45(@Valid @RequestBody Base45EncodeServerRequest base45EncodeServerRequest) {
     return base45Service.encodeBase45(base45EncodeServerRequest);
   }
@@ -155,9 +157,11 @@ public class Decovid19Controller {
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Decode Base45", content = {
       @Content(mediaType = "application/json", schema = @Schema(implementation = Base45DecodeServerRequest.class))}),
       @ApiResponse(responseCode = "400", description = "Could not decode String from Base45", content = {
-          @Content(mediaType = "application/json", schema = @Schema(implementation = ValidationError.class))})})
+          @Content(mediaType = "application/json", schema = @Schema(implementation = ValidationError.class))}),
+      @ApiResponse(responseCode = "500", description = "Server Exception", content = {
+          @Content(mediaType = "application/json", schema = @Schema(implementation = ServerException.class))})})
   @PostMapping(value = "/hcert/base45/decode", consumes = {MediaType.APPLICATION_JSON_VALUE,
-      "application/json"}, produces = {MediaType.APPLICATION_JSON_VALUE, "application/json"})
+      "application/json"}, produces = {MediaType.TEXT_PLAIN_VALUE})
   public ResponseEntity<String> decodeBase45(@Valid @RequestBody Base45DecodeServerRequest base45DecodeServerRequest) {
     return base45Service.decodeBase45(base45DecodeServerRequest);
   }
