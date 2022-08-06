@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage;
 import ch.vitoco.decovid19core.exception.ServerException;
 import ch.vitoco.decovid19core.model.hcert.HcertContentDTO;
 import ch.vitoco.decovid19core.server.*;
+import ch.vitoco.decovid19core.service.Base45Service;
 import ch.vitoco.decovid19core.service.HcertService;
 import ch.vitoco.decovid19core.service.HcertVerificationService;
 import ch.vitoco.decovid19core.service.QRCodeGeneratorService;
@@ -32,7 +33,7 @@ public class Decovid19Controller {
   private final HcertService hcertService;
   private final QRCodeGeneratorService qrCodeGeneratorService;
   private final HcertVerificationService hcertVerificationService;
-
+  private final Base45Service base45Service;
 
   @Operation(summary = "Decode Covid-19 Health Certificate with QR-Code")
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Decoded Covid-19 HCERT", content = {
@@ -137,6 +138,28 @@ public class Decovid19Controller {
       MediaType.APPLICATION_JSON_VALUE, "application/json"})
   public ResponseEntity<HcertVerificationServerResponse> verifyHealthCertificate(@Valid @RequestBody HcertVerificationServerRequest hcertVerificationServerRequest) {
     return hcertVerificationService.verifyHealthCertificate(hcertVerificationServerRequest);
+  }
+
+  @Operation(summary = "Encode Base45")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Encode Base45", content = {
+      @Content(mediaType = "application/json", schema = @Schema(implementation = Base45EncodeServerRequest.class))}),
+      @ApiResponse(responseCode = "400", description = "Could not encode String to Base45", content = {
+          @Content(mediaType = "application/json", schema = @Schema(implementation = ValidationError.class))})})
+  @PostMapping(value = "/hcert/base45/encode", consumes = {MediaType.APPLICATION_JSON_VALUE,
+      "application/json"}, produces = {MediaType.APPLICATION_JSON_VALUE, "application/json"})
+  public ResponseEntity<String> encodeBase45(@Valid @RequestBody Base45EncodeServerRequest base45EncodeServerRequest) {
+    return base45Service.encodeBase45(base45EncodeServerRequest);
+  }
+
+  @Operation(summary = "Decode Base45")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Decode Base45", content = {
+      @Content(mediaType = "application/json", schema = @Schema(implementation = Base45DecodeServerRequest.class))}),
+      @ApiResponse(responseCode = "400", description = "Could not decode String from Base45", content = {
+          @Content(mediaType = "application/json", schema = @Schema(implementation = ValidationError.class))})})
+  @PostMapping(value = "/hcert/base45/decode", consumes = {MediaType.APPLICATION_JSON_VALUE,
+      "application/json"}, produces = {MediaType.APPLICATION_JSON_VALUE, "application/json"})
+  public ResponseEntity<String> decodeBase45(@Valid @RequestBody Base45DecodeServerRequest base45DecodeServerRequest) {
+    return base45Service.decodeBase45(base45DecodeServerRequest);
   }
 
 }
