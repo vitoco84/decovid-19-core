@@ -61,5 +61,9 @@ public final class ExceptionMessages {
    * Certificate retrieve exception.
    */
   public static final String CERTIFICATES_RETRIEVE_EXCEPTION = "The Health or Root Certificate could not be retrieved.";
+  /**
+   * Base45 decode exception.
+   */
+  public static final String BASE45_DECODE_EXCEPTION = "Illegal Argument, could not decode to Base45";
 
 }

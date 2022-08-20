@@ -21,5 +21,10 @@ public class HcertVerificationServerResponse {
    */
   @JsonProperty("isTrustChainVerified")
   private boolean isTrustChainVerified;
+  /**
+   * Certificate Raw Content.
+   */
+  @JsonProperty("certRawContent")
+  private String certRawContent;
 
 }

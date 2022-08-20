@@ -199,5 +199,28 @@
 > {
 >   "isHcertVerified": true,
 >   "isTrustChainVerified": true
+>   "certRawContent": "Could not retrieve the Raw Certificate content!"
 > }
 > ```
+> ## Example Base45EncodeServerRequest
+> ```yaml
+> {
+>   "base45Encode": "Hello World!"
+> }
+> ```
+> ## Example Base45EncodeServerResponse
+> Base45 encoded String
+> ```yaml
+> %69 VD82EI2B.KESTC
+>```
+> ## Example Base45DecodeServerRequest
+> ```yaml
+> {
+>   "base45Decode": "%69 VD82EI2B.KESTC"
+> }
+> ```
+> ## Example Base45DecodeServerResponse
+> Base45 decoded String
+> ```yaml
+> Hello World!
+>```

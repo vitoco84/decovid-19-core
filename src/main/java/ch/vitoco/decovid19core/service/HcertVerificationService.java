@@ -27,7 +27,6 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.crypto.impl.ECDSA;
 import com.upokecenter.cbor.CBORObject;
 import lombok.RequiredArgsConstructor;
-
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.http.ResponseEntity;
@@ -52,6 +51,7 @@ public class HcertVerificationService {
   private static final int CERTIFICATE_CONTENT = 1;
   private static final String GERMAN_CERTS_REGEX_SPLITTER = "\n";
   private static final String SWISS_CERTS_REGEX_SPLITTER = "\\.";
+  private static final String COULD_NOT_RETRIEVE_THE_RAW_CERTIFICATE_CONTENT = "Could not retrieve the Raw Certificate content!";
 
   private final TrustListService trustListService;
   private final HcertDecodingService hcertDecodingService;
@@ -72,6 +72,7 @@ public class HcertVerificationService {
         boolean trustChainVerified = isTrustChainVerified(hcertVerificationServerRequest, SWISS_REGION);
         hcertVerificationServerResponse.setHcertVerified(swissVerified);
         hcertVerificationServerResponse.setTrustChainVerified(trustChainVerified);
+        hcertVerificationServerResponse.setCertRawContent(COULD_NOT_RETRIEVE_THE_RAW_CERTIFICATE_CONTENT);
       }
     } else {
       if (isKeyIdActive(hcertVerificationServerRequest, EU_REGION)) {
@@ -79,7 +80,15 @@ public class HcertVerificationService {
         boolean trustChainVerified = isTrustChainVerified(hcertVerificationServerRequest, EU_REGION);
         hcertVerificationServerResponse.setHcertVerified(euVerified);
         hcertVerificationServerResponse.setTrustChainVerified(trustChainVerified);
+        try {
+          hcertVerificationServerResponse.setCertRawContent(getEUCertRawContent(hcertVerificationServerRequest));
+        } catch (ServerException e) {
+          hcertVerificationServerResponse.setCertRawContent(COULD_NOT_RETRIEVE_THE_RAW_CERTIFICATE_CONTENT);
+        }
       }
+    }
+    if (hcertVerificationServerResponse.getCertRawContent() == null) {
+      hcertVerificationServerResponse.setCertRawContent("Could not be verified!");
     }
     return ResponseEntity.ok().body(hcertVerificationServerResponse);
   }
@@ -119,8 +128,10 @@ public class HcertVerificationService {
     try {
       if (region.equals(SWISS_REGION)) {
         SwissJwtHeader swissJwtHeader = getSwissJwtHeader(hcertVerificationServerRequest);
-        X509Certificate signedCert = trustListService.convertCertificateToX509(swissJwtHeader.getX5c().get(SIGNED_CERTIFICATE));
-        X509Certificate issuerCert = trustListService.convertCertificateToX509(swissJwtHeader.getX5c().get(ISSUER_CERTIFICATE));
+        X509Certificate signedCert = trustListService.convertCertificateToX509(
+            swissJwtHeader.getX5c().get(SIGNED_CERTIFICATE));
+        X509Certificate issuerCert = trustListService.convertCertificateToX509(
+            swissJwtHeader.getX5c().get(ISSUER_CERTIFICATE));
         X509Certificate swissRootCert = getSwissRootCert(hcertVerificationServerRequest);
 
         List<X509Certificate> trustChain = List.of(signedCert, issuerCert, swissRootCert);
@@ -245,24 +256,36 @@ public class HcertVerificationService {
     }
   }
 
+  private String getEUCertRawContent(HcertVerificationServerRequest hcertVerificationServerRequest) {
+    try {
+      EUCertificate euCertificate = getFilteredEUCertificates(hcertVerificationServerRequest);
+      return euCertificate.getRawData();
+    } catch (NoSuchElementException e) {
+      throw new ServerException(CERTIFICATES_RETRIEVE_EXCEPTION, e);
+    }
+  }
+
   private PublicKey getEUPublicKey(HcertVerificationServerRequest hcertVerificationServerRequest) {
     try {
-      ResponseEntity<String> certificates = trustListService.getHcertCertificates(configProperties.getGermanCertsApi());
-
-      EUCertificates euCertificates = trustListService.buildEUHcertCertificates(
-          Objects.requireNonNull(certificates.getBody()));
-
-      EUCertificate euCertificate = euCertificates.getCertificates()
-          .stream()
-          .filter(cert -> cert.getKid().equals(hcertVerificationServerRequest.getKeyId()))
-          .collect(Collectors.toList())
-          .get(0);
-
+      EUCertificate euCertificate = getFilteredEUCertificates(hcertVerificationServerRequest);
       X509Certificate x509Certificate = trustListService.convertCertificateToX509(euCertificate.getRawData());
       return x509Certificate.getPublicKey();
     } catch (NoSuchElementException e) {
       throw new ServerException(CERTIFICATES_RETRIEVE_EXCEPTION, e);
     }
+  }
+
+  private EUCertificate getFilteredEUCertificates(HcertVerificationServerRequest hcertVerificationServerRequest) {
+    ResponseEntity<String> certificates = trustListService.getHcertCertificates(configProperties.getGermanCertsApi());
+
+    EUCertificates euCertificates = trustListService.buildEUHcertCertificates(
+        Objects.requireNonNull(certificates.getBody()));
+
+    return euCertificates.getCertificates()
+        .stream()
+        .filter(cert -> cert.getKid().equals(hcertVerificationServerRequest.getKeyId()))
+        .collect(Collectors.toList())
+        .get(0);
   }
 
   private PublicKey getSwissPublicKey(HcertVerificationServerRequest hcertVerificationServerRequest, String algoName) {

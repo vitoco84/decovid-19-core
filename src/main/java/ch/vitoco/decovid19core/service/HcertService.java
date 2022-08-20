@@ -66,7 +66,7 @@ public class HcertService {
       }
     } else {
       String originalFilename = HcertStringUtils.sanitizeUserInputString(imageFile);
-      LOGGER.info("Bad Request for: {}", originalFilename);
+      LOGGER.info("Bad Request file not supported: {}", originalFilename);
       return ResponseEntity.badRequest().build();
     }
   }
@@ -82,14 +82,14 @@ public class HcertService {
       String hcertContent = hcertPrefix.getHcertPrefix();
       return getHcertServerResponseResponseEntity(hcertContent);
     } else {
-      LOGGER.info("Bad Request for: {}", hcertPrefix);
+      LOGGER.info("Bad Request invalid Hcert Prefix provided");
       return ResponseEntity.badRequest().build();
     }
   }
 
   private ResponseEntity<HcertServerResponse> getHcertServerResponseResponseEntity(String hcertContent) {
     HcertServerResponse hcertResponse = buildHcertResponse(hcertDecodingService, hcertContent);
-    LOGGER.info("Health Certificate Content: {} ", hcertResponse);
+    LOGGER.info("Digital Health Certificate decoded");
     return ResponseEntity.ok().body(hcertResponse);
   }
 
