@@ -4,15 +4,13 @@ import static ch.vitoco.decovid19core.constants.ExceptionMessages.RESOURCES_READ
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import ch.vitoco.decovid19core.exception.ServerException;
 import ch.vitoco.decovid19core.model.valueset.ValueSet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.springframework.core.io.ClassPathResource;
 
 /**
  * Representation class for value sets from: <a href="https://github.com/ehn-dcc-development/eu-dcc-valuesets">eu-dcc-valuesets</a>.
@@ -23,42 +21,46 @@ public final class HcertValueSet {
   /**
    * Path of the country codes resources.
    */
-  private static final Path COUNTRY_CODES_VALUE_SET_PATH = Paths.get(
-      "src/main/resources/valuesets/country-2-codes.json");
+  private static final ClassPathResource COUNTRY_CODES_VALUE_SET_PATH;
   /**
    * Path of the disease or agent targeted resources.
    */
-  private static final Path DISEASE_AGENT_TARGET_VALUE_SET_PATH = Paths.get(
-      "src/main/resources/valuesets/disease-agent-targeted.json");
-
+  private static final ClassPathResource DISEASE_AGENT_TARGET_VALUE_SET_PATH;
   /**
    * Path of the vaccine marketing authorisation holder or manufacturer resources.
    */
-  private static final Path VACC_MARKETING_AUTHORISATION = Paths.get(
-      "src/main/resources/valuesets/vaccine-mah-manf.json");
+  private static final ClassPathResource VACC_MARKETING_AUTHORISATION;
   /**
    * path of the vaccine medicinal product resources.
    */
-  private static final Path VACC_MEDICINAL_PRODUCT = Paths.get(
-      "src/main/resources/valuesets/vaccine-medicinal-product.json");
+  private static final ClassPathResource VACC_MEDICINAL_PRODUCT;
   /**
    * Path of the vaccine or prophylaxis resources.
    */
-  private static final Path VACC_PROPHYLAXIS = Paths.get("src/main/resources/valuesets/vaccine-prophylaxis.json");
-
+  private static final ClassPathResource VACC_PROPHYLAXIS;
   /**
    * Path of the test type resources.
    */
-  private static final Path TEST_TYPE = Paths.get("src/main/resources/valuesets/test-type.json");
+  private static final ClassPathResource TEST_TYPE;
   /**
    * Path ot the test device identifier resources.
    */
-  private static final Path TEST_DEVICE = Paths.get("src/main/resources/valuesets/test-manf.json");
+  private static final ClassPathResource TEST_DEVICE;
   /**
    * Path of the test result resources.
    */
-  private static final Path TEST_RESULT = Paths.get("src/main/resources/valuesets/test-result.json");
+  private static final ClassPathResource TEST_RESULT;
 
+  static {
+    COUNTRY_CODES_VALUE_SET_PATH = new ClassPathResource("valuesets/country-2-codes.json");
+    DISEASE_AGENT_TARGET_VALUE_SET_PATH = new ClassPathResource("valuesets/disease-agent-targeted.json");
+    VACC_MARKETING_AUTHORISATION = new ClassPathResource("valuesets/vaccine-mah-manf.json");
+    VACC_MEDICINAL_PRODUCT = new ClassPathResource("valuesets/vaccine-medicinal-product.json");
+    VACC_PROPHYLAXIS = new ClassPathResource("valuesets/vaccine-prophylaxis.json");
+    TEST_TYPE = new ClassPathResource("valuesets/test-type.json");
+    TEST_DEVICE = new ClassPathResource("valuesets/test-manf.json");
+    TEST_RESULT = new ClassPathResource("valuesets/test-result.json");
+  }
 
   /**
    * Gets the value set of the country codes.
@@ -135,20 +137,16 @@ public final class HcertValueSet {
   /**
    * Helper method for retrieving value sets from resources.
    *
-   * @param countryCodesValueSetPath the Path to the value sets resources
+   * @param classPathResource the ClassPathResource to the value sets resources
    * @return ValueSet of the resources
    */
-  public static ValueSet getValueSet(Path countryCodesValueSetPath) {
-    try (InputStream inputStream = getInputStream(countryCodesValueSetPath)) {
+  public static ValueSet getValueSet(ClassPathResource classPathResource) {
+    try (InputStream inputStream = classPathResource.getInputStream()) {
       ObjectMapper objectMapper = new ObjectMapper();
       return objectMapper.readValue(inputStream, ValueSet.class);
     } catch (IOException e) {
       throw new ServerException(RESOURCES_READ_EXCEPTION, e);
     }
-  }
-
-  private static InputStream getInputStream(Path path) throws IOException {
-    return Files.newInputStream(path);
   }
 
 }

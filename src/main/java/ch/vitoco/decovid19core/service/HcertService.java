@@ -139,7 +139,7 @@ public class HcertService {
     try {
       X509Certificate x509Certificate = trustListService.convertCertificateToX509(pemCertificate.getPemCertificate());
       PEMCertServerResponse pemCertServerResponse = buildPEMCertServerResponse(x509Certificate);
-      LOGGER.info("PEM Certificate Content: {} ", pemCertServerResponse);
+      LOGGER.info("PEM Certificate decoded");
       return ResponseEntity.ok().body(pemCertServerResponse);
     } catch (ServerException e) {
       return ResponseEntity.badRequest().build();

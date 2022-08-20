@@ -1,14 +1,9 @@
 package ch.vitoco.decovid19core.utils;
 
-import static ch.vitoco.decovid19core.constants.ExceptionMessages.RESOURCES_READ_EXCEPTION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
 
-import ch.vitoco.decovid19core.exception.ServerException;
 import ch.vitoco.decovid19core.model.valueset.ValueSet;
 import ch.vitoco.decovid19core.model.valueset.ValueSetValues;
 import org.junit.jupiter.api.Test;
@@ -91,18 +86,6 @@ class HcertValueSetTest {
 
     assertEquals("Not detected", valueSetValues.get("260415000").getDisplay());
     assertEquals("Detected", valueSetValues.get("260373001").getDisplay());
-  }
-
-  @Test
-  void shouldThrowServerExceptionForIncorrectPath() {
-    Path path = Paths.get("foobar");
-    Exception exception = assertThrows(ServerException.class, () -> {
-      HcertValueSet.getValueSet(path);
-    });
-
-    String actualMessage = exception.getMessage();
-
-    assertEquals(RESOURCES_READ_EXCEPTION, actualMessage);
   }
 
 }
