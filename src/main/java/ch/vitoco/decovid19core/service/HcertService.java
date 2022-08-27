@@ -99,11 +99,15 @@ public class HcertService {
     hcertResponse.setHcertPrefix(hcertContent);
     hcertResponse.setHcertContent(getHcertDTO(cborObject));
     hcertResponse.setHcertKID(hcertDecodingService.getKID(cborObject));
-    hcertResponse.setHcertAlgo(hcertDecodingService.getAlgo(cborObject));
+    hcertResponse.setHcertAlgo(hcertDecodingService.getJcaAlgo(getAlgoName(hcertDecodingService, cborObject)));
     hcertResponse.setHcertIssuer(hcertDecodingService.getIssuer(cborObject));
     hcertResponse.setHcertTimeStamp(hcertDecodingService.getHcertTimeStamp(cborObject));
     hcertResponse.setHcertSignature(hcertDecodingService.getSignature(cborObject));
     return hcertResponse;
+  }
+
+  private String getAlgoName(HcertDecodingService hcertDecodingService, CBORObject cborObject) {
+    return hcertDecodingService.getAlgo(cborObject);
   }
 
   private HcertDTO getHcertDTO(CBORObject cborObject) {
