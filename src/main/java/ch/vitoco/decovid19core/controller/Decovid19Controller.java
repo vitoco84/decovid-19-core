@@ -28,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/decovid19")
+@CrossOrigin(origins = "https://decovid-19-app.herokuapp.com")
 public class Decovid19Controller {
 
   private final HcertService hcertService;
