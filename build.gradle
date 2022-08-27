@@ -36,6 +36,7 @@ sonarqube {
         property "sonar.exclusions", "**/src/main/java/ch/vitoco/decovid19core/constants/**"
         property "sonar.exclusions", "**/src/main/java/ch/vitoco/decovid19core/config/**"
         property "sonar.exclusions", "**/src/main/java/ch/vitoco/decovid19core/controller/**"
+        property "sonar.exclusions", "**/src/main/resources/static/**"
     }
 }
 
