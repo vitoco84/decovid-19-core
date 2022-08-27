@@ -101,7 +101,7 @@ class HcertServiceTest {
     assertEquals(HttpStatus.OK, statusCode);
     assertEquals(expectedHcertPrefix, hcertPrefix);
     assertEquals(SWISS_QR_CODE_VACC_KID, hcertKID);
-    assertEquals(HcertAlgoKeys.PS256.toString(), hcertAlgo);
+    assertEquals(HcertAlgoKeys.PS256.getJcaAlgoName(), hcertAlgo);
     assertEquals(expectedVersion, hcertContent.getVersion());
     assertEquals(expectedDateOfBirth, hcertContent.getDateOfBirth());
     assertFalse(hcertContent.getVaccination().isEmpty());
@@ -138,7 +138,7 @@ class HcertServiceTest {
     assertEquals(HttpStatus.OK, statusCode);
     assertEquals(expectedHcertPrefix, hcertPrefix);
     assertEquals(SWISS_QR_CODE_VACC_KID, hcertKID);
-    assertEquals(HcertAlgoKeys.PS256.toString(), hcertAlgo);
+    assertEquals(HcertAlgoKeys.PS256.getJcaAlgoName(), hcertAlgo);
     assertEquals(expectedVersion, hcertContent.getVersion());
     assertEquals(expectedDateOfBirth, hcertContent.getDateOfBirth());
     assertFalse(hcertContent.getTest().isEmpty());
@@ -175,7 +175,7 @@ class HcertServiceTest {
     assertEquals(HttpStatus.OK, statusCode);
     assertEquals(expectedHcertPrefix, hcertPrefix);
     assertEquals(SWISS_QR_CODE_VACC_KID, hcertKID);
-    assertEquals(HcertAlgoKeys.PS256.toString(), hcertAlgo);
+    assertEquals(HcertAlgoKeys.PS256.getJcaAlgoName(), hcertAlgo);
     assertEquals(expectedVersion, hcertContent.getVersion());
     assertEquals(expectedDateOfBirth, hcertContent.getDateOfBirth());
     assertFalse(hcertContent.getRecovery().isEmpty());
