@@ -28,6 +28,9 @@ public final class HcertFileUtils {
     String originalFilename = imageFile.getOriginalFilename();
     if (StringUtils.hasLength(originalFilename) && originalFilename.contains(".")) {
       String fileNameExt = StringUtils.getFilenameExtension(originalFilename);
+      if (StringUtils.hasLength(fileNameExt)) {
+        fileNameExt = fileNameExt.toLowerCase();
+      }
       return ALLOWED_IMAGE_FORMAT.contains(fileNameExt);
     }
     return false;

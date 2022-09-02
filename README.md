@@ -21,7 +21,7 @@
 > Run from terminal with: `.\gradlew bootRun` or run Gradle task: `Tasks\application\bootRun`
 
 # Health
-> Actuator health endpoint served under [http://localhost:8082/actuator/health](http://localhost:8082/actuator/health)
+> Actuator health endpoint served under [http://localhost:8080/actuator/health](http://localhost:8080/actuator/health)
 
 <a name="test-data"></a>
 # Test Data
@@ -34,9 +34,9 @@
 > A collection of REST API endpoints can be found here: [EU DCC Gateway REST API](https://eu-digital-green-certificates.github.io/dgc-gateway/)
 
 # Swagger UI
-> API endpoints documentation served under [http://localhost:8082/v3/api-docs](http://localhost:8082/v3/api-docs)
+> API endpoints documentation served under [http://localhost:8080/v3/api-docs](http://localhost:8080/v3/api-docs)
 > 
-> Swagger documentation served under [http://localhost:8082/swagger-ui/index.html](http://localhost:8082/swagger-ui/index.html)
+> Swagger documentation served under [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
 >
 > **All values in these examples are taken from public available test data (see [Link](#test-data) above).**
 
@@ -51,7 +51,7 @@
 
 # Examples for API Resources
 > ## Example HcertServerRequest
-> POST [http://localhost:8082/decovid19/hcert/prefix](http://localhost:8082/decovid19/hcert/prefix)
+> POST [http://localhost:8080/decovid19/hcert/prefix](http://localhost:8080/decovid19/hcert/prefix)
 > ```yaml
 > {
 >     "hcertPrefix": "HC1:NCFS605G0/3WUWGSLKH47GO0KNJ9DSWQIIWT9CK4600XKY-CE59-G80:84F35RIV R2F3FMMTTBY50.FK6ZK7:EDOLOPCO8F6%E3.DA%EOPC1G72A6YM83G7NA7H:6JM8D%6I:61S8ZW6HL6C460S8VF6VX6UPC0JCZ69FVCPD0LVC6JD846Y96A466W5B56+EDG8F3I80/D6$CBECSUER:C2$NS346$C2%E9VC- CSUE145GB8JA5B$D% D3IA4W5646946%96X47.JCP9EJY8L/5M/5546.96D463KC.SC4KCD3DX47B46IL6646H*6Z/E5JD%96IA74R6646407GVC*JC1A6/Q63W5KF6746TPCBEC7ZKW.CU2DNXO VD5$C JC3/DMP8$ILZEDZ CW.C9WE.Y9AY8+S9VIAI3D8WEVM8:S9C+9$PC5$CUZCY$5Y$5FBBM00T%LTAT1MOQYR8GUN$K15LIGG2P27%A46BT52VUTL.1*B89Y5B428HRSR3I/E5DS/8NBY4H2BCN8NP1D4B:0K9UQQ67BLTH21AF0V8G52R 62+5BQYCV03SO79O6K+8UXL$T4$%RT150DUHZK+Q9TIE+IMQU4E/Q4T303TKWNXTSORE.4WNPCJX66NN-2F9IHTYLR6IR UAB98RR1A0P9DL0CS5KZ*HEGT1%TQWELFQHG5/JO9TI:.T1JQF.K7 EJ 2/CI5GASQP7ULRX4-07%9W2139E2HMGW99Q DQJADB3UAJKUCOVLG+9T+J:15.12U+OBMCJ1KZ+C+87I8I9JGA0T%U2CMFHI5U:L400C.CC/K3KJZ3OM/D59TBL5AZFMPIW4"
@@ -97,7 +97,7 @@
 > }
 > ```
 > ## Example PEMCertServerRequest
-> POST [http://localhost:8082/decovid19/hcert/qrcode/pem](http://localhost:8082/decovid19/hcert/qrcode/pem)
+> POST [http://localhost:8080/decovid19/hcert/qrcode/pem](http://localhost:8080/decovid19/hcert/qrcode/pem)
 > ```yaml
 > {
 >    "pemCertificate": "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"
@@ -124,9 +124,9 @@
 > }
 > ```
 > ## Example QRCodeServerRequest
-> Image POST [http://localhost:8082/decovid19/hcert/qrcode/url](http://localhost:8082/decovid19/hcert/qrcode/url)
+> Image POST [http://localhost:8080/decovid19/hcert/qrcode/url](http://localhost:8080/decovid19/hcert/qrcode/url)
 >
-> Base64 encoded String POST [http://localhost:8082/decovid19/hcert/qrcode/url/client](http://localhost:8082/decovid19/hcert/qrcode/url/client)
+> Base64 encoded String POST [http://localhost:8080/decovid19/hcert/qrcode/url/client](http://localhost:8080/decovid19/hcert/qrcode/url/client)
 > ```yaml
 > {
 >    "url": "https://www.google.ch/"
@@ -144,9 +144,9 @@
 > ## Example Generate Fake Covid-19 Test Health Certificate Request
 > This is only used for test purposes. No real digital signature is present in it.
 > 
-> Image POST [http://localhost:8082/decovid19/hcert/qrcode/hcert](http://localhost:8082/decovid19/hcert/qrcode/hcert)
+> Image POST [http://localhost:8080/decovid19/hcert/qrcode/hcert](http://localhost:8080/decovid19/hcert/qrcode/hcert)
 > 
-> Base64 encoded String POST [http://localhost:8082/decovid19/hcert/qrcode/hcert/client](http://localhost:8082/decovid19/hcert/qrcode/hcert/clientt)
+> Base64 encoded String POST [http://localhost:8080/decovid19/hcert/qrcode/hcert/client](http://localhost:8080/decovid19/hcert/qrcode/hcert/clientt)
 > ```yaml
 > {
 >   "nam": {
@@ -186,7 +186,7 @@
 > 
 > For the Swiss Certificates provide the Token given by the BIT (Bundesamt für Informatik und Telekommunikation). For a Token get in contact with: [Swiss Admin GitHub](https://github.com/admin-ch).
 > 
-> POST [http://localhost:8082/decovid19/hcert/verify](http://localhost:8082/decovid19/hcert/verify)
+> POST [http://localhost:8080/decovid19/hcert/verify](http://localhost:8080/decovid19/hcert/verify)
 > ```yaml
 > {
 >   "bearerToken": "",
