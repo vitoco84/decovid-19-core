@@ -3,6 +3,7 @@ package ch.vitoco.decovid19core.service;
 import static ch.vitoco.decovid19core.constants.ExceptionMessages.*;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -21,6 +22,7 @@ import com.google.zxing.*;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
 import com.upokecenter.cbor.CBORObject;
+import ij.ImagePlus;
 import nl.minvws.encoding.Base45;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base64;
@@ -36,6 +38,8 @@ public class HcertDecodingService {
 
   private static final int START_INDEX_OF_HCERT_CONTENT = 4;
   private static final int START_INDEX_OF_HEX_STRING = 2;
+  private static final int IMG_SCALING_FACTOR = 2;
+  private static final int IMG_WIDTH_THRESHOLD = 250;
 
   /**
    * Gets the content of the Health Certificate.
@@ -44,13 +48,37 @@ public class HcertDecodingService {
    * @return Health Certificate content
    */
   public String getHealthCertificateContent(InputStream imageFileInputStream) {
+    BufferedImage bufferedImageToProcess = null;
     try {
       BufferedImage bufferedImage = ImageIO.read(imageFileInputStream);
+      bufferedImageToProcess = bufferedImage;
       LuminanceSource source = new BufferedImageLuminanceSource(bufferedImage);
       BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
       Result result = new MultiFormatReader().decode(bitmap);
       return result.getText();
-    } catch (IOException | NotFoundException e) {
+    } catch (IOException | IllegalArgumentException e) {
+      throw new ServerException(BARCODE_NOT_FOUND_EXCEPTION, e);
+    } catch (NotFoundException e) {
+      return processImage(bufferedImageToProcess);
+    }
+  }
+
+  private String processImage(BufferedImage bufferedImage) {
+    try {
+      BufferedImage bufferedImageScaled;
+      if (bufferedImage.getWidth() < IMG_WIDTH_THRESHOLD || bufferedImage.getHeight() < IMG_WIDTH_THRESHOLD) {
+        Image scaledInstance = bufferedImage.getScaledInstance(bufferedImage.getWidth() * IMG_SCALING_FACTOR,
+            bufferedImage.getHeight() * IMG_SCALING_FACTOR, Image.SCALE_SMOOTH);
+        ImagePlus imagePlus = new ImagePlus(null, scaledInstance);
+        bufferedImageScaled = imagePlus.getBufferedImage();
+      } else {
+        bufferedImageScaled = bufferedImage;
+      }
+      LuminanceSource source = new BufferedImageLuminanceSource(bufferedImageScaled);
+      BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
+      Result result = new MultiFormatReader().decode(bitmap);
+      return result.getText();
+    } catch (NotFoundException | IllegalArgumentException e) {
       throw new ServerException(BARCODE_NOT_FOUND_EXCEPTION, e);
     }
   }

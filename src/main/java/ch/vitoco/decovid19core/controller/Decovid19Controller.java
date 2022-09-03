@@ -142,7 +142,7 @@ public class Decovid19Controller {
 
   @Operation(summary = "Encode Base45")
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Encode Base45", content = {
-      @Content(mediaType = "application/json", schema = @Schema(implementation = Base45EncodeServerRequest.class))}),
+      @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class))}),
       @ApiResponse(responseCode = "400", description = "Could not encode String to Base45", content = {
           @Content(mediaType = "application/json", schema = @Schema(implementation = ValidationError.class))}),
       @ApiResponse(responseCode = "500", description = "Server Exception", content = {
@@ -155,7 +155,7 @@ public class Decovid19Controller {
 
   @Operation(summary = "Decode Base45")
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Decode Base45", content = {
-      @Content(mediaType = "application/json", schema = @Schema(implementation = Base45DecodeServerRequest.class))}),
+      @Content(mediaType = "text/plain", schema = @Schema(implementation = String.class))}),
       @ApiResponse(responseCode = "400", description = "Could not decode String from Base45", content = {
           @Content(mediaType = "application/json", schema = @Schema(implementation = ValidationError.class))}),
       @ApiResponse(responseCode = "500", description = "Server Exception", content = {

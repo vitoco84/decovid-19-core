@@ -76,6 +76,7 @@ dependencies {
     implementation "org.bouncycastle:bcpkix-jdk15on:${libs.versions.bouncyCastle.get()}"
     implementation "org.apache.commons:commons-compress:${libs.versions.commonsCompress.get()}"
     implementation "com.nimbusds:nimbus-jose-jwt:${libs.versions.nimbusJoseJwt.get()}"
+    implementation "net.imagej:ij:${libs.versions.imageJ.get()}"
 
     compileOnly 'org.projectlombok:lombok'
 
