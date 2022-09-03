@@ -53,6 +53,7 @@ public class HcertDecodingService {
       BufferedImage bufferedImage = ImageIO.read(imageFileInputStream);
       bufferedImageToProcess = bufferedImage;
       LuminanceSource source = new BufferedImageLuminanceSource(bufferedImage);
+      bufferedImage.flush();
       BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
       Result result = new MultiFormatReader().decode(bitmap);
       return result.getText();
@@ -75,6 +76,8 @@ public class HcertDecodingService {
         bufferedImageScaled = bufferedImage;
       }
       LuminanceSource source = new BufferedImageLuminanceSource(bufferedImageScaled);
+      bufferedImageScaled.flush();
+      bufferedImage.flush();
       BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
       Result result = new MultiFormatReader().decode(bitmap);
       return result.getText();
