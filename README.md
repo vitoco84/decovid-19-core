@@ -1,4 +1,4 @@
-[![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=vitoco84_decovid-19-core)](https://sonarcloud.io/summary/new_code?id=vitoco84_decovid-19-core)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=vitoco84_decovid-19-core&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=vitoco84_decovid-19-core)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=vitoco84_decovid-19-core&metric=coverage)](https://sonarcloud.io/component_measures/metric/coverage/list?id=vitoco84_decovid-19-core)
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=vitoco84_decovid-19-core&metric=bugs)](https://sonarcloud.io/component_measures/metric/reliability_rating/list?id=vitoco84_decovid-19-core)
 ![Known Vulnerabilities](https://snyk.io/test/github/vitoco84/decovid-19-core/badge.svg)
