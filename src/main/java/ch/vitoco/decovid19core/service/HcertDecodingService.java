@@ -48,10 +48,25 @@ public class HcertDecodingService {
    * @return Health Certificate content
    */
   public String getHealthCertificateContent(InputStream imageFileInputStream) {
+    BufferedImage bufferedImageToProcess = null;
     try {
       BufferedImage bufferedImage = ImageIO.read(imageFileInputStream);
+      bufferedImageToProcess = bufferedImage;
+      LuminanceSource source = new BufferedImageLuminanceSource(bufferedImage);
+      BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
+      Result result = new MultiFormatReader().decode(bitmap);
+      return result.getText();
+    } catch (IOException | IllegalArgumentException e) {
+      throw new ServerException(BARCODE_NOT_FOUND_EXCEPTION, e);
+    } catch (NotFoundException e) {
+      return processImage(bufferedImageToProcess);
+    }
+  }
+
+  private String processImage(BufferedImage bufferedImage) {
+    try {
       BufferedImage bufferedImageScaled;
-      if (bufferedImage.getWidth() < IMG_WIDTH_THRESHOLD) {
+      if (bufferedImage.getWidth() < IMG_WIDTH_THRESHOLD || bufferedImage.getHeight() < IMG_WIDTH_THRESHOLD) {
         Image scaledInstance = bufferedImage.getScaledInstance(bufferedImage.getWidth() * IMG_SCALING_FACTOR,
             bufferedImage.getHeight() * IMG_SCALING_FACTOR, Image.SCALE_SMOOTH);
         ImagePlus imagePlus = new ImagePlus(null, scaledInstance);
@@ -63,7 +78,7 @@ public class HcertDecodingService {
       BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
       Result result = new MultiFormatReader().decode(bitmap);
       return result.getText();
-    } catch (IOException | NotFoundException | IllegalArgumentException e) {
+    } catch (NotFoundException | IllegalArgumentException e) {
       throw new ServerException(BARCODE_NOT_FOUND_EXCEPTION, e);
     }
   }
