@@ -133,7 +133,6 @@ public class QRCodeGeneratorService {
     } else {
       try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
         ImageIO.write(img, IMG_PNG, os);
-        img.flush();
         String encodedImage = Base64.encodeBase64String(os.toByteArray());
         return ResponseEntity.ok().body(encodedImage);
       } catch (IOException e) {
