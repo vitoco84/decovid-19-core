@@ -1,7 +1,6 @@
 package ch.vitoco.decovid19core.service;
 
-import static ch.vitoco.decovid19core.constants.ExceptionMessages.JSON_DESERIALIZE_EXCEPTION;
-import static ch.vitoco.decovid19core.constants.ExceptionMessages.QR_CODE_DECODE_EXCEPTION;
+import static ch.vitoco.decovid19core.constants.ExceptionMessages.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -57,6 +57,7 @@ public class HcertService {
    * @return HcertServerResponse
    */
   public ResponseEntity<HcertServerResponse> decodeHealthCertificateContent(MultipartFile imageFile) {
+    checkMaxFileSize(imageFile);
     if (HcertFileUtils.isFileAllowed(imageFile)) {
       try (InputStream imageFileInputStream = imageFile.getInputStream()) {
         String hcertContent = hcertDecodingService.getHealthCertificateContent(imageFileInputStream);
@@ -68,6 +69,14 @@ public class HcertService {
       String originalFilename = HcertStringUtils.sanitizeUserInputString(imageFile);
       LOGGER.info("Bad Request file not supported: {}", originalFilename);
       return ResponseEntity.badRequest().build();
+    }
+  }
+
+  private void checkMaxFileSize(MultipartFile imageFile) {
+    try {
+      HcertFileUtils.checkMaxFileSize(imageFile);
+    } catch (MaxUploadSizeExceededException e) {
+      throw new ServerException(MAX_FILE_SIZE_EXCEEDED, e);
     }
   }
 

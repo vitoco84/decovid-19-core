@@ -65,5 +65,9 @@ public final class ExceptionMessages {
    * Base45 decode exception.
    */
   public static final String BASE45_DECODE_EXCEPTION = "Illegal Argument, could not decode to Base45";
+  /**
+   * Max file size exception.
+   */
+  public static final String MAX_FILE_SIZE_EXCEEDED = "Max File Size Exceeded. Allowed 2MB.";
 
 }
