@@ -19,12 +19,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8082/decovid19/hcert/qrcode/url",
+					"raw": "http://localhost:8080/decovid19/hcert/qrcode/url",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8082",
+					"port": "8080",
 					"path": [
 						"decovid19",
 						"hcert",
@@ -57,12 +57,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8082/decovid19/hcert/qrcode/hcert",
+					"raw": "http://localhost:8080/decovid19/hcert/qrcode/hcert",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8082",
+					"port": "8080",
 					"path": [
 						"decovid19",
 						"hcert",
@@ -96,12 +96,12 @@
 					]
 				},
 				"url": {
-					"raw": "http://localhost:8082/decovid19/hcert/qrcode",
+					"raw": "http://localhost:8080/decovid19/hcert/qrcode",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8082",
+					"port": "8080",
 					"path": [
 						"decovid19",
 						"hcert",
@@ -134,12 +134,12 @@
 					]
 				},
 				"url": {
-					"raw": "http://localhost:8082/decovid19/hcert/qrcode",
+					"raw": "http://localhost:8080/decovid19/hcert/qrcode",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8082",
+					"port": "8080",
 					"path": [
 						"decovid19",
 						"hcert",
@@ -172,12 +172,12 @@
 					]
 				},
 				"url": {
-					"raw": "http://localhost:8082/decovid19/hcert/qrcode",
+					"raw": "http://localhost:8080/decovid19/hcert/qrcode",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8082",
+					"port": "8080",
 					"path": [
 						"decovid19",
 						"hcert",
@@ -209,12 +209,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8082/decovid19/hcert/prefix",
+					"raw": "http://localhost:8080/decovid19/hcert/prefix",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8082",
+					"port": "8080",
 					"path": [
 						"decovid19",
 						"hcert",
@@ -246,12 +246,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8082/decovid19/hcert/prefix",
+					"raw": "http://localhost:8080/decovid19/hcert/prefix",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8082",
+					"port": "8080",
 					"path": [
 						"decovid19",
 						"hcert",
@@ -283,12 +283,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8082/decovid19/hcert/prefix",
+					"raw": "http://localhost:8080/decovid19/hcert/prefix",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8082",
+					"port": "8080",
 					"path": [
 						"decovid19",
 						"hcert",
@@ -320,12 +320,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8082/decovid19/hcert/verify",
+					"raw": "http://localhost:8080/decovid19/hcert/verify",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8082",
+					"port": "8080",
 					"path": [
 						"decovid19",
 						"hcert",
@@ -357,12 +357,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8082/decovid19/hcert/qrcode/pem",
+					"raw": "http://localhost:8080/decovid19/hcert/qrcode/pem",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8082",
+					"port": "8080",
 					"path": [
 						"decovid19",
 						"hcert",
@@ -395,12 +395,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8082/decovid19/hcert/qrcode/pem",
+					"raw": "http://localhost:8080/decovid19/hcert/qrcode/pem",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8082",
+					"port": "8080",
 					"path": [
 						"decovid19",
 						"hcert",
@@ -433,12 +433,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8082/decovid19/hcert/qrcode/pem",
+					"raw": "http://localhost:8080/decovid19/hcert/qrcode/pem",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8082",
+					"port": "8080",
 					"path": [
 						"decovid19",
 						"hcert",
@@ -471,12 +471,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8082/decovid19/hcert/base45/encode",
+					"raw": "http://localhost:8080/decovid19/hcert/base45/encode",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8082",
+					"port": "8080",
 					"path": [
 						"decovid19",
 						"hcert",
@@ -509,12 +509,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8082/decovid19/hcert/base45/decode",
+					"raw": "http://localhost:8080/decovid19/hcert/base45/decode",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8082",
+					"port": "8080",
 					"path": [
 						"decovid19",
 						"hcert",
